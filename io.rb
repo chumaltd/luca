@@ -78,5 +78,24 @@ module Luca
       data.each {|row| yield row}
     end
 
+    ###
+    ### git object like structure
+    ###
+    def open_hashed(basedir, id, mode="r")
+      subdir, filename = encode_hashed_path(id)
+      dirpath = Pathname(basedir) + subdir
+      FileUtils.mkdir_p(dirpath.to_s) if mode != "r"
+      File.open((dirpath + filename).to_s, mode){|f| yield f}
+    end
+
+    def encode_hashed_path(id, split_factor=3)
+      len = id.length
+      if len <= split_factor
+        ["", id]
+      else
+        [id[0, split_factor], id[split_factor, len-split_factor]]
+      end
+    end
+
   end
 end

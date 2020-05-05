@@ -1,3 +1,6 @@
+require "securerandom"
+require "digest/sha1"
+
 # implement Luca IDs convention
 module Luca
   module Code
@@ -30,5 +33,8 @@ module Luca
       "0ABCDEFGHIJKL".index(s)
     end
 
+    def issue_random_id
+      Digest::SHA1.hexdigest(SecureRandom.uuid)
+    end
   end
 end
