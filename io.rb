@@ -9,7 +9,7 @@ require_relative "code"
 
 module Luca
   module IO
-    extend Luca::Code
+    include Luca::Code
 
     ###
     ### for date based records

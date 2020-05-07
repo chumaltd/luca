@@ -7,7 +7,7 @@ require 'date'
 require_relative "io"
 
 class LucaBook
-  include Luca::IO, Luca::Code
+  include Luca::IO
 
   DEFAULT_PJDIR = File.expand_path("../../", __dir__)
   attr_reader :pjdir
