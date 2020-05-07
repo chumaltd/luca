@@ -81,44 +81,53 @@ class LucaBookReport
   def accumulate_all
     current = @book.load_start
     puts current
-    Dir.children(@book.pjdir).sort.each do |dir|
-      next if ! FileTest.directory?(@book.pjdir+dir)
-      next if ! /^[0-9]/.match(dir)
-      diff = accumulate_month(dir)
-      diff.each do |k,v|
-        if current[k]
-          current[k] += v
-        else
-          current[k] = v
+    Dir.chdir(@book.pjdir) do
+      scan_terms(@book.pjdir).sort.each do |dir|
+        diff = accumulate_month(dir)
+        diff.each do |k,v|
+          if current[k]
+            current[k] += v
+          else
+            current[k] = v
+          end
         end
+        f = { target: dir, diff: diff.sort, current: current.sort }
+        yield f
       end
-      f = { target: dir, diff: diff.sort, current: current.sort }
-      yield f
     end
   end
 
 
   # todo: parse all column in each row
   def accumulate_month(dir_path)
+    rows = 4
     sum = {}
     debit_idx = []
     credit_idx = []
-    open_records(@book.pjdir, dir_path) do |row, i|
-      if i == 1
-        debit_idx = row
-        row.each {|r| sum[r.to_s] = 0 if ! sum.has_key?(r.to_s) }
-      elsif i == 2
-        row.each_with_index {|r,i| sum[debit_idx[i].to_s] += r.to_i * LucaBook.pn_debit(debit_idx[i].to_s) }
-      elsif i == 3
-        credit_idx = row
-        row.each {|r| sum[r.to_s] = 0 if ! sum.has_key?(r.to_s) }
-      elsif i == 4
-        row.each_with_index {|r,i| sum[credit_idx[i].to_s] -= r.to_i * LucaBook.pn_debit(credit_idx[i].to_s) }
-      else
-        puts row
+    open_records(@book.pjdir, dir_path) do |f, subdir, file|
+      CSV.new(f, headers: false, col_sep: "\t", encoding: "UTF-8").each.with_index(1) do |row, i|
+        if i == 1
+          debit_idx = row.map{|r| r.to_s }
+          debit_idx.each {|r| sum[r] ||= 0 }
+        elsif i == 2
+          row.each_with_index {|r,i| sum[debit_idx[i]] += calc_diff(r, debit_idx[i]) }
+        elsif i == 3
+          credit_idx = row.map{|r| r.to_s }
+          credit_idx.each {|r| sum[r] ||= 0 }
+        elsif i == 4
+          row.each_with_index {|r,i| sum[credit_idx[i].to_s] -= calc_diff(r, credit_idx[i]) }
+        else
+          break
+          puts row
+        end
       end
     end
     total_subaccount(sum)
+  end
+
+  def calc_diff(num, code)
+    amount = /\./.match(num.to_s) ? BigDecimal(num) : num.to_i
+    amount * LucaBook.pn_debit(code.to_s)
   end
 
   def total_subaccount(report)

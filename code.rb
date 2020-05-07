@@ -17,16 +17,34 @@ module Luca
       txmap.index(id[0]) * (l**2) + txmap.index(id[1]) * l + txmap.index(id[2])
     end
 
-    def encode_date(date_obj)
-      "0123456789abcdefghijklmnopqrstuv"[date_obj.day]
+    def encode_date(date)
+      return nil if date.nil?
+      if date.class == Date or date.class == DateTime
+        index = date.day
+      elsif date.class == String or date.class == Integer
+        index = date.to_i
+      else
+        return nil
+      end
+      return nil if index < 1 || index > 31
+      "0123456789abcdefghijklmnopqrstuv"[index]
     end
 
     def decode_date(s)
       "0123456789abcdefghijklmnopqrstuv".index(s)
     end
 
-    def encode_month(date_obj)
-      "0ABCDEFGHIJKL"[date_obj.month]
+    def encode_month(date)
+      return nil if date.nil?
+      if date.class == Date or date.class == DateTime
+        index = date.month
+      elsif date.class == String or date.class == Integer
+        index = date.to_i
+      else
+        return nil
+      end
+      return nil if index < 1 || index > 12
+      "0ABCDEFGHIJKL"[index]
     end
 
     def decode_month(s)

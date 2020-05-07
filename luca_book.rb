@@ -7,7 +7,7 @@ require 'date'
 require_relative "io"
 
 class LucaBook
-  include Luca::IO
+  include Luca::IO, Luca::Code
 
   DEFAULT_PJDIR = File.expand_path("../../", __dir__)
   attr_reader :pjdir
@@ -44,31 +44,43 @@ class LucaBook
     end
   end
 
-  def get_record(date_obj)
+
+  def find(id)
+    md = /^([0-9]{4}[A-Za-z]{1})([0-9A-Za-z]{4})/.match(id)
+    return nil if md.nil?
+    get_records(md[1], md[2]).first
+  end
+
+  def search(year, month=nil, date=nil, code=nil)
+    month_str = "#{year.to_s}#{encode_month(month)}"
+    date_str = encode_date(date)
+    get_records(month_str, date_str, code)
+  end
+
+  def get_records(month_dir, filename=nil, code=nil, rows=4)
     records = []
-    open_record(@pjdir, date_obj) do |f|
-      record = { debit: [], credit: [] }
-      debit_idx = []
-      debit_amount = []
-      credit_idx = []
-      credit_amount = []
-      CSV.new(f).each.with_index(0) do |line, i|
-        debit_idx = line if i == 0
-        credit_idx = line if i == 1
-        if i == 2
+    open_records(@pjdir, month_dir, filename, code) do |f, dir, file|
+      record = {}
+      record[:id] = dir + /^([^-]+)/.match(file)[1]
+      CSV.new(f, headers: false, col_sep: "\t", encoding: "UTF-8")
+        .each.with_index(0) do |line, i|
+        break if i >= rows
+        case i
+        when 0
+          record[:debit] = line.map{|row| { code: row } }
+        when 1
           line.each_with_index do |amount, i|
-            r = {}
-            r[debit_idx[i]] = amount.to_i
-            record[:debit] << r
+            record[:debit][i][:amount] = amount
           end
-        elsif i == 3
+        when 2
+          record[:credit] = line.map{|row| { code: row } }
+          break if ! code.nil? && file.length <= 4 && ! (record[:debit]+record[:credit]).include?(code)
+        when 3
           line.each_with_index do |amount, i|
-            r = {}
-            r[credit_idx[i]] = amount.to_i
-            record[:credit] << r
+            record[:credit][i][:amount] = amount
           end
         end
-        record[:memo] = line.first if i == 4
+        record[:note] = line.first if i == 4
       end
       records << record
     end

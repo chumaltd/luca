@@ -15,6 +15,15 @@ module Luca
     ### for date based records
     ###
 
+    def scan_terms(base_dir, query=nil)
+      pattern = query.nil? ? "*" : "#{query}*"
+      Dir.chdir(base_dir) do
+        Dir.glob(pattern).select do |dir|
+          FileTest.directory?(dir) && /^[0-9]/.match(dir)
+        end
+      end
+    end
+
     # define new transaction ID & write data at once
     #
     def create_record!(basedir, date_obj, codes=nil)
@@ -26,26 +35,26 @@ module Luca
       CSV.open(d+'/'+filename, "w", col_sep: "\t") {|f| yield f }
     end
 
-    def open_record(basedir, date_obj, mode='r')
-      dir_name = basedir + encode_dirname(date_obj)
-      return nil if ! Dir.exist?(dir_name)
-      Dir.chdir(dir_name) do
-        Dir.glob("#{encode_date(date_obj)}*").each do |file|
-          File.open(file, mode) {|f| yield f }
+    def open_records(basedir, subdir, filename=nil, code=nil, mode="r")
+      file_pattern = filename.nil? ? "*" : "#{filename}*"
+      Dir.chdir(basedir) do
+        Dir.glob("#{subdir}*").sort.each do |d|
+          Dir.chdir(d) do
+            Dir.glob(file_pattern).sort.each do |file|
+              next if skip_on_unmatch_code(file, code)
+              File.open(file, mode) {|f| yield(f, d, file)  }
+            end
+          end
         end
       end
     end
 
-    def open_records(basedir, subpath, rows=4)
-      path = (Pathname(basedir) + subpath).to_s
-      Dir.chdir(path) do
-        Dir.glob("*").sort.each do |file|
-          CSV.foreach(file, headers: false, col_sep: "\t", encoding: "UTF-8").with_index(1) do |row, i|
-            break if i > rows
-            yield(row, i)
-          end
-        end
-      end
+    # true when file doesn't have record on code
+    # false when file may have one
+    def skip_on_unmatch_code(filename, code=nil)
+      #p filename.split('-')[1..-1]
+      return false if code.nil? or filename.length <= 4
+      ! filename.split('-')[1..-1].include?(code)
     end
 
     def new_record_id(basedir, date_obj)
