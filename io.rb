@@ -18,9 +18,9 @@ module Luca
     def scan_terms(base_dir, query=nil)
       pattern = query.nil? ? "*" : "#{query}*"
       Dir.chdir(base_dir) do
-        Dir.glob(pattern).select do |dir|
+        Dir.glob(pattern).select {|dir|
           FileTest.directory?(dir) && /^[0-9]/.match(dir)
-        end
+        }.sort.map{|str| decode_term(str) }
       end
     end
 

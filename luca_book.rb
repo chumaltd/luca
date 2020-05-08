@@ -10,10 +10,11 @@ class LucaBook
   include Luca::IO
 
   DEFAULT_PJDIR = File.expand_path("../../", __dir__)
-  attr_reader :pjdir
+  attr_reader :pjdir, :dict
 
   def initialize
     @pjdir = set_directory
+    @dict = load_dict
   end
 
   def set_directory
@@ -57,7 +58,7 @@ class LucaBook
     get_records(month_str, date_str, code)
   end
 
-  def get_records(month_dir, filename=nil, code=nil, rows=4)
+  def get_records(month_dir, filename=nil, code=nil, rows=5)
     records = []
     open_records(@pjdir, month_dir, filename, code) do |f, dir, file|
       record = {}
@@ -70,21 +71,68 @@ class LucaBook
           record[:debit] = line.map{|row| { code: row } }
         when 1
           line.each_with_index do |amount, i|
-            record[:debit][i][:amount] = amount
+            record[:debit][i][:amount] = amount.to_i # todo: bigdecimal support
           end
         when 2
           record[:credit] = line.map{|row| { code: row } }
           break if ! code.nil? && file.length <= 4 && ! (record[:debit]+record[:credit]).include?(code)
         when 3
           line.each_with_index do |amount, i|
-            record[:credit][i][:amount] = amount
+            record[:credit][i][:amount] = amount.to_i # todo: bigdecimal support
           end
+        when 4
+          record[:note] = line.join(' ')
         end
         record[:note] = line.first if i == 4
       end
       records << record
     end
     records
+  end
+
+  # for assert purpose
+  def gross(year, month=nil, code=nil, date_range=nil, rows=4)
+    if ! date_range.nil?
+      raise if date_range.class != Range
+      # todo: date based range search
+    end
+
+    sum = { debit: {}, credit: {} }
+    idx_memo = []
+    month_str = "#{year.to_s}#{encode_month(month)}"
+    open_records(@pjdir, month_str) do |f, subdir, file|
+      CSV.new(f, headers: false, col_sep: "\t", encoding: "UTF-8")
+        .each.with_index(0) do |row, i|
+        break if i >= rows
+        case i
+        when 0
+          idx_memo = row.map{|r| r.to_s }
+          idx_memo.each {|r| sum[:debit][r] ||= 0 }
+        when 1
+          row.each_with_index {|r,i| sum[:debit][idx_memo[i]] += r.to_i } # todo: bigdecimal support
+        when 2
+          idx_memo = row.map{|r| r.to_s }
+          idx_memo.each {|r| sum[:credit][r] ||= 0 }
+        when 3
+          row.each_with_index {|r,i| sum[:credit][idx_memo[i]] += r.to_i } # todo: bigdecimal support
+        else
+          puts row # for debug
+        end
+      end
+    end
+    sum
+  end
+
+  # netting vouchers in specified term
+  def net(year, month=nil, code=nil, date_range=nil)
+    g = gross(year, month, code, date_range)
+    idx = (g[:debit].keys + g[:credit].keys).uniq.sort
+    {}.tap do |sum|
+      idx.each do |code|
+        sum[code] = g.dig(:debit, code).nil? ? 0 : calc_diff(g[:debit][code], code)
+        sum[code] -= g.dig(:credit, code).nil? ? 0 : calc_diff(g[:credit][code], code)
+      end
+    end
   end
 
   def serialize_on_key(array_of_hash, key)
@@ -110,6 +158,11 @@ class LucaBook
         dic[row[0]] = entry
       end
     end
+  end
+
+  def calc_diff(num, code)
+    amount = /\./.match(num.to_s) ? BigDecimal(num) : num.to_i
+    amount * LucaBook.pn_debit(code.to_s)
   end
 
   def self.pn_debit(code)

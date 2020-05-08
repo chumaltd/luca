@@ -52,6 +52,11 @@ module Luca
       "0ABCDEFGHIJKL".index(s)
     end
 
+    def decode_term(s)
+      m = /^([0-9]{4})([A-La-l])/.match(s)
+      [ m[1].to_i, decode_month(m[2]) ]
+    end
+
     def issue_random_id
       Digest::SHA1.hexdigest(SecureRandom.uuid)
     end

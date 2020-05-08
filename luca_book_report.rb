@@ -78,12 +78,35 @@ class LucaBookReport
     end
   end
 
+  def by_code(code, year=nil, month=nil)
+    raise "not supported year range yet" if ! year.nil? && month.nil?
+    bl = @book.load_start.dig(code) || 0
+    full_term = scan_terms(@book.pjdir)
+    if ! month.nil?
+      pre_term = full_term.select{|y,m| y <= year && m < month }
+      bl += pre_term.map{|y,m| @book.net(y, m)}.inject(0){|sum, h| sum + h[code]}
+      [{ code: code, balance: bl, note: "#{code} #{dict.dig(code, :label)}" }] + records_with_balance(year, month, code, bl)
+    else
+      start = { code: code, balance: bl, note: "#{code} #{dict.dig(code, :label)}" }
+      full_term.map {|y, m| y }.uniq.map {|y|
+        records_with_balance(y, nil, code, bl)
+      }.flatten.prepend(start)
+    end
+  end
+
+  def records_with_balance(year, month, code, balance)
+      @book.search(year, month, nil, code).each do |h|
+        balance += @book.calc_diff(amount_by_code(h[:debit], code), code) - @book.calc_diff(amount_by_code(h[:credit], code), code)
+        h[:balance] = balance
+      end
+  end
+
   def accumulate_all
     current = @book.load_start
     puts current
     Dir.chdir(@book.pjdir) do
-      scan_terms(@book.pjdir).sort.each do |dir|
-        diff = accumulate_month(dir)
+      scan_terms(@book.pjdir).each do |year, month|
+        diff = accumulate_month(year, month)
         diff.each do |k,v|
           if current[k]
             current[k] += v
@@ -91,43 +114,21 @@ class LucaBookReport
             current[k] = v
           end
         end
-        f = { target: dir, diff: diff.sort, current: current.sort }
+        f = { target: "#{year}-#{month}", diff: diff.sort, current: current.sort }
         yield f
       end
     end
   end
 
-
-  # todo: parse all column in each row
-  def accumulate_month(dir_path)
-    rows = 4
-    sum = {}
-    debit_idx = []
-    credit_idx = []
-    open_records(@book.pjdir, dir_path) do |f, subdir, file|
-      CSV.new(f, headers: false, col_sep: "\t", encoding: "UTF-8").each.with_index(1) do |row, i|
-        if i == 1
-          debit_idx = row.map{|r| r.to_s }
-          debit_idx.each {|r| sum[r] ||= 0 }
-        elsif i == 2
-          row.each_with_index {|r,i| sum[debit_idx[i]] += calc_diff(r, debit_idx[i]) }
-        elsif i == 3
-          credit_idx = row.map{|r| r.to_s }
-          credit_idx.each {|r| sum[r] ||= 0 }
-        elsif i == 4
-          row.each_with_index {|r,i| sum[credit_idx[i].to_s] -= calc_diff(r, credit_idx[i]) }
-        else
-          break
-          puts row
-        end
-      end
-    end
-    total_subaccount(sum)
+  def accumulate_month(year, month)
+    monthly_record = @book.net(year, month)
+    total_subaccount(monthly_record)
   end
 
-  def calc_diff(num, code)
-    amount = /\./.match(num.to_s) ? BigDecimal(num) : num.to_i
-    amount * LucaBook.pn_debit(code.to_s)
+  def amount_by_code(items, code)
+    items
+      .select{|item| item.dig(:code) == code }
+      .inject(0){|sum, item| sum + item[:amount] }
   end
 
   def total_subaccount(report)
@@ -159,6 +160,10 @@ class LucaBookReport
       res["GA0"] = res["EA0"] + res["F00"] - res["G00"]
       res["HA0"] = res["GA0"] - report.select {|k,v| /^[H].[^0]/.match(k)}.map{|k,v| v}.inject(0){|s, i| s + i}
     end
+  end
+
+  def dict
+    @book.dict
   end
 
 end
