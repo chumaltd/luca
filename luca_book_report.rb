@@ -6,6 +6,8 @@ require_relative "luca_book"
 class LucaBookReport
   include Luca::IO
 
+  attr_reader :book
+
   def initialize(dir_path=nil)
     @book = LucaBook.new(dir_path)
   end
