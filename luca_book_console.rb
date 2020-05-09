@@ -40,7 +40,7 @@ class LucaBookConsole
           print "  "
           print "  " if h[:code].length > 3
         end
-        puts "#{h[:label]}"
+        puts cnsl_label(h[:label], h[:code])
         h[:value].each_slice(6) do |v|
           puts "#{cnsl_fmt("", 14)} #{v.map{|v| cnsl_fmt(v, 14)}.join}"
         end
@@ -68,7 +68,7 @@ class LucaBookConsole
           print "  "
           print "  " if h[:code].length > 3
         end
-        puts "#{h[:label]}"
+        puts cnsl_label(h[:label], h[:code])
         h[:value].each_slice(6).with_index(0) do |v, i|
           puts "#{cnsl_fmt(total[i], 14)} #{v.map{|v| cnsl_fmt(v, 14)}.join}"
         end
@@ -91,6 +91,18 @@ class LucaBookConsole
     }.sort.map do |k,v|
       {code: k, label: @report.dict.dig(k, :label), value: v}
     end
+  end
+
+  def cnsl_label(label, code)
+        if /[0]$/.match(code)
+          cnsl_bold(label) + " " + "-"*80
+        else
+          label
+        end
+  end
+
+  def cnsl_bold(str)
+    "\e[1m#{str}\e[0m"
   end
 
   def cnsl_code(obj)
