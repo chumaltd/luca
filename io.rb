@@ -5,11 +5,31 @@
 require "csv"
 require 'date'
 require 'fileutils'
+require 'pathname'
 require_relative "code"
 
 module Luca
   module IO
     include Luca::Code
+
+    # todo: this structure is tentative
+    DEFAULT_PJDIR = File.expand_path("../../", __dir__)
+
+    def set_data_dir(dir_path=nil)
+      if dir_path.nil?
+        project_dir = Pathname(DEFAULT_PJDIR)
+      else
+        raise "Specified path is not for valid project" if ! valid_project?(dir_path)
+        project_dir = Pathname(dir_path)
+      end
+
+      (project_dir + "data/").to_s
+    end
+
+    def valid_project?(path)
+      project_dir = Pathname(path)
+      FileTest.file?( (project_dir + "config.yml").to_s ) and FileTest.directory?( (project_dir + "data").to_s )
+    end
 
     ###
     ### for date based records

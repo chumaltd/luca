@@ -9,17 +9,11 @@ require_relative "io"
 class LucaBook
   include Luca::IO
 
-  DEFAULT_PJDIR = File.expand_path("../../", __dir__)
   attr_reader :pjdir, :dict
 
-  def initialize
-    @pjdir = set_directory
+  def initialize(dir_path=nil)
+    @pjdir = set_data_dir(dir_path)
     @dict = load_dict
-  end
-
-  def set_directory
-    # todo: project directory configs
-    DEFAULT_PJDIR + "/data/"
   end
 
   # need to be renamed
