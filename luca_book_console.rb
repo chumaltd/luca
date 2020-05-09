@@ -79,14 +79,12 @@ class LucaBookConsole
 
   def convert_collection(obj)
     {}.tap {|res|
-      obj.each.with_index(0) do |month, i|
+      obj.each do |month|
         month.each do |k,v|
           if res.has_key?(k)
-            (i - res[k].length).times{|j| res[k] << 0 } if res[k].length < i
             res[k] << v
           else
-            res[k] = Array.new(i, 0)
-            res[k] << v
+            res[k] = [v]
           end
         end
       end

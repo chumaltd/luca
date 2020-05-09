@@ -47,9 +47,15 @@ class LucaBookReport
 
   def accumulate_all
     current = @book.load_start
+    target = []
     Dir.chdir(@book.pjdir) do
-      scan_terms(@book.pjdir).each do |year, month|
-        diff = accumulate_month(year, month)
+      net_records = scan_terms(@book.pjdir).map {|year, month|
+        target << [year, month]
+        accumulate_month(year, month)
+      }
+      all_keys = net_records.map{|h| h.keys}.flatten.uniq
+      net_records.each.with_index(0) do |diff, i|
+        all_keys.each {|key| diff[key] = 0 unless diff.has_key?(key)}
         diff.each do |k,v|
           if current[k]
             current[k] += v
@@ -57,7 +63,7 @@ class LucaBookReport
             current[k] = v
           end
         end
-        f = { target: "#{year}-#{month}", diff: diff.sort, current: current.sort }
+        f = { target: "#{target[i][0]}-#{target[i][1]}", diff: diff.sort, current: current.sort }
         yield f
       end
     end
