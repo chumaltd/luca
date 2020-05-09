@@ -6,8 +6,8 @@ require_relative "luca_book"
 class LucaBookReport
   include Luca::IO
 
-  def initialize
-    @book = LucaBook.new
+  def initialize(dir_path=nil)
+    @book = LucaBook.new(dir_path)
   end
 
   def search_tag(code)
@@ -20,62 +20,6 @@ class LucaBookReport
       end
     end
     puts "#{code}: #{count}"
-  end
-
-  def bs_all
-    config = @book.load_dict
-    accumulate_all do |f|
-      puts f[:target]
-      puts "---- BS ----"
-      f[:diff].each do |k,v|
-        if /^[0-9]/.match(k)
-          if /[^0]$/.match(k)
-            print "  "
-            print "  " if k.length > 3
-          end
-          puts "#{config.dig(k, :label)}:\t #{v}"
-        end
-      end
-      puts "---- total ----"
-      f[:current].each do |k,v|
-        if /^[0-9]/.match(k)
-          if /[^0]$/.match(k)
-            print "  "
-            print "  " if k.length > 3
-          end
-          puts "#{config.dig(k, :label)}:\t #{v}"
-        end
-      end
-      puts "----  ----"
-    end
-  end
-
-  def pl_all
-    config = @book.load_dict
-    accumulate_all do |f|
-      puts f[:target]
-      puts "---- PL ----"
-      f[:diff].each do |k,v|
-        if /^[A-Z]/.match(k)
-          if /[^0]$/.match(k)
-            print "  "
-            print "  " if k.length > 3
-          end
-          puts "#{config[k][:label]}:\t #{v}"
-        end
-      end
-      puts "---- total ----"
-      f[:current].each do |k,v|
-        if /^[A-Z]/.match(k)
-          if /[^0]$/.match(k)
-            print "  "
-            print "  " if k.length > 3
-          end
-          puts "#{config[k][:label]}:\t #{v}"
-        end
-      end
-      puts "----  ----"
-    end
   end
 
   def by_code(code, year=nil, month=nil)
@@ -103,7 +47,6 @@ class LucaBookReport
 
   def accumulate_all
     current = @book.load_start
-    puts current
     Dir.chdir(@book.pjdir) do
       scan_terms(@book.pjdir).each do |year, month|
         diff = accumulate_month(year, month)

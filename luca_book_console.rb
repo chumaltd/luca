@@ -2,8 +2,8 @@ require_relative "luca_book_report"
 
 class LucaBookConsole
 
-  def initialize
-    @report = LucaBookReport.new
+  def initialize(dir_path=nil)
+    @report = LucaBookReport.new(dir_path)
   end
 
   def by_code(code, year=nil, month=nil)
@@ -22,12 +22,86 @@ class LucaBookConsole
     end
   end
 
+  def bs
+    target = []
+    report = []
+    output = @report.accumulate_all do |f|
+      target << f[:target]
+      report << f[:current]
+      #diff << f[:diff]
+    end
+    puts "---- BS ----"
+    target.each_slice(6) do |v|
+      puts "#{cnsl_fmt("", 14)} #{v.map{|v| cnsl_fmt(v, 14)}.join}"
+    end
+    convert_collection(report).each do |h|
+      if /^[0-9]/.match(h[:code])
+        if /[^0]$/.match(h[:code])
+          print "  "
+          print "  " if h[:code].length > 3
+        end
+        puts "#{h[:label]}"
+        h[:value].each_slice(6) do |v|
+          puts "#{cnsl_fmt("", 14)} #{v.map{|v| cnsl_fmt(v, 14)}.join}"
+        end
+      end
+    end
+    puts "----  ----"
+  end
+
+  def pl
+    target = []
+    report = []
+    output = @report.accumulate_all do |f|
+      target << f[:target]
+      report << f[:diff]
+      #current << f[:current]
+    end
+    puts "---- PL ----"
+    target.each_slice(6) do |v|
+      puts "#{cnsl_fmt("", 14)} #{v.map{|v| cnsl_fmt(v, 14)}.join}"
+    end
+    convert_collection(report).each do |h|
+      if /^[A-Z]/.match(h[:code])
+        total = [h[:value].inject(:+)] + Array.new(h[:value].length)
+        if /[^0]$/.match(h[:code])
+          print "  "
+          print "  " if h[:code].length > 3
+        end
+        puts "#{h[:label]}"
+        h[:value].each_slice(6).with_index(0) do |v, i|
+          puts "#{cnsl_fmt(total[i], 14)} #{v.map{|v| cnsl_fmt(v, 14)}.join}"
+        end
+      end
+    end
+    puts "----  ----"
+  end
+
+  def convert_collection(obj)
+    {}.tap {|res|
+      obj.each.with_index(0) do |month, i|
+        month.each do |k,v|
+          if res.has_key?(k)
+            (i - res[k].length).times{|j| res[k] << 0 } if res[k].length < i
+            res[k] << v
+          else
+            res[k] = Array.new(i, 0)
+            res[k] << v
+          end
+        end
+      end
+    }.sort.map do |k,v|
+      {code: k, label: @report.dict.dig(k, :label), value: v}
+    end
+  end
+
   def cnsl_code(obj)
     code = @report.dict.dig(obj&.dig(:code))&.dig(:label) || ""
   end
 
-  def cnsl_fmt(str)
-    sprintf("%15.15s", str)
+  def cnsl_fmt(str, width=15, length=nil)
+    length ||= width
+    sprintf("%#{width}.#{length}s", str)
   end
 
 end
