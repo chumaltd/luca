@@ -29,7 +29,7 @@ class LucaBookReport
     bl = @book.load_start.dig(code) || 0
     full_term = scan_terms(@book.pjdir)
     if ! month.nil?
-      pre_term = full_term.select{|y,m| y <= year && m < month }
+      pre_term = full_term.select{|y,m| y <= year.to_i && m < month.to_i }
       bl += pre_term.map{|y,m| @book.net(y, m)}.inject(0){|sum, h| sum + h[code]}
       [{ code: code, balance: bl, note: "#{code} #{dict.dig(code, :label)}" }] + records_with_balance(year, month, code, bl)
     else

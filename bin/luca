@@ -1,0 +1,52 @@
+#!/usr/bin/ruby
+
+require "optparse"
+require_relative "../luca_book_console"
+
+def list(args, params)
+  if params["c"] or params["code"]
+    code = params["c"] || params["code"]
+    LucaBookConsole.new.by_code(code, args.dig(0), args.dig(1))
+  elsif args.length > 0
+    LucaBookConsole.new.by_month(args[0], args.dig(1))
+  else
+    LucaBookConsole.new.all
+  end
+end
+
+def report(params)
+  if params["bs"]
+    LucaBookConsole.new.bs
+  elsif params["pl"]
+    LucaBookConsole.new.pl
+  end
+end
+
+cmd = ARGV.shift
+
+case cmd
+when "list"
+  params = {}
+  OptionParser.new do |opt|
+    opt.banner = 'Usage: luca list [year month]'
+    opt.on('-c', '--code VAL', 'search with code'){|v| params["code"] = v }
+    opt.on_tail('List records. If you specify code and/or month, search on each criteria.')
+    args = opt.parse!(ARGV)
+    list(args, params)
+  end
+when "report"
+  params = {}
+  OptionParser.new do |opt|
+    opt.banner = 'Usage: luca report'
+    opt.on('--bs', 'show Balance sheet'){|v| params["bs"] = v }
+    opt.on('--pl', 'show Income statement'){|v| params["pl"] = v }
+    opt.parse!(ARGV)
+    report(params)
+  end
+when "--help"
+  puts 'Usage: luca subcommand'
+  puts '  list: list records'
+  puts '  report: show reports'
+else
+  puts 'Invalid subcommand'
+end
