@@ -2,6 +2,9 @@
 *.gem
 *.rbc
 /.config
+/.bundle/
+/.yardoc
+/_yardoc/
 /coverage/
 /InstalledFiles
 /pkg/
