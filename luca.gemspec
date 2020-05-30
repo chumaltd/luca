@@ -10,7 +10,9 @@ Gem::Specification.new do |spec|
   spec.email         = ["co.chuma@gmail.com"]
 
   spec.summary       = %q{ERP app framework}
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
+  spec.description   = <<~DESC
+   ERP app framework
+  DESC
   spec.homepage      = "https://github.com/chumaltd/luca"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
