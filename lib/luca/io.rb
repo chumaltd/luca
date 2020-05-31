@@ -6,7 +6,7 @@ require "csv"
 require 'date'
 require 'fileutils'
 require 'pathname'
-require_relative "code"
+require "luca/code"
 
 module Luca
   module IO

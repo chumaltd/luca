@@ -4,7 +4,7 @@
 
 require "csv"
 require 'date'
-require_relative "io"
+require "luca/io"
 
 class LucaBook
   include Luca::IO

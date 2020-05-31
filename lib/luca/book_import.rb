@@ -1,7 +1,7 @@
 require "date"
 require "json"
-require_relative "luca_book"
-require_relative "luca_support"
+require "luca/book"
+require "luca/support"
 
 module LucaBookImport
   DEBIT_DEFAULT = "273"  # 仮払金

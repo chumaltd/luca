@@ -1,4 +1,4 @@
-require_relative "luca_book_report"
+require "luca/book_report"
 
 class LucaBookConsole
 
