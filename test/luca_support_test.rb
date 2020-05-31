@@ -1,5 +1,5 @@
-require 'minitest/autorun'
-require_relative '../luca_support'
+require_relative 'test_helper'
+require 'luca/support'
 
 class LucaSupportTest < Minitest::Test
 

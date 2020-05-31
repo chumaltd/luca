@@ -1,6 +1,6 @@
-require 'minitest/autorun'
+require_relative 'test_helper'
 require 'date'
-require_relative '../code'
+require 'luca/code'
 
 class Luca::CodeTest < Minitest::Test
   include Luca::Code
