@@ -12,14 +12,12 @@ module Luca
   module IO
     include Luca::Code
 
-    # todo: this structure is tentative
-    DEFAULT_PJDIR = File.expand_path("../../", __dir__)
-
     def set_data_dir(dir_path=nil)
       if dir_path.nil?
-        project_dir = Pathname(DEFAULT_PJDIR)
+        raise "No project path is specified"
+      elsif ! valid_project?(dir_path)
+        raise "Specified path is not for valid project"
       else
-        raise "Specified path is not for valid project" if ! valid_project?(dir_path)
         project_dir = Pathname(dir_path)
       end
 

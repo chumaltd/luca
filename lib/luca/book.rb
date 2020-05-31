@@ -12,6 +12,7 @@ class LucaBook
   attr_reader :pjdir, :dict
 
   def initialize(dir_path=nil)
+    dir_path ||= Dir.pwd
     @pjdir = set_data_dir(dir_path)
     @dict = load_dict
   end
