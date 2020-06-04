@@ -60,5 +60,17 @@ module Luca
     def issue_random_id
       Digest::SHA1.hexdigest(SecureRandom.uuid)
     end
+
+    def take_active(dat, item, attr="val")
+      dat.dig(item)
+        .filter{|a| Date.parse(a.dig("effective")) < @date }
+        .filter{|a|
+          a.dig("defunct").nil? \
+          || Date.parse(a.dig("defunct")) > @date
+       }
+         .max{|a, b| Date.parse(a.dig("effective")) <=> Date.parse(b.dig("effective")) }
+         .dig(attr)
+    end
+
   end
 end
