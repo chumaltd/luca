@@ -45,12 +45,19 @@ module Luca
     # define new transaction ID & write data at once
     #
     def create_record!(basedir, date_obj, codes=nil)
+      gen_record_file!(basedir, date_obj, codes) do |f|
+        CSV.new(f, col_sep: "\t") {|c| yield c }
+      end
+    end
+
+    def gen_record_file!(basedir, date_obj, codes=nil)
       d = prepare_dir!(basedir, date_obj)
       filename = encode_date(date_obj) + new_record_id(basedir, date_obj)
       if codes
         filename += codes.inject(""){|fragment, code| "#{fragment}-#{code}" }
       end
-      CSV.open(d+'/'+filename, "w", col_sep: "\t") {|f| yield f }
+      path = Pathname(d) + filename
+      File.open(path.to_s, "w") {|f| yield(f)  }
     end
 
     def open_records(basedir, subdir, filename=nil, code=nil, mode="r")
@@ -91,13 +98,22 @@ module Luca
     end
 
     def prepare_dir!(basedir, date_obj)
-      dir_name = basedir + encode_dirname(date_obj)
+      dir_name = (Pathname(basedir) + encode_dirname(date_obj)).to_s
       FileUtils.mkdir_p(dir_name) if ! Dir.exist?(dir_name)
       dir_name
     end
 
     def encode_dirname(date_obj)
       date_obj.year.to_s + encode_month(date_obj)
+    end
+
+    def load_config(path=nil)
+      path = path.to_s
+      if File.exists?(path)
+        YAML.load_file(path, {})
+      else
+        {}
+      end
     end
 
     def load_tsv(path)
