@@ -65,9 +65,9 @@ module Luca
       target = dat.dig(item)
       if target.class.name == "Array"
         target.filter{|a| Date.parse(a.dig("effective")) < @date }
-          .filter{|a|
-            a.dig("defunct").nil? \
-            || Date.parse(a.dig("defunct")) > @date
+          .map{|a|
+            return nil if ! a.dig("defunct").nil? && Date.parse(a.dig("defunct")) < @date
+            a
           }
           .max{|a, b| Date.parse(a.dig("effective")) <=> Date.parse(b.dig("effective")) }
           .dig(attr)
