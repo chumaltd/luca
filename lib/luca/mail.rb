@@ -6,15 +6,15 @@ module Luca
   class Mail
     include Luca::IO
 
-    def initialize(mail=nil)
-      @config = load_config( Pathname(Dir.pwd) + "config.yml" )
+    def initialize(mail=nil, pjdir=nil)
+      @pjdir = pjdir || Dir.pwd
+      @config = load_config( Pathname(@pjdir) + "config.yml" )
       @mail = mail
+      set_message_default
       @host = set_host
     end
 
     def deliver
-      mail = ::Mail.new do
-      end
       # mail gem accepts hash for 2nd param, not keywords
       @mail.delivery_method(:smtp, @host)
       @mail.deliver
@@ -34,6 +34,11 @@ module Luca
     def mail_config(attr=nil)
       return nil if attr.nil?
       @config.dig("mail", attr)
+    end
+
+    def set_message_default
+      @mail.from ||= @config.dig("mail", "from")
+      @mail.cc ||= @config.dig("mail", "cc")
     end
 
   end

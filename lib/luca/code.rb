@@ -35,6 +35,10 @@ module Luca
       "0123456789abcdefghijklmnopqrstuv".index(s)
     end
 
+    def delimit_num(num)
+      num.to_s.reverse.gsub( /(\d{3})(?=\d)/, '\1,').reverse
+    end
+
     def encode_month(date)
       return nil if date.nil?
       if date.class == Date or date.class == DateTime
@@ -64,12 +68,12 @@ module Luca
     def take_active(dat, item, attr="val")
       target = dat.dig(item)
       if target.class.name == "Array"
-        target.filter{|a| Date.parse(a.dig("effective")) < @date }
+        target.filter{|a| Date.parse(a.dig("effective").to_s) < @date }
           .map{|a|
-            return nil if ! a.dig("defunct").nil? && Date.parse(a.dig("defunct")) < @date
+            return nil if ! a.dig("defunct").nil? && Date.parse(a.dig("defunct").to_s) < @date
             a
           }
-          .max{|a, b| Date.parse(a.dig("effective")) <=> Date.parse(b.dig("effective")) }
+          .max{|a, b| Date.parse(a.dig("effective").to_s) <=> Date.parse(b.dig("effective").to_s) }
           .dig(attr)
       else
         target

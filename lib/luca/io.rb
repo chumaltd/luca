@@ -4,7 +4,9 @@
 
 require "csv"
 require 'date'
+require 'erb'
 require 'fileutils'
+require 'open3'
 require 'pathname'
 require "luca/code"
 
@@ -116,6 +118,29 @@ module Luca
       end
     end
 
+    def add_status!(path, status)
+      origin = YAML.load_file(path.to_s, {})
+      newline = { status => DateTime.now.to_s }
+      origin["status"] = [] if origin["status"].nil?
+      origin["status"] << newline
+      File.write(path.to_s, YAML.dump(origin.sort.to_h))
+    end
+
+    def has_status?(dat, status)
+      return false if dat["status"].nil?
+      dat["status"].map{|h| h.has_key?(status)}
+        .include?(true)
+    end
+
+    def search_template(file, dir="templates")
+      # ToDo: load config
+      [@pjdir, lib_path].each do |base|
+        path = (Pathname(base) / dir / file)
+        return path.to_path if path.file?
+      end
+      nil
+    end
+
     def load_tsv(path)
       data = CSV.read(path, headers: true, col_sep: "\t", encoding: "UTF-8")
       data.each {|row| yield row}
@@ -138,6 +163,26 @@ module Luca
       else
         [id[0, split_factor], id[split_factor, len-split_factor]]
       end
+    end
+
+    def save_pdf(html_dat, path)
+      File.write(path, html2pdf(html_dat))
+    end
+
+    def erb2pdf(path)
+      html2pdf(render_erb(path))
+    end
+
+    def render_erb(path)
+      @template_dir = File.dirname(path)
+      erb = ERB.new(File.read(path.to_s), trim_mode: "-")
+      erb.result(binding)
+    end
+
+    def html2pdf(html_dat)
+      out, err, stat = Open3.capture3("wkhtmltopdf - -", stdin_data: html_dat)
+      puts err
+      out
     end
 
   end
