@@ -2,74 +2,75 @@
 # manipulate files based on transaction date
 #
 
-require "csv"
+require 'csv'
 require 'date'
 require 'erb'
 require 'fileutils'
 require 'open3'
 require 'pathname'
-require "luca/code"
+require 'luca/code'
 
 module Luca
   module IO
     include Luca::Code
 
-    def set_data_dir(dir_path=nil)
+    def set_data_dir(dir_path = nil)
       if dir_path.nil?
-        raise "No project path is specified"
-      elsif ! valid_project?(dir_path)
-        raise "Specified path is not for valid project"
+        raise 'No project path is specified'
+      elsif !valid_project?(dir_path)
+        raise 'Specified path is not for valid project'
       else
         project_dir = Pathname(dir_path)
       end
 
-      (project_dir + "data/").to_s
+      (project_dir + 'data/').to_s
     end
 
     def valid_project?(path)
       project_dir = Pathname(path)
-      FileTest.file?( (project_dir + "config.yml").to_s ) and FileTest.directory?( (project_dir + "data").to_s )
+      FileTest.file?((project_dir + 'config.yml').to_s) and FileTest.directory?( (project_dir + 'data').to_s)
     end
 
     ###
     ### for date based records
     ###
 
-    def scan_terms(base_dir, query=nil)
+    def scan_terms(base_dir, query = nil)
       pattern = query.nil? ? "*" : "#{query}*"
       Dir.chdir(base_dir) do
-        Dir.glob(pattern).select {|dir|
+        Dir.glob(pattern).select { |dir|
           FileTest.directory?(dir) && /^[0-9]/.match(dir)
-        }.sort.map{|str| decode_term(str) }
+        }.sort.map { |str| decode_term(str) }
       end
     end
 
     # define new transaction ID & write data at once
     #
-    def create_record!(basedir, date_obj, codes=nil)
+    def create_record!(basedir, date_obj, codes = nil)
       gen_record_file!(basedir, date_obj, codes) do |f|
-        CSV.new(f, col_sep: "\t") {|c| yield c }
+        CSV.new(f, col_sep: "\t") { |c| yield c }
       end
     end
 
-    def gen_record_file!(basedir, date_obj, codes=nil)
+    def gen_record_file!(basedir, date_obj, codes = nil)
       d = prepare_dir!(basedir, date_obj)
       filename = encode_date(date_obj) + new_record_id(basedir, date_obj)
       if codes
-        filename += codes.inject(""){|fragment, code| "#{fragment}-#{code}" }
+        filename += codes.inject('') { |fragment, code| "#{fragment}-#{code}" }
       end
       path = Pathname(d) + filename
-      File.open(path.to_s, "w") {|f| yield(f)  }
+      File.open(path.to_s, 'w') { |f| yield(f)  }
     end
 
-    def open_records(basedir, subdir, filename=nil, code=nil, mode="r")
+    def open_records(basedir, subdir, filename = nil, code = nil, mode = "r")
       file_pattern = filename.nil? ? "*" : "#{filename}*"
       Dir.chdir(basedir) do
         Dir.glob("#{subdir}*").sort.each do |d|
           Dir.chdir(d) do
             Dir.glob(file_pattern).sort.each do |file|
               next if skip_on_unmatch_code(file, code)
-              File.open(file, mode) {|f| yield(f, d, file)  }
+
+              File.open(file, mode) { |f| yield(f, d, file) }
             end
           end
         end
@@ -79,9 +80,10 @@ module Luca
     # true when file doesn't have record on code
     # false when file may have one
     def skip_on_unmatch_code(filename, code=nil)
-      #p filename.split('-')[1..-1]
+      # p filename.split('-')[1..-1]
       return false if code.nil? or filename.length <= 4
-      ! filename.split('-')[1..-1].include?(code)
+
+      !filename.split('-')[1..-1].include?(code)
     end
 
     def new_record_id(basedir, date_obj)
@@ -90,18 +92,30 @@ module Luca
 
     # AUTO INCREMENT
     def new_record_no(basedir, date_obj)
-      dir_name = basedir + encode_dirname(date_obj)
-      return 1 if ! Dir.exist?(dir_name)
+      dir_name = (Pathname(basedir) + encode_dirname(date_obj)).to_s
+      raise 'No target dir exists.' unless Dir.exist?(dir_name)
+
       Dir.chdir(dir_name) do
-        last_file = Dir.glob("#{encode_date(date_obj)}*").sort.last
+        last_file = Dir.glob("#{encode_date(date_obj)}*").max
         return 1 if last_file.nil?
-        return decode_txid(last_file[1,3]) + 1
+
+        return decode_txid(last_file[1, 3]) + 1
+      end
+    end
+
+    def search_record(basedir, date_obj, code)
+      dir_name = (Pathname(basedir) + encode_dirname(date_obj)).to_s
+      raise 'No target dir exists.' unless Dir.exist?(dir_name)
+
+      Dir.chdir(dir_name) do
+        files = Dir.glob("*#{code}*")
+        files.empty? ? nil : files
       end
     end
 
     def prepare_dir!(basedir, date_obj)
       dir_name = (Pathname(basedir) + encode_dirname(date_obj)).to_s
-      FileUtils.mkdir_p(dir_name) if ! Dir.exist?(dir_name)
+      FileUtils.mkdir_p(dir_name) unless Dir.exist?(dir_name)
       dir_name
     end
 
@@ -109,7 +123,7 @@ module Luca
       date_obj.year.to_s + encode_month(date_obj)
     end
 
-    def load_config(path=nil)
+    def load_config(path = nil)
       path = path.to_s
       if File.exists?(path)
         YAML.load_file(path, {})
@@ -121,18 +135,19 @@ module Luca
     def add_status!(path, status)
       origin = YAML.load_file(path.to_s, {})
       newline = { status => DateTime.now.to_s }
-      origin["status"] = [] if origin["status"].nil?
-      origin["status"] << newline
+      origin['status'] = [] if origin['status'].nil?
+      origin['status'] << newline
       File.write(path.to_s, YAML.dump(origin.sort.to_h))
     end
 
     def has_status?(dat, status)
-      return false if dat["status"].nil?
-      dat["status"].map{|h| h.has_key?(status)}
+      return false if dat['status'].nil?
+
+      dat['status'].map { |h| h.key?(status) }
         .include?(true)
     end
 
-    def search_template(file, dir="templates")
+    def search_template(file, dir = 'templates')
       # ToDo: load config
       [@pjdir, lib_path].each do |base|
         path = (Pathname(base) / dir / file)
@@ -142,26 +157,26 @@ module Luca
     end
 
     def load_tsv(path)
-      data = CSV.read(path, headers: true, col_sep: "\t", encoding: "UTF-8")
-      data.each {|row| yield row}
+      data = CSV.read(path, headers: true, col_sep: "\t", encoding: 'UTF-8')
+      data.each { |row| yield row }
     end
 
     ###
     ### git object like structure
     ###
-    def open_hashed(basedir, id, mode="r")
+    def open_hashed(basedir, id, mode = 'r')
       subdir, filename = encode_hashed_path(id)
       dirpath = Pathname(basedir) + subdir
-      FileUtils.mkdir_p(dirpath.to_s) if mode != "r"
-      File.open((dirpath + filename).to_s, mode){|f| yield f}
+      FileUtils.mkdir_p(dirpath.to_s) if mode != 'r'
+      File.open((dirpath + filename).to_s, mode) { |f| yield f }
     end
 
-    def encode_hashed_path(id, split_factor=3)
+    def encode_hashed_path(id, split_factor = 3)
       len = id.length
       if len <= split_factor
-        ["", id]
+        ['', id]
       else
-        [id[0, split_factor], id[split_factor, len-split_factor]]
+        [id[0, split_factor], id[split_factor, len - split_factor]]
       end
     end
 
@@ -175,15 +190,14 @@ module Luca
 
     def render_erb(path)
       @template_dir = File.dirname(path)
-      erb = ERB.new(File.read(path.to_s), trim_mode: "-")
+      erb = ERB.new(File.read(path.to_s), trim_mode: '-')
       erb.result(binding)
     end
 
     def html2pdf(html_dat)
-      out, err, stat = Open3.capture3("wkhtmltopdf - -", stdin_data: html_dat)
+      out, err, stat = Open3.capture3('wkhtmltopdf - -', stdin_data: html_dat)
       puts err
       out
     end
-
   end
 end
