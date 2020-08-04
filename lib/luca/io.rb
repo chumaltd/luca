@@ -1,3 +1,4 @@
+# encoding: UTF-8
 # Low level API
 # manipulate files based on transaction date
 #
