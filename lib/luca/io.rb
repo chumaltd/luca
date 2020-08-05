@@ -1,4 +1,3 @@
-# encoding: UTF-8
 # Low level API
 # manipulate files based on transaction date
 #
@@ -63,7 +62,7 @@ module Luca
       File.open(path.to_s, 'w') { |f| yield(f)  }
     end
 
-    def open_records(basedir, subdir, filename = nil, code = nil, mode = "r")
+    def open_records(basedir, subdir, filename = nil, code = nil, mode = 'r')
       file_pattern = filename.nil? ? "*" : "#{filename}*"
       Dir.chdir(basedir) do
         Dir.glob("#{subdir}*").sort.each do |d|
