@@ -1,7 +1,3 @@
-# Low level API
-# manipulate files based on transaction date
-#
-
 require 'csv'
 require 'date'
 require 'erb'
@@ -10,6 +6,9 @@ require 'open3'
 require 'pathname'
 require 'luca/code'
 
+# Low level API
+# manipulate files based on transaction date
+#
 module Luca
   module IO
     include Luca::Code
@@ -31,10 +30,9 @@ module Luca
       FileTest.file?((project_dir + 'config.yml').to_s) and FileTest.directory?( (project_dir + 'data').to_s)
     end
 
-    ###
-    ### for date based records
-    ###
-
+    #
+    # for date based records
+    #
     def scan_terms(base_dir, query = nil)
       pattern = query.nil? ? "*" : "#{query}*"
       Dir.chdir(base_dir) do
@@ -62,25 +60,31 @@ module Luca
       File.open(path.to_s, 'w') { |f| yield(f)  }
     end
 
+    #
+    # open records with 'basedir/month/date-code' path structure.
+    # Glob pattern can be specified like folloing examples.
+    #
+    #* '2020': All month of 2020
+    #* '2020[FG]': June & July of 2020
+    #
     def open_records(basedir, subdir, filename = nil, code = nil, mode = 'r')
+      return enum_for(:open_records, basedir, subdir, filename, code, mode) unless block_given?
+
       file_pattern = filename.nil? ? "*" : "#{filename}*"
       Dir.chdir(basedir) do
-        Dir.glob("#{subdir}*").sort.each do |d|
-          Dir.chdir(d) do
-            Dir.glob(file_pattern).sort.each do |file|
-              next if skip_on_unmatch_code(file, code)
+        Dir.glob("#{subdir}*/#{file_pattern}").sort.each do |subpath|
+          next if skip_on_unmatch_code(subpath, code)
 
-              File.open(file, mode) { |f| yield(f, d, file) }
-            end
-          end
+          File.open(subpath, mode) { |f| yield(f, subpath) }
         end
       end
     end
 
     # true when file doesn't have record on code
     # false when file may have one
-    def skip_on_unmatch_code(filename, code=nil)
+    def skip_on_unmatch_code(subpath, code=nil)
       # p filename.split('-')[1..-1]
+      filename = subpath.split('/').last
       return false if code.nil? or filename.length <= 4
 
       !filename.split('-')[1..-1].include?(code)
@@ -157,6 +161,8 @@ module Luca
     end
 
     def load_tsv(path)
+      return enum_for(:load_tsv, path) unless block_given?
+
       data = CSV.read(path, headers: true, col_sep: "\t", encoding: 'UTF-8')
       data.each { |row| yield row }
     end
@@ -165,6 +171,8 @@ module Luca
     ### git object like structure
     ###
     def open_hashed(basedir, id, mode = 'r')
+      return enum_for(:open_hashed, basedir, id, mode) unless block_given?
+
       subdir, filename = encode_hashed_path(id)
       dirpath = Pathname(basedir) + subdir
       FileUtils.mkdir_p(dirpath.to_s) if mode != 'r'

@@ -55,9 +55,9 @@ class LucaBook
 
   def get_records(month_dir, filename=nil, code=nil, rows=5)
     records = []
-    open_records(@pjdir, month_dir, filename, code) do |f, dir, file|
+    open_records(@pjdir, month_dir, filename, code) do |f, path|
       record = {}
-      record[:id] = dir + /^([^-]+)/.match(file)[1]
+      record[:id] = /^([^-]+)/.match(path)[1].gsub('/', '')
       CSV.new(f, headers: false, col_sep: "\t", encoding: "UTF-8")
         .each.with_index(0) do |line, i|
         break if i >= rows
@@ -95,7 +95,7 @@ class LucaBook
     sum = { debit: {}, credit: {} }
     idx_memo = []
     month_str = "#{year.to_s}#{encode_month(month)}"
-    open_records(@pjdir, month_str) do |f, subdir, file|
+    open_records(@pjdir, month_str) do |f, _path|
       CSV.new(f, headers: false, col_sep: "\t", encoding: "UTF-8")
         .each.with_index(0) do |row, i|
         break if i >= rows
