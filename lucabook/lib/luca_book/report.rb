@@ -1,7 +1,7 @@
 require "csv"
 require "pathname"
 require "luca/io"
-require "luca/book"
+require "luca_book"
 
 class LucaBookReport
   include Luca::IO

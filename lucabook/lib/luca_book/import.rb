@@ -1,6 +1,6 @@
 require "date"
 require "json"
-require "luca/book"
+require "luca_book"
 require "luca/support"
 
 module LucaBookImport

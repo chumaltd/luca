@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 require "optparse"
-require "luca/book_console"
+require "luca_book/console"
 
 def list(args, params)
   if params["c"] or params["code"]
