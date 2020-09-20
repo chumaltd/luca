@@ -1,0 +1,109 @@
+#!/usr/bin/ruby
+# frozen_string_literal: true
+
+require 'optparse'
+require 'luca_deal'
+
+def customer(args = nil, params = {})
+  case params['mode']
+  when 'list'
+    LucaDeal::Customer.new.list_name
+  when 'create'
+    if params['name']
+      id = LucaDeal::Customer.new.generate!(params['name'])
+      puts "Successfully generated Customer  #{id}" if id
+      puts 'Edit customer detail.' if id
+    else
+      puts 'requires customer\'s name. exit'
+      exit 1
+    end
+  else
+    puts 'invalid option. --help for usage'
+    exit 1
+  end
+end
+
+def contract(args = nil, params = {})
+  case params['mode']
+  when 'create'
+    if params['customer_id']
+      id = LucaDeal::Contract.new.generate!(params['customer_id'])
+      puts "Successfully generated Contract  #{id}" if id
+      puts 'Conditions are tentative. Edit contract detail.' if id
+    else
+      puts 'requires customer\'s id. exit'
+      exit 1
+    end
+  else
+  end
+end
+
+def invoice(args = nil, params = {})
+  date = "#{args[0]}-#{args[1]}-#{args[2]||'1'}"
+  case params['mode']
+  when 'monthly'
+    LucaDeal::Invoice.new(date).monthly_invoice
+  when 'mail'
+    LucaDeal::Invoice.new(date).deliver_mail
+  when 'preview'
+    LucaDeal::Invoice.new(date).preview_mail
+  when 'stats'
+    LucaDeal::Invoice.new(date).stats
+  else
+    puts 'not implemented mode'
+  end
+end
+
+def new_pj(args = nil, params = {})
+  LucaDeal::Setup.create_project args[0]
+end
+
+cmd = ARGV.shift
+
+case cmd
+when 'customer'
+  params = {}
+  OptionParser.new do |opt|
+    opt.banner = 'Usage: luca-deal customer [options]'
+    opt.on('--list', 'list all customers') { |v| params['mode'] = 'list' }
+    opt.on('--create CustomerName', 'register new customer') do |v|
+      params['mode'] = 'create'
+      params['name'] = v
+    end
+    args = opt.parse(ARGV)
+    customer(args, params)
+  end
+when 'contract'
+  params = {}
+  OptionParser.new do |opt|
+    opt.banner = 'Usage: luca-deal contract [options]'
+    opt.on('--create CustomerId', 'register new contract') do |v|
+      params['mode'] = 'create'
+      params['customer_id'] = v
+    end
+    args = opt.parse(ARGV)
+    contract(args, params)
+  end
+when 'invoice'
+  params = {}
+  OptionParser.new do |opt|
+    opt.banner = 'Usage: luca-deal invoice [options] year month [date]'
+    opt.on('--monthly', 'generate monthly data') { |v| params['mode'] = 'monthly' }
+    opt.on('--mail', 'send to customers') { |v| params['mode'] = 'mail' }
+    opt.on('--preview', 'send to preview user') { |v| params['mode'] = 'preview' }
+    opt.on('--stats', 'list invoices') { |v| params['mode'] = 'stats' }
+    args = opt.parse(ARGV)
+    invoice(args, params)
+  end
+when 'new'
+  params = {}
+  OptionParser.new do |opt|
+    args = opt.parse(ARGV)
+    new_pj(args, params)
+  end
+else
+  puts 'Usage: luca-deal sub-command [--help|options]'
+  puts '        customer'
+  puts '        contract'
+  puts '        invoice'
+end

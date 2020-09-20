@@ -1,0 +1,64 @@
+#!/usr/bin/ruby
+
+require 'optparse'
+require 'luca/salary'
+require 'luca/salary/monthly'
+require 'luca/salary/profile'
+
+def export(args = nil, params = nil)
+  if args
+    args << 28 if args.length == 2 # specify safe last day
+    Monthly.new(args.join('-')).export_json
+  else
+    Monthly.new.export_json
+  end
+end
+
+def payment(args = nil, params = nil)
+  if args
+    args << 28 if args.length == 2 # specify safe last day
+    Salary.new(args.join('-')).calc
+  else
+    Salary.new.calc
+  end
+end
+
+def report(args = nil, params = nil)
+  if args
+    args << 28 if args.length == 2 # specify safe last day
+    Monthly.new(args.join('-')).report(params.dig('mode'))
+  else
+    Monthly.new.report(params.dig('mode'))
+  end
+end
+
+def add_person(args = nil, params = nil)
+  Profile.gen_profile!(args.first)
+end
+
+cmd = ARGV.shift
+
+case cmd
+when 'add'
+  add_person(ARGV)
+when 'export'
+  export(ARGV)
+when 'report'
+  params = {}
+  OptionParser.new do |opt|
+    opt.banner = 'Usage: luca-salary report [--mail] year month [date]'
+    opt.on('--mail', 'send to managers') { |v| params['mode'] = 'mail' }
+    args = opt.parse(ARGV)
+    report(args, params)
+  end
+when 'payment'
+  params = {}
+  OptionParser.new do |opt|
+    opt.banner = 'Usage: luca-salary payment [--mail] year month [date]'
+    opt.on('--mail', 'send to managers') { |v| params['mode'] = 'mail' }
+    args = opt.parse(ARGV)
+    payment(args)
+  end
+else
+  puts 'Invalid subcommand'
+end

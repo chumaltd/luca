@@ -130,7 +130,7 @@ module Luca
     def load_config(path = nil)
       path = path.to_s
       if File.exists?(path)
-        YAML.load_file(path, {})
+        YAML.load_file(path, **{})
       else
         {}
       end
