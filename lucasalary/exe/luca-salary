@@ -1,11 +1,12 @@
 #!/usr/bin/ruby
+# frozen_string_literal: true
 
 require 'optparse'
-require 'luca/salary'
-require 'luca/salary/monthly'
-require 'luca/salary/profile'
+require 'luca_salary'
+require 'luca_salary/monthly'
+require 'luca_salary/profile'
 
-def export(args = nil, params = nil)
+def export(args = nil, _params = nil)
   if args
     args << 28 if args.length == 2 # specify safe last day
     Monthly.new(args.join('-')).export_json
@@ -14,12 +15,12 @@ def export(args = nil, params = nil)
   end
 end
 
-def payment(args = nil, params = nil)
+def payment(args = nil, _params = nil)
   if args
     args << 28 if args.length == 2 # specify safe last day
-    Salary.new(args.join('-')).calc
+    LucaSalary::Base.new(args.join('-')).calc
   else
-    Salary.new.calc
+    LucaSalary::Base.new.calc
   end
 end
 
@@ -32,7 +33,7 @@ def report(args = nil, params = nil)
   end
 end
 
-def add_person(args = nil, params = nil)
+def add_person(args = nil, _params = nil)
   Profile.gen_profile!(args.first)
 end
 
@@ -47,7 +48,7 @@ when 'report'
   params = {}
   OptionParser.new do |opt|
     opt.banner = 'Usage: luca-salary report [--mail] year month [date]'
-    opt.on('--mail', 'send to managers') { |v| params['mode'] = 'mail' }
+    opt.on('--mail', 'send to managers') { |_v| params['mode'] = 'mail' }
     args = opt.parse(ARGV)
     report(args, params)
   end
@@ -55,7 +56,7 @@ when 'payment'
   params = {}
   OptionParser.new do |opt|
     opt.banner = 'Usage: luca-salary payment [--mail] year month [date]'
-    opt.on('--mail', 'send to managers') { |v| params['mode'] = 'mail' }
+    opt.on('--mail', 'send to managers') { |_v| params['mode'] = 'mail' }
     args = opt.parse(ARGV)
     payment(args)
   end

@@ -5,7 +5,6 @@ require 'mail'
 require 'yaml'
 require 'luca'
 require 'luca_salary'
-require 'luca_salary/fileop'
 
 class Monthly
   include Luca::Code
@@ -14,7 +13,7 @@ class Monthly
   def initialize(date = nil)
     @date = parse_date(date)
     @pjdir = set_data_dir(Dir.pwd)
-    @salary = Salary.new(date)
+    @salary = LucaSalary::Base.new(date)
   end
 
   def export_json
