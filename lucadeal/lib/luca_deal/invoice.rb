@@ -4,8 +4,10 @@ require 'mail'
 require 'yaml'
 require 'pathname'
 require 'bigdecimal'
+require 'luca_support/config'
 require 'luca'
 require 'luca_deal/contract'
+require 'luca_record'
 
 module LucaDeal
   class Invoice
@@ -13,7 +15,8 @@ module LucaDeal
 
     def initialize(date = nil)
       @date = issue_date(date)
-      @pjdir = Pathname(Dir.pwd)
+      @pjdir = Pathname(LucaSupport::Config::Pjdir)
+      #@pjdir = Pathname(Dir.pwd)
       @config = load_config(@pjdir + 'config.yml')
     end
 
@@ -72,7 +75,7 @@ module LucaDeal
 
       basedir = datadir / 'invoices'
       subdir = @date.year.to_s + encode_month(@date)
-      open_records(basedir, subdir) do |f, subpath|
+      LucaRecord::Base.open_records('invoices', subdir) do |f, subpath|
         yield(YAML.load(f.read), basedir / subpath)
       end
     end

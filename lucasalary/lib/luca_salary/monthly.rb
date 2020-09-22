@@ -5,6 +5,7 @@ require 'mail'
 require 'yaml'
 require 'luca'
 require 'luca_salary'
+require 'luca_record'
 
 class Monthly
   include Luca::Code
@@ -12,7 +13,6 @@ class Monthly
 
   def initialize(date = nil)
     @date = parse_date(date)
-    @pjdir = set_data_dir(Dir.pwd)
     @salary = LucaSalary::Base.new(date)
   end
 
@@ -92,18 +92,10 @@ class Monthly
   end
 
   def load_payments
-    open_payments do |f, name|
+    subdir = @date.year.to_s + encode_month(@date)
+    LucaRecord::Base.open_records('payments', subdir) do |f, _name|
       data = YAML.load(f.read)
       yield data
-    end
-  end
-
-  def open_payments
-    payment_dir = Pathname(@pjdir) + 'payments' + "#{@date.year}#{encode_month(@date)}"
-    Dir.chdir(payment_dir.to_s) do
-      Dir.glob("*").each do |file_name|
-        File.open(file_name, 'r') { |f| yield(f, file_name) }
-      end
     end
   end
 
