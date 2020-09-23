@@ -1,7 +1,8 @@
-require "csv"
-require "pathname"
-require "luca/io"
-require "luca_book"
+require 'csv'
+require 'pathname'
+require 'luca/io'
+require 'luca_book'
+require 'luca_book/dict'
 
 class LucaBookReport
   include Luca::IO
@@ -116,7 +117,6 @@ class LucaBookReport
   end
 
   def dict
-    @book.dict
+    LucaBook::Dict::Data
   end
-
 end

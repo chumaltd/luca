@@ -22,12 +22,13 @@ module LucaRecord
     module ClassMethods
       #
       # find ID based record
+      # TODO: need to support date based
       #
-      def find(basedir, id)
+      def find(id, basedir = @dirname)
         return enum_for(:find, basedir, id) unless block_given?
 
         open_hashed(basedir, id) do |f|
-          yield YAML.load(f.read)
+          yield load_data(f)
         end
       end
 
@@ -37,13 +38,13 @@ module LucaRecord
       # * data hash
       # * data id. Array like [2020H, V001]
       #
-      def when(basedir, year, month = nil, day = nil)
+      def when(year, month = nil, day = nil, basedir = @dirname)
         return enum_for(:when, basedir, year, month, day) unless block_given?
 
         subdir = year.to_s + Luca::Code.encode_month(month)
         filename = Luca::Code.encode_date(day)
         open_records(basedir, subdir, filename) do |f, path|
-          yield YAML.load(f.read), path
+          yield load_data(f, path), path
         end
       end
 
@@ -79,6 +80,44 @@ module LucaRecord
         File.open((dirpath + filename).to_s, mode) { |f| yield f }
       end
 
+      def load_data(io, path=nil)
+        case @record_type
+        when 'journal'
+          load_journal(io, path)
+        else
+          YAML.load(io.read)
+        end
+      end
+
+      def load_journal(io, path)
+        {}.tap do |record|
+          record[:id] = /^([^-]+)/.match(path.last)[1].gsub('/', '')
+          CSV.new(io, headers: false, col_sep: "\t", encoding: 'UTF-8')
+            .each.with_index(0) do |line, i|
+            break if i >= rows
+
+            case i
+            when 0
+              record[:debit] = line.map{|row| { code: row } }
+            when 1
+              line.each_with_index do |amount, i|
+                record[:debit][i][:amount] = amount.to_i # TODO: bigdecimal support
+              end
+            when 2
+              record[:credit] = line.map{|row| { code: row } }
+              break if ! code.nil? && file.length <= 4 && ! (record[:debit]+record[:credit]).include?(code)
+            when 3
+              line.each_with_index do |amount, i|
+                record[:credit][i][:amount] = amount.to_i # TODO: bigdecimal support
+              end
+            when 4
+              record[:note] = line.join(' ')
+            end
+            record[:note] = line.first if i == 4
+          end
+        end
+      end
+
       # TODO: replace with data_dir method
       def abs_path(base_dir)
         Pathname(LucaSupport::Config::Pjdir) / 'data' / base_dir
@@ -102,7 +141,7 @@ module LucaRecord
       # * "a7b806d04a044c6dbc4ce72932867719"
       #
       def id2path(id)
-        if id.kind_of?(Array)
+        if id.is_a?(Array)
           id.join('/')
         elsif id.include?('/')
           id
@@ -111,6 +150,9 @@ module LucaRecord
         end
       end
 
+      #
+      # Directory separation for performance. Same as Git way.
+      #
       def encode_hashed_path(id, split_factor = 3)
         len = id.length
         if len <= split_factor
@@ -120,7 +162,7 @@ module LucaRecord
         end
       end
 
-      def add_status!(basedir, id, status)
+      def add_status!(id, status, basedir = @dirname)
         path = abs_path(basedir) / id2path(id)
         origin = YAML.load_file(path, {})
         newline = { status => DateTime.now.to_s }

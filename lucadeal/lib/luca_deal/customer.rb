@@ -9,9 +9,11 @@ require 'luca'
 require 'luca_record'
 
 module LucaDeal
-  class Customer
+  class Customer < LucaRecord::Base
     include Luca::IO
     include Luca::Code
+
+    @dirname = 'customers'
 
     def initialize(pjdir = nil)
       @date = Date.today

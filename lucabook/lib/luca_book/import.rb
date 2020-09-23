@@ -1,7 +1,8 @@
-require "date"
-require "json"
-require "luca_book"
-require "luca/support"
+require 'date'
+require 'json'
+require 'luca_book'
+require 'luca/support'
+require 'luca_book/dict'
 
 module LucaBookImport
   DEBIT_DEFAULT = "273"  # 仮払金
@@ -31,7 +32,7 @@ module LucaBookImport
     d = JSON.parse(io)
     validate(d)
 
-    dict = reverse_dict
+    dict = LucaBook::Dict.reverse_dict(LucaBook::Dict::Data)
     d["debit"].each{|h| h["label"] = search_code(dict, h["label"], DEBIT_DEFAULT) }
     d["credit"].each{|h| h["label"] = search_code(dict, h["label"], CREDIT_DEFAULT) }
 
@@ -59,11 +60,6 @@ module LucaBookImport
     res = dict.map do |k,v|
       [v, LucaSupport.match_score(str, k, 3)]
     end
-    res.max {|x, y| x[1] <=> y[1] }
+    res.max { |x, y| x[1] <=> y[1] }
   end
-
-  def reverse_dict
-    LucaBook.new.load_dict.map{|k,v| [v[:label], k]}.to_h
-  end
-
 end

@@ -10,8 +10,10 @@ require 'luca_deal/contract'
 require 'luca_record'
 
 module LucaDeal
-  class Invoice
+  class Invoice < LucaRecord::Base
     include Luca::IO
+
+    @dirname = 'invoices'
 
     def initialize(date = nil)
       @date = issue_date(date)
@@ -21,18 +23,18 @@ module LucaDeal
 
     def deliver_mail
       attachment_type = @config.dig('invoice', 'attachment') || :html
-      LucaRecord::Base.when(@date.year, @date.month) do |dat, path|
+      self.class.when(@date.year, @date.month) do |dat, path|
         next if has_status?(dat, 'mail_delivered')
 
         mail = compose_mail(dat, attachment: attachment_type.to_sym)
         Luca::Mail.new(mail, @pjdir).deliver
-        LucaRecord::Base.add_status!('invoice', path, 'mail_delivered')
+        self.class.add_status!(path, 'mail_delivered')
       end
     end
 
     def preview_mail(attachment_type = nil)
       attachment_type ||= @config.dig('invoice', 'attachment') || :html
-      LucaRecord::Base.when(@date.year, @date.month) do |dat, _path|
+      self.class.when(@date.year, @date.month) do |dat, _path|
         mail = compose_mail(dat, mode: :preview, attachment: attachment_type.to_sym)
         Luca::Mail.new(mail, @pjdir).deliver
       end
@@ -61,7 +63,7 @@ module LucaDeal
     def stats
       {}.tap do |stat|
         stat['issue_date'] = @date.to_s
-        stat['records'] = LucaRecord::Base.when('invoices', @date.year, @date.month).map do |invoice|
+        stat['records'] = self.class.when(@date.year, @date.month).map do |invoice|
           amount = invoice['items'].inject(0) { |sum, item| sum + item['price'] }
           [invoice['customer']['name'], amount]
         end
@@ -108,7 +110,7 @@ module LucaDeal
 
     def get_customer(id)
       {}.tap do |res|
-        LucaRecord::Base.find('customers', id) do |dat|
+        LucaSalary::Customer.find(id) do |dat|
           res['id'] = dat['id']
           res['name'] = take_active(dat, 'name')
           res['address'] = take_active(dat, 'address')
