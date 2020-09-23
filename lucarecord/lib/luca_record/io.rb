@@ -34,9 +34,21 @@ module LucaRecord
           Dir.glob("#{subdir}*/#{file_pattern}").sort.each do |subpath|
             next if skip_on_unmatch_code(subpath, code)
 
-            File.open(subpath, mode) { |f| yield(f, subpath) }
+            File.open(subpath, mode) { |f| yield(f, subpath.split('/')) }
           end
         end
+      end
+
+      ###
+      ### git object like structure
+      ###
+      def open_hashed(basedir, id, mode = 'r')
+        return enum_for(:open_hashed, basedir, id, mode) unless block_given?
+
+        subdir, filename = encode_hashed_path(id)
+        dirpath = Pathname(abs_path(basedir)) + subdir
+        FileUtils.mkdir_p(dirpath.to_s) if mode != 'r'
+        File.open((dirpath + filename).to_s, mode) { |f| yield f }
       end
 
       # TODO: replace with data_dir method
@@ -52,6 +64,15 @@ module LucaRecord
         return false if code.nil? or filename.length <= 4
 
         !filename.split('-')[1..-1].include?(code)
+      end
+
+      def encode_hashed_path(id, split_factor = 3)
+        len = id.length
+        if len <= split_factor
+          ['', id]
+        else
+          [id[0, split_factor], id[split_factor, len - split_factor]]
+        end
       end
     end
 
@@ -179,26 +200,6 @@ module LucaRecord
       data.each { |row| yield row }
     end
 
-    ###
-    ### git object like structure
-    ###
-    def open_hashed(basedir, id, mode = 'r')
-      return enum_for(:open_hashed, basedir, id, mode) unless block_given?
-
-      subdir, filename = encode_hashed_path(id)
-      dirpath = Pathname(basedir) + subdir
-      FileUtils.mkdir_p(dirpath.to_s) if mode != 'r'
-      File.open((dirpath + filename).to_s, mode) { |f| yield f }
-    end
-
-    def encode_hashed_path(id, split_factor = 3)
-      len = id.length
-      if len <= split_factor
-        ['', id]
-      else
-        [id[0, split_factor], id[split_factor, len - split_factor]]
-      end
-    end
 
     def save_pdf(html_dat, path)
       File.write(path, html2pdf(html_dat))

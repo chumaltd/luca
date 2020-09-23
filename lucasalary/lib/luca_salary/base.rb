@@ -5,6 +5,7 @@ require 'yaml'
 require 'pathname'
 require 'luca'
 require 'luca_salary/fileop'
+require 'luca_record'
 
 module LucaSalary
   class Base
@@ -61,17 +62,15 @@ module LucaSalary
             nil
           end
         end
-        savedir = (datadir + 'payments' + targetdir).to_s
-        open_hashed(savedir, id, 'w') do |f|
+        LucaRecord::Base.open_hashed("payments/#{targetdir}", id, 'w') do |f|
           f.write(YAML.dump(past_data.merge!(payment).sort.to_h))
         end
       end
     end
 
     def load_id_data(id, dir)
-      targetdir = (datadir + 'payments' + 'dir').to_s
       begin
-        open_hashed(targetdir, id, 'r') do |f|
+        LucaRecord::Base.open_hashed('payments/dir', id, 'r') do |f|
           h = YAML.load(f.read)
         end
       rescue => error

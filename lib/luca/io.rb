@@ -60,36 +60,6 @@ module Luca
       File.open(path.to_s, 'w') { |f| yield(f)  }
     end
 
-    #
-    # open records with 'basedir/month/date-code' path structure.
-    # Glob pattern can be specified like folloing examples.
-    #
-    #* '2020': All month of 2020
-    #* '2020[FG]': June & July of 2020
-    #
-    def open_records(basedir, subdir, filename = nil, code = nil, mode = 'r')
-      return enum_for(:open_records, basedir, subdir, filename, code, mode) unless block_given?
-
-      file_pattern = filename.nil? ? "*" : "#{filename}*"
-      Dir.chdir(basedir) do
-        Dir.glob("#{subdir}*/#{file_pattern}").sort.each do |subpath|
-          next if skip_on_unmatch_code(subpath, code)
-
-          File.open(subpath, mode) { |f| yield(f, subpath) }
-        end
-      end
-    end
-
-    # true when file doesn't have record on code
-    # false when file may have one
-    def skip_on_unmatch_code(subpath, code=nil)
-      # p filename.split('-')[1..-1]
-      filename = subpath.split('/').last
-      return false if code.nil? or filename.length <= 4
-
-      !filename.split('-')[1..-1].include?(code)
-    end
-
     def new_record_id(basedir, date_obj)
       encode_txid(new_record_no(basedir, date_obj))
     end
@@ -165,27 +135,6 @@ module Luca
 
       data = CSV.read(path, headers: true, col_sep: "\t", encoding: 'UTF-8')
       data.each { |row| yield row }
-    end
-
-    ###
-    ### git object like structure
-    ###
-    def open_hashed(basedir, id, mode = 'r')
-      return enum_for(:open_hashed, basedir, id, mode) unless block_given?
-
-      subdir, filename = encode_hashed_path(id)
-      dirpath = Pathname(basedir) + subdir
-      FileUtils.mkdir_p(dirpath.to_s) if mode != 'r'
-      File.open((dirpath + filename).to_s, mode) { |f| yield f }
-    end
-
-    def encode_hashed_path(id, split_factor = 3)
-      len = id.length
-      if len <= split_factor
-        ['', id]
-      else
-        [id[0, split_factor], id[split_factor, len - split_factor]]
-      end
     end
 
     def save_pdf(html_dat, path)

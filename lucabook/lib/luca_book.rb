@@ -2,9 +2,10 @@
 # manipulate files based on transaction date
 #
 
-require "csv"
+require 'csv'
 require 'date'
-require "luca/io"
+require 'luca/io'
+require 'luca_record'
 
 class LucaBook
   include Luca::IO
@@ -55,18 +56,19 @@ class LucaBook
 
   def get_records(month_dir, filename=nil, code=nil, rows=5)
     records = []
-    open_records(@pjdir, month_dir, filename, code) do |f, path|
+    LucaRecord::Base.open_records('journals', month_dir, filename, code) do |f, path|
       record = {}
-      record[:id] = /^([^-]+)/.match(path)[1].gsub('/', '')
-      CSV.new(f, headers: false, col_sep: "\t", encoding: "UTF-8")
+      record[:id] = /^([^-]+)/.match(path.last)[1].gsub('/', '')
+      CSV.new(f, headers: false, col_sep: "\t", encoding: 'UTF-8')
         .each.with_index(0) do |line, i|
         break if i >= rows
+
         case i
         when 0
           record[:debit] = line.map{|row| { code: row } }
         when 1
           line.each_with_index do |amount, i|
-            record[:debit][i][:amount] = amount.to_i # todo: bigdecimal support
+            record[:debit][i][:amount] = amount.to_i # TODO: bigdecimal support
           end
         when 2
           record[:credit] = line.map{|row| { code: row } }
@@ -89,13 +91,13 @@ class LucaBook
   def gross(year, month=nil, code=nil, date_range=nil, rows=4)
     if ! date_range.nil?
       raise if date_range.class != Range
-      # todo: date based range search
+      # TODO: date based range search
     end
 
     sum = { debit: {}, credit: {} }
     idx_memo = []
     month_str = "#{year.to_s}#{encode_month(month)}"
-    open_records(@pjdir, month_str) do |f, _path|
+    LucaRecord::Base.open_records('journals', month_str) do |f, _path|
       CSV.new(f, headers: false, col_sep: "\t", encoding: "UTF-8")
         .each.with_index(0) do |row, i|
         break if i >= rows

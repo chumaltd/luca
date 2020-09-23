@@ -3,6 +3,7 @@ require 'luca_deal/version'
 require 'yaml'
 require 'pathname'
 require 'luca'
+require 'luca_record'
 
 module LucaDeal
   class Contract
@@ -42,9 +43,8 @@ module LucaDeal
     end
 
     def generate!(customer_id)
-      contract_dir = self.class.datadir(@pjdir) / 'contracts'
       id = issue_random_id
-      open_hashed(self.class.datadir(@pjdir) / 'customers', customer_id) do |c|
+      LucaRecord::Base.open_hashed('customers', customer_id) do |c|
         customer = YAML.safe_load(c.read)
         obj = { 'id' => id, 'customer_id' => customer['id'], 'customer_name' => take_active(customer, 'name') }
         obj['items'] = [{
@@ -53,7 +53,7 @@ module LucaDeal
                           'price' => 0
                         }]
         obj['terms'] = { 'billing_cycle' => 'monthly', 'effective' => @date }
-        open_hashed(contract_dir, id, 'w') do |f|
+        LucaRecord::Base.open_hashed('contracts', id, 'w') do |f|
           f.write(YAML.dump(obj))
         end
         id

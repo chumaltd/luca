@@ -12,10 +12,12 @@ class LucaBookReport
     @book = LucaBook.new(dir_path)
   end
 
+  # TODO: not compatible with LucaRecord::Base.open_records
   def search_tag(code)
     count = 0
     Dir.children(@book.pjdir).sort.each do |dir|
       next if ! FileTest.directory?(@book.pjdir+dir)
+
       open_records(datadir, dir, 3) do |row, i|
         next if i == 2
         count += 1 if row.include?(code)
@@ -41,10 +43,10 @@ class LucaBookReport
   end
 
   def records_with_balance(year, month, code, balance)
-      @book.search(year, month, nil, code).each do |h|
-        balance += @book.calc_diff(amount_by_code(h[:debit], code), code) - @book.calc_diff(amount_by_code(h[:credit], code), code)
-        h[:balance] = balance
-      end
+    @book.search(year, month, nil, code).each do |h|
+      balance += @book.calc_diff(amount_by_code(h[:debit], code), code) - @book.calc_diff(amount_by_code(h[:credit], code), code)
+      h[:balance] = balance
+    end
   end
 
   def accumulate_all

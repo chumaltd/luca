@@ -119,7 +119,7 @@ module LucaDeal
 
     def get_customer(id)
       {}.tap do |res|
-        open_hashed(datadir / 'customers', id) do |f|
+        LucaRecord::Base.open_hashed('customers', id) do |f|
           dat = YAML.load(f)
           res['id'] = dat['id']
           res['name'] = take_active(dat, 'name')

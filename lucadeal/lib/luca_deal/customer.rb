@@ -1,9 +1,12 @@
+# frozen_string_literal: true
+
 require 'luca_deal/version'
 
 require 'date'
 require 'yaml'
 require 'pathname'
 require 'luca'
+require 'luca_record'
 
 module LucaDeal
   class Customer
@@ -32,7 +35,7 @@ module LucaDeal
     def self.open_customers(pjdir)
       match_files = datadir(pjdir) + 'customers' + "*" + "*"
       Dir.glob(match_files.to_s).each do |file_name|
-        File.open(file_name, 'r') {|f| yield(f, file_name)}
+        File.open(file_name, 'r') { |f| yield(f, file_name) }
       end
     end
 
@@ -41,7 +44,6 @@ module LucaDeal
     end
 
     def generate!(name)
-      customer_dir = self.class.datadir(@pjdir) + 'customers'
       id = issue_random_id
       contact = {
         'mail' => '_MAIL_ADDRESS_FOR_CONTACT_'
@@ -53,7 +55,7 @@ module LucaDeal
         'address2' => '_CUSTOMER_ADDRESS_FOR_INVOICE_',
         'contacts' => [contact]
       }
-      open_hashed(customer_dir, id, 'w') do |f|
+      LucaRecord::Base.open_hashed('customers', id, 'w') do |f|
         f.write(YAML.dump(obj))
       end
       id
