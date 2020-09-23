@@ -44,8 +44,7 @@ module LucaDeal
 
     def generate!(customer_id)
       id = issue_random_id
-      LucaRecord::Base.open_hashed('customers', customer_id) do |c|
-        customer = YAML.safe_load(c.read)
+      LucaRecord::Base.find('customers', customer_id) do |customer|
         obj = { 'id' => id, 'customer_id' => customer['id'], 'customer_name' => take_active(customer, 'name') }
         obj['items'] = [{
                           'name' => '_ITEM_NAME_FOR_INVOICE_',

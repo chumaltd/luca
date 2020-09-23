@@ -5,6 +5,7 @@ require 'digest/sha1'
 # implement Luca IDs convention
 module Luca
   module Code
+    module_function
 
     def encode_txid(num)
       txmap = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'

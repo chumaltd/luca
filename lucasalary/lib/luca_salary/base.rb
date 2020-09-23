@@ -49,10 +49,11 @@ module LucaSalary
         id = profile.dig('id')
         payment = {}
         targetdir = @date.year.to_s + 'Z'
-        past_data = load_id_data(id, "payments/#{targetdir}")
+        past_data = LucaRecord::Base.find("payments/#{targetdir}", id).first
         nodata = (1..12).map do |month| 
           origin_dir = @date.year.to_s + [nil, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'][month]
-          origin = load_id_data(id, "payments/#{origin_dir}")
+          origin = LucaRecord::Base.find("payments/#{origin_dir}", id).first
+          # TODO: to be updated null check
           if origin == {}
             month
           else
@@ -65,16 +66,6 @@ module LucaSalary
         LucaRecord::Base.open_hashed("payments/#{targetdir}", id, 'w') do |f|
           f.write(YAML.dump(past_data.merge!(payment).sort.to_h))
         end
-      end
-    end
-
-    def load_id_data(id, dir)
-      begin
-        LucaRecord::Base.open_hashed('payments/dir', id, 'r') do |f|
-          h = YAML.load(f.read)
-        end
-      rescue => error
-        {}
       end
     end
 

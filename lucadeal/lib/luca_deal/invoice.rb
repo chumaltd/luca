@@ -16,24 +16,23 @@ module LucaDeal
     def initialize(date = nil)
       @date = issue_date(date)
       @pjdir = Pathname(LucaSupport::Config::Pjdir)
-      #@pjdir = Pathname(Dir.pwd)
       @config = load_config(@pjdir + 'config.yml')
     end
 
     def deliver_mail
       attachment_type = @config.dig('invoice', 'attachment') || :html
-      by_month do |dat, path|
+      LucaRecord::Base.when(@date.year, @date.month) do |dat, path|
         next if has_status?(dat, 'mail_delivered')
 
         mail = compose_mail(dat, attachment: attachment_type.to_sym)
         Luca::Mail.new(mail, @pjdir).deliver
-        add_status!(path, 'mail_delivered')
+        LucaRecord::Base.add_status!('invoice', path, 'mail_delivered')
       end
     end
 
     def preview_mail(attachment_type = nil)
       attachment_type ||= @config.dig('invoice', 'attachment') || :html
-      by_month do |dat, path|
+      LucaRecord::Base.when(@date.year, @date.month) do |dat, _path|
         mail = compose_mail(dat, mode: :preview, attachment: attachment_type.to_sym)
         Luca::Mail.new(mail, @pjdir).deliver
       end
@@ -62,21 +61,11 @@ module LucaDeal
     def stats
       {}.tap do |stat|
         stat['issue_date'] = @date.to_s
-        stat['records'] = by_month.map do |invoice|
+        stat['records'] = LucaRecord::Base.when('invoices', @date.year, @date.month).map do |invoice|
           amount = invoice['items'].inject(0) { |sum, item| sum + item['price'] }
           [invoice['customer']['name'], amount]
         end
         puts YAML.dump(stat)
-      end
-    end
-
-    def by_month
-      return enum_for(:by_month) unless block_given?
-
-      basedir = datadir / 'invoices'
-      subdir = @date.year.to_s + encode_month(@date)
-      LucaRecord::Base.open_records('invoices', subdir) do |f, subpath|
-        yield(YAML.load(f.read), basedir / subpath)
       end
     end
 
@@ -119,8 +108,7 @@ module LucaDeal
 
     def get_customer(id)
       {}.tap do |res|
-        LucaRecord::Base.open_hashed('customers', id) do |f|
-          dat = YAML.load(f)
+        LucaRecord::Base.find('customers', id) do |dat|
           res['id'] = dat['id']
           res['name'] = take_active(dat, 'name')
           res['address'] = take_active(dat, 'address')

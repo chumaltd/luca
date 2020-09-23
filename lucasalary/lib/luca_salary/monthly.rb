@@ -51,7 +51,7 @@ class Monthly
     [].tap do |person|
       person << "As of: #{@date.year}/#{@date.month}"
 
-      load_payments do |payment|
+      LucaRecord::Base.when('payments', @date.year, @date.month) do |payment|
         slip = [].tap do |line|
           payment.each do |k, v|
             next if k == 'id'
@@ -66,7 +66,7 @@ class Monthly
 
   def accumulate
     {}.tap do |h|
-      load_payments do |payment|
+      LucaRecord::Base.when('payments', @date.year, @date.month) do |payment|
         payment.each do |k, v|
           next if k == 'id'
 
@@ -88,14 +88,6 @@ class Monthly
       :debit
     else
       :credit
-    end
-  end
-
-  def load_payments
-    subdir = @date.year.to_s + encode_month(@date)
-    LucaRecord::Base.open_records('payments', subdir) do |f, _name|
-      data = YAML.load(f.read)
-      yield data
     end
   end
 

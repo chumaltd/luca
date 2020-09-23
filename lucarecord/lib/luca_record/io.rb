@@ -3,6 +3,7 @@ require 'date'
 require 'erb'
 require 'fileutils'
 require 'open3'
+require 'yaml'
 require 'pathname'
 require 'luca/code'
 require 'luca_support/config'
@@ -19,6 +20,33 @@ module LucaRecord
     end
 
     module ClassMethods
+      #
+      # find ID based record
+      #
+      def find(basedir, id)
+        return enum_for(:find, basedir, id) unless block_given?
+
+        open_hashed(basedir, id) do |f|
+          yield YAML.load(f.read)
+        end
+      end
+
+      #
+      # search date based record.
+      #
+      # * data hash
+      # * data id. Array like [2020H, V001]
+      #
+      def when(basedir, year, month = nil, day = nil)
+        return enum_for(:when, basedir, year, month, day) unless block_given?
+
+        subdir = year.to_s + Luca::Code.encode_month(month)
+        filename = Luca::Code.encode_date(day)
+        open_records(basedir, subdir, filename) do |f, path|
+          yield YAML.load(f.read), path
+        end
+      end
+
       #
       # open records with 'basedir/month/date-code' path structure.
       # Glob pattern can be specified like folloing examples.
@@ -39,9 +67,9 @@ module LucaRecord
         end
       end
 
-      ###
-      ### git object like structure
-      ###
+      #
+      # git object like structure
+      #
       def open_hashed(basedir, id, mode = 'r')
         return enum_for(:open_hashed, basedir, id, mode) unless block_given?
 
@@ -66,6 +94,23 @@ module LucaRecord
         !filename.split('-')[1..-1].include?(code)
       end
 
+      #
+      # convert ID to file path. Normal argument is as follows:
+      #
+      # * [2020H, V001]
+      # * "2020H/V001"
+      # * "a7b806d04a044c6dbc4ce72932867719"
+      #
+      def id2path(id)
+        if id.kind_of?(Array)
+          id.join('/')
+        elsif id.include?('/')
+          id
+        else
+          encode_hashed_path(id)
+        end
+      end
+
       def encode_hashed_path(id, split_factor = 3)
         len = id.length
         if len <= split_factor
@@ -73,6 +118,15 @@ module LucaRecord
         else
           [id[0, split_factor], id[split_factor, len - split_factor]]
         end
+      end
+
+      def add_status!(basedir, id, status)
+        path = abs_path(basedir) / id2path(id)
+        origin = YAML.load_file(path, {})
+        newline = { status => DateTime.now.to_s }
+        origin['status'] = [] if origin['status'].nil?
+        origin['status'] << newline
+        File.write(path, YAML.dump(origin.sort.to_h))
       end
     end
 
@@ -169,14 +223,6 @@ module LucaRecord
       end
     end
 
-    def add_status!(path, status)
-      origin = YAML.load_file(path.to_s, {})
-      newline = { status => DateTime.now.to_s }
-      origin['status'] = [] if origin['status'].nil?
-      origin['status'] << newline
-      File.write(path.to_s, YAML.dump(origin.sort.to_h))
-    end
-
     def has_status?(dat, status)
       return false if dat['status'].nil?
 
@@ -199,7 +245,6 @@ module LucaRecord
       data = CSV.read(path, headers: true, col_sep: "\t", encoding: 'UTF-8')
       data.each { |row| yield row }
     end
-
 
     def save_pdf(html_dat, path)
       File.write(path, html2pdf(html_dat))
