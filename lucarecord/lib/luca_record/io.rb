@@ -5,7 +5,7 @@ require 'fileutils'
 require 'open3'
 require 'yaml'
 require 'pathname'
-require 'luca/code'
+require 'luca_support/code'
 require 'luca_support/config'
 
 # Low level API
@@ -13,7 +13,7 @@ require 'luca_support/config'
 #
 module LucaRecord
   module IO
-    include Luca::Code
+    include LucaSupport::Code
 
     def self.included(klass)
       klass.extend ClassMethods
@@ -41,8 +41,8 @@ module LucaRecord
       def when(year, month = nil, day = nil, basedir = @dirname)
         return enum_for(:when, year, month, day, basedir) unless block_given?
 
-        subdir = year.to_s + Luca::Code.encode_month(month)
-        filename = Luca::Code.encode_date(day)
+        subdir = year.to_s + LucaSupport::Code.encode_month(month)
+        filename = LucaSupport::Code.encode_date(day)
         open_records(basedir, subdir, filename) do |f, path|
           yield load_data(f, path), path
         end

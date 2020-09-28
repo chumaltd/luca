@@ -5,20 +5,18 @@ require 'yaml'
 require 'pathname'
 require 'bigdecimal'
 require 'luca_support/config'
-require 'luca'
+require 'luca_support/mail'
 require 'luca_deal/contract'
 require 'luca_record'
 
 module LucaDeal
   class Invoice < LucaRecord::Base
-    include Luca::IO
-
     @dirname = 'invoices'
 
     def initialize(date = nil)
       @date = issue_date(date)
       @pjdir = Pathname(LucaSupport::Config::Pjdir)
-      @config = load_config(@pjdir + 'config.yml')
+      @config = load_config(@pjdir / 'config.yml')
     end
 
     def deliver_mail
@@ -27,7 +25,7 @@ module LucaDeal
         next if has_status?(dat, 'mail_delivered')
 
         mail = compose_mail(dat, attachment: attachment_type.to_sym)
-        Luca::Mail.new(mail, @pjdir).deliver
+        LucaSupport::Mail.new(mail, @pjdir).deliver
         self.class.add_status!(path, 'mail_delivered')
       end
     end
@@ -36,7 +34,7 @@ module LucaDeal
       attachment_type ||= @config.dig('invoice', 'attachment') || :html
       self.class.when(@date.year, @date.month) do |dat, _path|
         mail = compose_mail(dat, mode: :preview, attachment: attachment_type.to_sym)
-        Luca::Mail.new(mail, @pjdir).deliver
+        LucaSupport::Mail.new(mail, @pjdir).deliver
       end
     end
 
@@ -64,8 +62,9 @@ module LucaDeal
       {}.tap do |stat|
         stat['issue_date'] = @date.to_s
         stat['records'] = self.class.when(@date.year, @date.month).map do |invoice|
-          amount = invoice['items'].inject(0) { |sum, item| sum + item['price'] }
-          [invoice['customer']['name'], amount]
+          amount = invoice['subtotal'].inject(0) { |sum, sub| sum + sub['items'] }
+          tax = invoice['subtotal'].inject(0) { |sum, sub| sum + sub['tax'] }
+          { 'customer' => invoice['customer']['name'], 'subtotal' => amount, 'tax' => tax}
         end
         puts YAML.dump(stat)
       end

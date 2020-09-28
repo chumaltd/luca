@@ -2,14 +2,10 @@ require 'luca_deal/version'
 
 require 'yaml'
 require 'pathname'
-require 'luca'
 require 'luca_record'
 
 module LucaDeal
-  class Contract
-    include Luca::IO
-    include Luca::Code
-
+  class Contract < LucaRecord::Base
     def initialize(date = nil)
       @date = date ? Date.parse(date) : Date.today
       @pjdir = Pathname(Dir.pwd)

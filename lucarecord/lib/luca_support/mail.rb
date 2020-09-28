@@ -1,10 +1,10 @@
 require "mail"
 require "pathname"
-require "luca/io"
+require "luca_record/io"
 
-module Luca
+module LucaSupport
   class Mail
-    include Luca::IO
+    include LucaRecord::IO
 
     def initialize(mail=nil, pjdir=nil)
       @pjdir = pjdir || Dir.pwd
@@ -40,6 +40,5 @@ module Luca
       @mail.from ||= @config.dig("mail", "from")
       @mail.cc ||= @config.dig("mail", "cc")
     end
-
   end
 end

@@ -3,14 +3,11 @@ require 'luca_salary/version'
 require 'date'
 require 'yaml'
 require 'pathname'
-require 'luca'
 require 'luca_salary/fileop'
 require 'luca_record'
 
 module LucaSalary
-  class Base
-    include Luca::IO
-    include Luca::Code
+  class Base < LucaRecord::Base
     attr_reader :driver, :dict, :config, :pjdir
 
     def initialize(date = nil)

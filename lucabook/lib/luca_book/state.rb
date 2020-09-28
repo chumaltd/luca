@@ -5,14 +5,12 @@
 require 'csv'
 require 'pathname'
 require 'date'
-require 'luca/io'
 require 'luca_record'
+require 'luca_record/dict'
 require 'luca_book'
-require 'luca_book/dict'
 
 module LucaBook
   class State < LucaRecord::Base
-    include Luca::IO
 
     @dirname = 'journals'
     @record_type = 'journal'

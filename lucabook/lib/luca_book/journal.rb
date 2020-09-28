@@ -4,13 +4,10 @@
 
 require 'csv'
 require 'date'
-require 'luca/io'
 require 'luca_record'
 
 module LucaBook
   class Journal < LucaRecord::Base
-    include Luca::IO
-
     @dirname = 'journals'
     @record_type = 'journal'
 

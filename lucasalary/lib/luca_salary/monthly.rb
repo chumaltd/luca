@@ -3,13 +3,11 @@ require 'pathname'
 require 'json'
 require 'mail'
 require 'yaml'
-require 'luca'
+require 'luca_support/mail'
 require 'luca_salary'
 require 'luca_record'
 
 class Monthly < LucaRecord::Base
-  include Luca::Code
-  include Luca::IO
 
   def initialize(date = nil)
     @date = parse_date(date)
@@ -41,7 +39,7 @@ class Monthly < LucaRecord::Base
       end
       mail.to = @salary.config.dig('mail', 'report_mail')
       mail.text_part = payslip
-      Luca::Mail.new(mail, @salary.pjdir).deliver
+      LucaSupport::Mail.new(mail, @salary.pjdir).deliver
     else
       puts payslip
     end

@@ -1,12 +1,8 @@
 require 'date'
 require 'yaml'
-require 'pathname'
-require 'luca'
 require 'luca_record'
 
-class Profile
-  extend Luca::IO
-  extend Luca::Code
+class Profile < LucaRecord::Base
 
   def self.gen_profile!(name)
     id = issue_random_id

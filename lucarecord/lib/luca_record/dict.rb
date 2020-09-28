@@ -4,7 +4,7 @@ require 'csv'
 require 'fileutils'
 require 'yaml'
 require 'pathname'
-require 'luca/code'
+require 'luca_support/code'
 require 'luca_support/config'
 
 #
@@ -12,7 +12,7 @@ require 'luca_support/config'
 #
 module LucaRecord
   module Dict
-    include Luca::Code
+    include LucaSupport::Code
 
     def self.included(klass)
       klass.extend ClassMethods

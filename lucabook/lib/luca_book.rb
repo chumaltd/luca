@@ -4,11 +4,10 @@
 
 require 'csv'
 require 'date'
-require 'luca/io'
 require 'luca_record'
 
 class LucaBook
-  include Luca::IO
+  include LucaRecord::IO
 
   attr_reader :pjdir
 

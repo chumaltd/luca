@@ -4,14 +4,14 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'luca/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'luca'
-  spec.version       = Luca::VERSION
+  spec.name          = 'lucasuite'
+  spec.version       = '0.0.0'
   spec.authors       = ['Chuma Takahiro']
   spec.email         = ['co.chuma@gmail.com']
 
-  spec.summary       = %q{ERP app framework}
+  spec.summary       = %q{ERP apps}
   spec.description   = <<~DESC
-   ERP app framework
+   ERP apps
   DESC
   spec.homepage      = 'https://github.com/chumaltd/luca'
 
@@ -30,12 +30,13 @@ Gem::Specification.new do |spec|
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
-  spec.files         = Dir["LICENSE", "lib/**/{*,.[a-z]*}"]
+  spec.files         = Dir["LICENSE"]
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
-  spec.require_paths = ["lib"]
 
-  spec.add_dependency 'mail'
+  spec.add_dependency 'lucabook'
+  spec.add_dependency 'lucadeal'
+  spec.add_dependency 'lucasalary'
 
   spec.add_development_dependency 'bundler', '~> 1.17'
   spec.add_development_dependency 'rake', '~> 12.3.3'

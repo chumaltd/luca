@@ -1,13 +1,13 @@
 
-lib = File.expand_path("../lib", __FILE__)
+lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "luca_record/version"
+require 'luca_record/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "lucarecord"
+  spec.name          = 'lucarecord'
   spec.version       = LucaRecord::VERSION
-  spec.authors       = ["Chuma Takahiro"]
-  spec.email         = ["co.chuma@gmail.com"]
+  spec.authors       = ['Chuma Takahiro']
+  spec.email         = ['co.chuma@gmail.com']
 
   spec.summary       = %q{ERP File operation framework}
   spec.description   = <<~DESC
@@ -33,7 +33,9 @@ Gem::Specification.new do |spec|
   spec.executables   = []
   spec.require_paths = ["lib"]
 
-  spec.add_development_dependency "bundler", "~> 1.17"
-  spec.add_development_dependency "rake", "~> 12.3.3"
-  spec.add_development_dependency "minitest", "~> 5.0"
+  spec.add_dependency 'mail'
+
+  spec.add_development_dependency 'bundler', '~> 1.17'
+  spec.add_development_dependency 'rake', '~> 12.3.3'
+  spec.add_development_dependency 'minitest', '~> 5.0'
 end
