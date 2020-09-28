@@ -110,7 +110,7 @@ module LucaDeal
 
     def get_customer(id)
       {}.tap do |res|
-        LucaSalary::Customer.find(id) do |dat|
+        LucaDeal::Customer.find(id) do |dat|
           res['id'] = dat['id']
           res['name'] = take_active(dat, 'name')
           res['address'] = take_active(dat, 'address')
