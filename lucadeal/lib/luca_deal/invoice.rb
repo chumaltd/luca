@@ -137,7 +137,7 @@ module LucaDeal
       Date.new(base.year, base.month, -1)
     end
 
-    # todo: support due_date variation
+    # TODO: support due_date variation
     def due_date(date)
       Date.new(date.year, date.month + 1, -1)
     end

@@ -42,17 +42,17 @@ module Luca
       num.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\1,').reverse
     end
 
+    #
+    # Month to code conversion.
+    # Date, String, Integer is valid input. If nil, returns empty String for consistency.
+    #
     def encode_month(date)
-      return nil if date.nil?
+      return '' if date.nil?
 
-      if date.class == Date || date.class == DateTime
-        index = date.month
-      elsif date.class == String || date.class == Integer
-        index = date.to_i
-      else
-        return nil
-      end
-      return nil if index < 1 || index > 12
+      index = date.month if date.respond_to?(:month)
+      index ||= date.to_i if date.respond_to?(:to_i)
+      index ||= 0
+      raise 'Invalid month specified' if index < 1 || index > 12
 
       '0ABCDEFGHIJKL'[index]
     end

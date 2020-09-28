@@ -25,7 +25,7 @@ module LucaRecord
       # TODO: need to support date based
       #
       def find(id, basedir = @dirname)
-        return enum_for(:find, basedir, id) unless block_given?
+        return enum_for(:find, id, basedir) unless block_given?
 
         open_hashed(basedir, id) do |f|
           yield load_data(f)
@@ -39,7 +39,7 @@ module LucaRecord
       # * data id. Array like [2020H, V001]
       #
       def when(year, month = nil, day = nil, basedir = @dirname)
-        return enum_for(:when, basedir, year, month, day) unless block_given?
+        return enum_for(:when, year, month, day, basedir) unless block_given?
 
         subdir = year.to_s + Luca::Code.encode_month(month)
         filename = Luca::Code.encode_date(day)
