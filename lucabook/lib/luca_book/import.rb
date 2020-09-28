@@ -11,22 +11,22 @@ module LucaBookImport
   module_function
 
   # == JSON Format:
-  # {
-  #   "date": "2020-05-04",
-  #   "debit" : [
-  #     {
-  #       "label": "savings accounts",
-  #       "value": 20000
-  #     }
-  #   ],
-  #   "credit" : [
-  #     {
-  #       "label": "trade notes receivable",
-  #       "value": 20000
-  #     }
-  #   ],
-  #   "note": "settlement for the last month trade"
-  # }
+  #   {
+  #     "date": "2020-05-04",
+  #     "debit" : [
+  #       {
+  #         "label": "savings accounts",
+  #         "value": 20000
+  #       }
+  #     ],
+  #     "credit" : [
+  #       {
+  #         "label": "trade notes receivable",
+  #         "value": 20000
+  #       }
+  #     ],
+  #     "note": "settlement for the last month trade"
+  #   }
   #
   def import_json(io)
     d = JSON.parse(io)
