@@ -58,15 +58,46 @@ module LucaDeal
       mail
     end
 
-    def stats
-      {}.tap do |stat|
-        stat['issue_date'] = @date.to_s
-        stat['records'] = self.class.when(@date.year, @date.month).map do |invoice|
-          amount = invoice['subtotal'].inject(0) { |sum, sub| sum + sub['items'] }
-          tax = invoice['subtotal'].inject(0) { |sum, sub| sum + sub['tax'] }
-          { 'customer' => invoice['customer']['name'], 'subtotal' => amount, 'tax' => tax}
+    #
+    # Output seriarized invoice data to stdout.
+    # Returns previous N months on multiple count
+    #
+    # === Example YAML output
+    #   ---
+    #   - records:
+    #     - customer: Example Co.
+    #       subtotal: 100000
+    #       tax: 10000
+    #       due: 2020-10-31
+    #       issue_date: '2020-09-30'
+    #     count: 1
+    #     total: 100000
+    #     tax: 10000
+    #
+    def stats(count = 1)
+      [].tap do |collection|
+        scan_date = @date.next_month
+        count.times do
+          scan_date = scan_date.prev_month
+          {}.tap do |stat|
+            stat['records'] = self.class.when(scan_date.year, scan_date.month).map do |invoice|
+              amount = invoice['subtotal'].inject(0) { |sum, sub| sum + sub['items'] }
+              tax = invoice['subtotal'].inject(0) { |sum, sub| sum + sub['tax'] }
+              {
+                'customer' => invoice.dig('customer', 'name'),
+                'subtotal' => amount,
+                'tax' => tax,
+                'due' => invoice.dig('due_date')
+              }
+            end
+            stat['issue_date'] = scan_date.to_s
+            stat['count'] = stat['records'].count
+            stat['total'] = stat['records'].inject(0) { |sum, rec| sum + rec.dig('subtotal') }
+            stat['tax'] = stat['records'].inject(0) { |sum, rec| sum + rec.dig('tax') }
+            collection << stat
+          end
         end
-        puts YAML.dump(stat)
+        puts YAML.dump(collection)
       end
     end
 

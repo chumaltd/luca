@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 # frozen_string_literal: true
 
+require 'date'
 require 'optparse'
 require 'luca_deal'
 
@@ -39,7 +40,7 @@ def contract(args = nil, params = {})
 end
 
 def invoice(args = nil, params = {})
-  date = "#{args[0]}-#{args[1]}-#{args[2] || '1'}"
+  date = "#{args[0]}-#{args[1]}-#{args[2] || '1'}" if !args.empty?
   case params['mode']
   when 'monthly'
     LucaDeal::Invoice.new(date).monthly_invoice
@@ -48,7 +49,11 @@ def invoice(args = nil, params = {})
   when 'preview'
     LucaDeal::Invoice.new(date).preview_mail
   when 'stats'
-    LucaDeal::Invoice.new(date).stats
+    if args.empty?
+      date = "#{Date.today.year}-#{Date.today.month}-1"
+      count = 3
+    end
+    LucaDeal::Invoice.new(date).stats(count || 1)
   else
     puts 'not implemented mode'
   end
