@@ -4,56 +4,132 @@ require 'csv'
 require 'fileutils'
 require 'yaml'
 require 'pathname'
-require 'luca_support/code'
-require 'luca_support/config'
+require 'luca_support'
 
 #
 # Low level API
 #
 module LucaRecord
-  module Dict
+  class Dict
     include LucaSupport::Code
 
-    def self.included(klass)
-      klass.extend ClassMethods
+    def initialize(file = @filename)
+      @path = file
+      #@path = dict_path(file)
+      set_driver
     end
 
-    module ClassMethods
-      #
-      # load dictionary data
-      #
-      def load(file = @filename)
-        case File.extname(file)
-        when '.tsv', '.csv'
-          load_tsv(dict_path(file))
-        when '.yaml', '.yml'
-          YAML.load_file(dict_path(file), **{})
-        else
-          raise 'cannot load this filetype'
-        end
+    def search(word, default_word = nil)
+      res = max_score_code(word)
+      if res[1] > 0.4
+        res[0]
+      else
+        default_word
       end
+    end
 
-      def reverse(dict)
-        dict.map{ |k, v| [v[:label], k] }.to_h
-      end
-
-      private
-
-      def dict_path(filename)
-        Pathname(LucaSupport::Config::Pjdir) / 'dict' / filename
-      end
-
-      # TODO: This is not generic code
-      def load_tsv(path)
-        {}.tap do |dic|
-          CSV.read(path, headers: true, col_sep: "\t", encoding: 'UTF-8').each do |row|
-            entry = { label: row[1] }
-            entry[:consumption_tax] = row[2].to_i if ! row[2].nil?
-            entry[:income_tax] = row[3].to_i if ! row[3].nil?
-            dic[row[0]] = entry
+    #
+    # Column number settings for CSV/TSV convert
+    #
+    # :label
+    #   for double entry data
+    # :counter_label
+    #   must be specified with label
+    # :debit_label
+    #   for double entry data
+    # * debit_value
+    # :credit_label
+    #   for double entry data
+    # * credit_value
+    # :note
+    #   can be the same column as another label
+    #
+    # :encoding
+    #   file encoding
+    #
+    def csv_config
+      {}.tap do |config|
+        if @config.dig('label')
+          config[:label] = @config['label'].to_i
+          if @config.dig('counter_label')
+            config[:counter_label] = @config['counter_label']
+            config[:type] = 'single'
+          end
+        elsif @config.dig('debit_label')
+          config[:debit_label] = @config['debit_label'].to_i
+          if @config.dig('credit_label')
+            config[:credit_label] = @config['credit_label'].to_i
+            config[:type] = 'double'
           end
         end
+        config[:type] ||= 'invalid'
+        config[:debit_value] = @config['debit_value'].to_i if @config.dig('debit_value')
+        config[:credit_value] = @config['credit_value'].to_i if @config.dig('credit_value')
+        config[:note] = @config['note'].to_i if @config.dig('note')
+        config[:encoding] = @config['encoding'] if @config.dig('encoding')
+
+        config[:year] = @config['year'] if @config.dig('year')
+        config[:month] = @config['month'] if @config.dig('month')
+        config[:day] = @config['day'] if @config.dig('day')
       end
+    end
+
+    #
+    # Load CSV with config options
+    #
+    def load_csv(path)
+      CSV.read(path, headers: true, encoding: "#{@config.dig('encoding') || 'utf-8'}:utf-8").each do |row|
+        yield row
+      end
+    end
+
+    #
+    # load dictionary data
+    #
+    def self.load(file = @filename)
+      case File.extname(file)
+      when '.tsv', '.csv'
+        load_tsv_dict(dict_path(file))
+      when '.yaml', '.yml'
+        YAML.load_file(dict_path(file), **{})
+      else
+        raise 'cannot load this filetype'
+      end
+    end
+
+    # TODO: This is not generic code
+    def self.load_tsv_dict(path)
+      {}.tap do |dic|
+        CSV.read(path, headers: true, col_sep: "\t", encoding: 'UTF-8').each do |row|
+          entry = { label: row['label'] }
+          entry[:consumption_tax] = row[2].to_i if ! row[2].nil?
+          entry[:income_tax] = row[3].to_i if ! row[3].nil?
+          dic[row['code']] = entry
+        end
+      end
+    end
+
+    private
+
+    def set_driver
+      input = self.class.load(@path)
+      @config = input['config']
+      @definitions = input['definitions']
+    end
+
+    def self.dict_path(filename)
+      Pathname(LucaSupport::Config::Pjdir) / 'dict' / filename
+    end
+
+    def self.reverse(dict)
+      dict.map{ |k, v| [v[:label], k] }.to_h
+    end
+
+    def max_score_code(str)
+      res = @definitions.map do |k, v|
+        [v, LucaSupport.match_score(str, k, 3)]
+      end
+      res.max { |x, y| x[1] <=> y[1] }
     end
   end
 end

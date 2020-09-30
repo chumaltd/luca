@@ -170,7 +170,52 @@ module LucaRecord
         origin['status'] << newline
         File.write(path, YAML.dump(origin.sort.to_h))
       end
-    end
+
+      # define new transaction ID & write data at once
+      #
+      def create_record!(date_obj, codes = nil, basedir = @dirname)
+        gen_record_file!(basedir, date_obj, codes) do |f|
+          f.write CSV.generate('', col_sep: "\t", headers: false) { |c| yield(c) }
+        end
+      end
+
+      def gen_record_file!(basedir, date_obj, codes = nil)
+        d = prepare_dir!(abs_path(basedir), date_obj)
+        filename = LucaSupport::Code.encode_date(date_obj) + new_record_id(abs_path(basedir), date_obj)
+        if codes
+          filename += codes.inject('') { |fragment, code| "#{fragment}-#{code}" }
+        end
+        path = Pathname(d) + filename
+        File.open(path.to_s, 'w') { |f| yield(f) }
+      end
+
+      def new_record_id(basedir, date_obj)
+        LucaSupport::Code.encode_txid(new_record_no(basedir, date_obj))
+      end
+
+      # AUTO INCREMENT
+      def new_record_no(basedir, date_obj)
+        dir_name = (Pathname(basedir) + encode_dirname(date_obj)).to_s
+        raise 'No target dir exists.' unless Dir.exist?(dir_name)
+
+        Dir.chdir(dir_name) do
+          last_file = Dir.glob("#{LucaSupport::Code.encode_date(date_obj)}*").max
+          return 1 if last_file.nil?
+
+          return LucaSupport::Code.decode_txid(last_file[1, 3]) + 1
+        end
+      end
+
+      def prepare_dir!(basedir, date_obj)
+        dir_name = (Pathname(basedir) + encode_dirname(date_obj)).to_s
+        FileUtils.mkdir_p(dir_name) unless Dir.exist?(dir_name)
+        dir_name
+      end
+
+      def encode_dirname(date_obj)
+        date_obj.year.to_s + LucaSupport::Code.encode_month(date_obj)
+      end
+    end # end of ClassModules
 
     def set_data_dir(dir_path = LucaSupport::Config::Pjdir)
       if dir_path.nil?
@@ -201,41 +246,6 @@ module LucaRecord
       end
     end
 
-    # define new transaction ID & write data at once
-    #
-    def create_record!(basedir, date_obj, codes = nil)
-      gen_record_file!(basedir, date_obj, codes) do |f|
-        CSV.new(f, col_sep: "\t") { |c| yield c }
-      end
-    end
-
-    def gen_record_file!(basedir, date_obj, codes = nil)
-      d = prepare_dir!(basedir, date_obj)
-      filename = encode_date(date_obj) + new_record_id(basedir, date_obj)
-      if codes
-        filename += codes.inject('') { |fragment, code| "#{fragment}-#{code}" }
-      end
-      path = Pathname(d) + filename
-      File.open(path.to_s, 'w') { |f| yield(f)  }
-    end
-
-    def new_record_id(basedir, date_obj)
-      encode_txid(new_record_no(basedir, date_obj))
-    end
-
-    # AUTO INCREMENT
-    def new_record_no(basedir, date_obj)
-      dir_name = (Pathname(basedir) + encode_dirname(date_obj)).to_s
-      raise 'No target dir exists.' unless Dir.exist?(dir_name)
-
-      Dir.chdir(dir_name) do
-        last_file = Dir.glob("#{encode_date(date_obj)}*").max
-        return 1 if last_file.nil?
-
-        return decode_txid(last_file[1, 3]) + 1
-      end
-    end
-
     def search_record(basedir, date_obj, code)
       dir_name = (Pathname(basedir) + encode_dirname(date_obj)).to_s
       raise 'No target dir exists.' unless Dir.exist?(dir_name)
@@ -244,16 +254,6 @@ module LucaRecord
         files = Dir.glob("*#{code}*")
         files.empty? ? nil : files
       end
-    end
-
-    def prepare_dir!(basedir, date_obj)
-      dir_name = (Pathname(basedir) + encode_dirname(date_obj)).to_s
-      FileUtils.mkdir_p(dir_name) unless Dir.exist?(dir_name)
-      dir_name
-    end
-
-    def encode_dirname(date_obj)
-      date_obj.year.to_s + encode_month(date_obj)
     end
 
     def load_config(path = nil)
