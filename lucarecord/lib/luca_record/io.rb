@@ -38,13 +38,17 @@ module LucaRecord
       # * data hash
       # * data id. Array like [2020H, V001]
       #
-      def when(year, month = nil, day = nil, basedir = @dirname)
+      def asof(year, month = nil, day = nil, basedir = @dirname)
         return enum_for(:when, year, month, day, basedir) unless block_given?
 
         subdir = year.to_s + LucaSupport::Code.encode_month(month)
         filename = LucaSupport::Code.encode_date(day)
         open_records(basedir, subdir, filename) do |f, path|
-          yield load_data(f, path), path
+          if @record_type == 'raw'
+            yield f, path
+          else
+            yield load_data(f, path), path
+          end
         end
       end
 
@@ -82,8 +86,11 @@ module LucaRecord
 
       def load_data(io, path=nil)
         case @record_type
-        when 'journal'
-          load_journal(io, path)
+        when 'raw'
+          io
+        when 'json'
+          # TODO: implement JSON parse
+          # load_journal(io, path)
         else
           YAML.load(io.read)
         end

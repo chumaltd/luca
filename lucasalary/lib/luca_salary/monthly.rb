@@ -49,7 +49,7 @@ class Monthly < LucaRecord::Base
     [].tap do |person|
       person << "As of: #{@date.year}/#{@date.month}"
 
-      LucaSalary::Payment.when(@date.year, @date.month) do |payment|
+      LucaSalary::Payment.asof(@date.year, @date.month) do |payment|
         slip = [].tap do |line|
           payment.each do |k, v|
             next if k == 'id'
@@ -64,7 +64,7 @@ class Monthly < LucaRecord::Base
 
   def accumulate
     {}.tap do |h|
-      LucaSalary::Payment.when(@date.year, @date.month) do |payment|
+      LucaSalary::Payment.asof(@date.year, @date.month) do |payment|
         payment.each do |k, v|
           next if k == 'id'
 

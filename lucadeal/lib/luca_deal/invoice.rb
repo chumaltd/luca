@@ -21,7 +21,7 @@ module LucaDeal
 
     def deliver_mail
       attachment_type = @config.dig('invoice', 'attachment') || :html
-      self.class.when(@date.year, @date.month) do |dat, path|
+      self.class.asof(@date.year, @date.month) do |dat, path|
         next if has_status?(dat, 'mail_delivered')
 
         mail = compose_mail(dat, attachment: attachment_type.to_sym)
@@ -32,7 +32,7 @@ module LucaDeal
 
     def preview_mail(attachment_type = nil)
       attachment_type ||= @config.dig('invoice', 'attachment') || :html
-      self.class.when(@date.year, @date.month) do |dat, _path|
+      self.class.asof(@date.year, @date.month) do |dat, _path|
         mail = compose_mail(dat, mode: :preview, attachment: attachment_type.to_sym)
         LucaSupport::Mail.new(mail, @pjdir).deliver
       end
@@ -80,7 +80,7 @@ module LucaDeal
         count.times do
           scan_date = scan_date.prev_month
           {}.tap do |stat|
-            stat['records'] = self.class.when(scan_date.year, scan_date.month).map do |invoice|
+            stat['records'] = self.class.asof(scan_date.year, scan_date.month).map do |invoice|
               amount = invoice['subtotal'].inject(0) { |sum, sub| sum + sub['items'] }
               tax = invoice['subtotal'].inject(0) { |sum, sub| sum + sub['tax'] }
               {

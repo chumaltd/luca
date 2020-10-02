@@ -1,4 +1,4 @@
-require "luca_book/report"
+require 'luca_book'
 
 class LucaBookConsole
 

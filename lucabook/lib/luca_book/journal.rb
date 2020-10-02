@@ -9,7 +9,7 @@ require 'luca_record'
 module LucaBook
   class Journal < LucaRecord::Base
     @dirname = 'journals'
-    @record_type = 'journal'
+    @record_type = 'raw'
 
     # TODO: replace find(), search()->when()
     def self.find(id)
@@ -34,8 +34,8 @@ module LucaBook
       credit_amount = serialize_on_key(d['credit'], 'value')
       raise 'BalanceUnmatch' if debit_amount.inject(:+) != credit_amount.inject(:+)
 
-      debit_code = serialize_on_key(d['debit'], 'label')
-      credit_code = serialize_on_key(d['credit'], 'label')
+      debit_code = serialize_on_key(d['debit'], 'code')
+      credit_code = serialize_on_key(d['credit'], 'code')
 
       # TODO: limit code length for filename
       codes = (debit_code + credit_code).uniq
@@ -44,8 +44,8 @@ module LucaBook
         f << debit_amount
         f << credit_code
         f << credit_amount
-        f << [d.dig('note')]
         f << []
+        f << [d.dig('note')]
       end
     end
 

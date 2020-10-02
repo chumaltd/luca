@@ -14,11 +14,13 @@ def list(args, params)
   end
 end
 
-def report(params)
-  if params["bs"]
-    LucaBookConsole.new.bs
-  elsif params["pl"]
-    LucaBookConsole.new.pl
+def report(args, params)
+  if params['bs']
+    LucaBook::State.term(*args).bs.to_yaml
+  elsif params['pl']
+    LucaBook::State.term(*args).pl.to_yaml
+  else
+    LucaBook::State.term(*args).to_yaml
   end
 end
 
@@ -40,8 +42,8 @@ when "report"
     opt.banner = 'Usage: luca report'
     opt.on('--bs', 'show Balance sheet'){|v| params["bs"] = v }
     opt.on('--pl', 'show Income statement'){|v| params["pl"] = v }
-    opt.parse!(ARGV)
-    report(params)
+    args = opt.parse!(ARGV)
+    report(args, params)
   end
 when "--help"
   puts 'Usage: luca subcommand'

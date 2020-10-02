@@ -45,8 +45,8 @@ module LucaBook
       validate(d)
 
       # dict = LucaBook::Dict.reverse_dict(LucaBook::Dict::Data)
-      d['debit'].each { |h| h['label'] = @dict.search(h['label'], DEBIT_DEFAULT) }
-      d['credit'].each { |h| h['label'] = @dict.search(h['label'], CREDIT_DEFAULT) }
+      d['debit'].each { |h| h['code'] = @dict.search(h['label'], DEBIT_DEFAULT) }
+      d['credit'].each { |h| h['code'] = @dict.search(h['label'], CREDIT_DEFAULT) }
 
       LucaBook.new.create!(d)
     end
@@ -72,17 +72,17 @@ module LucaBook
         d['date'] = parse_date(row)
         if row.dig(@config[:credit_value])&.empty?
           d['debit'] = [
-            { 'label' => search_code(row[@config[:label]], DEBIT_DEFAULT) }
+            { 'code' => search_code(row[@config[:label]], DEBIT_DEFAULT) }
           ]
           d['credit'] = [
-            { 'label' => @code_map.dig(@config[:counter_label]) }
+            { 'code' => @code_map.dig(@config[:counter_label]) }
           ]
         else
           d['debit'] = [
-            { 'label' => @code_map.dig(@config[:counter_label]) }
+            { 'code' => @code_map.dig(@config[:counter_label]) }
           ]
           d['credit'] = [
-            { 'label' => search_code(row[@config[:label]], CREDIT_DEFAULT) }
+            { 'code' => search_code(row[@config[:label]], CREDIT_DEFAULT) }
           ]
         end
         d['debit'][0]['value'] = value
@@ -98,11 +98,11 @@ module LucaBook
       {}.tap do |d|
         d['date'] = parse_date(row)
         d['debit'] = {
-          'label' => search_code(row[@config[:debit_label]], DEBIT_DEFAULT),
+          'code' => search_code(row[@config[:debit_label]], DEBIT_DEFAULT),
           'value' => row.dig(@config[:debit_value])
         }
         d['credit'] = {
-          'label' => search_code(row[@config[:credit_label]], CREDIT_DEFAULT),
+          'code' => search_code(row[@config[:credit_label]], CREDIT_DEFAULT),
           'value' => row.dig(@config[:credit_value])
         }
         d['note'] = row[@config[:note]]
