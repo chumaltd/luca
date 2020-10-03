@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 module LucaSupport
+  autoload :Code, 'luca_support/code'
   autoload :Config, 'luca_support/config'
   autoload :Mail, 'luca_support/mail'
-  autoload :Code, 'luca_support/code'
+  autoload :View, 'luca_support/view'
 
   def self.match_score(a, b, n = 2)
     v_a = to_ngram(a, n)
@@ -12,7 +13,7 @@ module LucaSupport
     v_a.map { |item| v_b.include?(item) ? 1 : 0 }.sum / v_a.length.to_f
   end
 
-  def self.to_ngram(str, n=2)
+  def self.to_ngram(str, n = 2)
     str.each_char.each_cons(n).map(&:join)
   end
 end

@@ -1,8 +1,6 @@
 require 'csv'
 require 'date'
-require 'erb'
 require 'fileutils'
-require 'open3'
 require 'yaml'
 require 'pathname'
 require 'luca_support/code'
@@ -16,7 +14,7 @@ module LucaRecord
   module IO
     include LucaSupport::Code
 
-    def self.included(klass)
+    def self.included(klass) # :nodoc:
       klass.extend ClassMethods
     end
 
@@ -87,7 +85,8 @@ module LucaRecord
           Dir.glob("#{subdir}*/#{file_pattern}").sort.each do |subpath|
             next if skip_on_unmatch_code(subpath, code)
 
-            File.open(subpath, mode) { |f| yield(f, subpath.split('/').map { |str| str.split('-') }.flatten) }
+            id_set = subpath.split('/').map { |str| str.split('-') }.flatten
+            File.open(subpath, mode) { |f| yield(f, id_set) }
           end
         end
       end
@@ -248,16 +247,6 @@ module LucaRecord
       end
     end
 
-    def search_record(basedir, date_obj, code)
-      dir_name = (Pathname(basedir) + encode_dirname(date_obj)).to_s
-      raise 'No target dir exists.' unless Dir.exist?(dir_name)
-
-      Dir.chdir(dir_name) do
-        files = Dir.glob("*#{code}*")
-        files.empty? ? nil : files
-      end
-    end
-
     def load_config(path = nil)
       path = path.to_s
       if File.exists?(path)
@@ -274,40 +263,11 @@ module LucaRecord
         .include?(true)
     end
 
-    def search_template(file, dir = 'templates')
-      # ToDo: load config
-      [@pjdir, lib_path].each do |base|
-        path = (Pathname(base) / dir / file)
-        return path.to_path if path.file?
-      end
-      nil
-    end
-
     def load_tsv(path)
       return enum_for(:load_tsv, path) unless block_given?
 
       data = CSV.read(path, headers: true, col_sep: "\t", encoding: 'UTF-8')
       data.each { |row| yield row }
-    end
-
-    def save_pdf(html_dat, path)
-      File.write(path, html2pdf(html_dat))
-    end
-
-    def erb2pdf(path)
-      html2pdf(render_erb(path))
-    end
-
-    def render_erb(path)
-      @template_dir = File.dirname(path)
-      erb = ERB.new(File.read(path.to_s), trim_mode: '-')
-      erb.result(binding)
-    end
-
-    def html2pdf(html_dat)
-      out, err, stat = Open3.capture3('wkhtmltopdf - -', stdin_data: html_dat)
-      puts err
-      out
     end
   end
 end

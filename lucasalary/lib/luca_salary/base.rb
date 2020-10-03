@@ -9,6 +9,7 @@ require 'luca_record'
 module LucaSalary
   class Base < LucaRecord::Base
     attr_reader :driver, :dict, :config, :pjdir
+    @dirname = 'payments'
 
     def initialize(date = nil)
       @date = date.nil? ? Date.today : Date.parse(date)
@@ -23,7 +24,7 @@ module LucaSalary
     end
 
     def calc
-      prepare_dir!(datadir / 'payments', @date)
+      self.class.prepare_dir!(datadir / 'payments', @date)
       country = @driver.new(@pjdir, @config, @date)
       load_profiles do |profile|
         h = country.calc_payment(profile)
@@ -33,9 +34,12 @@ module LucaSalary
 
     def gen_payment!(profile, payment)
       id = profile.dig('id')
-      payment_dir = (datadir + 'payments').to_s
-      return nil if search_record(payment_dir, @date, id)
+      if self.class.search(@date.year, @date.month, @date.day, id)
+        puts 'payment record already exists.'
+        return nil
+      end
 
+      payment_dir = (datadir + 'payments').to_s
       gen_record_file!(payment_dir, @date, Array(id)) do |f|
         f.write(YAML.dump(payment.sort.to_h))
       end
