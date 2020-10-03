@@ -5,7 +5,7 @@ module LucaSupport
   autoload :Mail, 'luca_support/mail'
   autoload :Code, 'luca_support/code'
 
-  def self.match_score(a, b, n=2)
+  def self.match_score(a, b, n = 2)
     v_a = to_ngram(a, n)
     v_b = to_ngram(b, n)
 

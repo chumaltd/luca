@@ -8,6 +8,7 @@ require 'pathname'
 require 'luca_support/code'
 require 'luca_support/config'
 
+#
 # Low level API
 # manipulate files based on transaction date
 #
@@ -21,14 +22,22 @@ module LucaRecord
 
     module ClassMethods
       #
-      # find ID based record
-      # TODO: need to support date based
+      # find ID based record. Support uuid and encoded date.
       #
       def find(id, basedir = @dirname)
         return enum_for(:find, id, basedir) unless block_given?
 
-        open_hashed(basedir, id) do |f|
-          yield load_data(f)
+        if id.length >= 40
+          open_hashed(basedir, id) do |f|
+            yield load_data(f)
+          end
+        elsif id.length >= 9
+          # TODO: need regexp match for more flexible coding(after AD9999)
+          open_records(basedir, id[0, 5], id[5, 6]) do |f, path|
+            yield load_data(f, path)
+          end
+        else
+          raise 'specified id length is too short'
         end
       end
 
@@ -39,11 +48,17 @@ module LucaRecord
       # * data id. Array like [2020H, V001]
       #
       def asof(year, month = nil, day = nil, basedir = @dirname)
-        return enum_for(:when, year, month, day, basedir) unless block_given?
+        search(year, month, day, nil, basedir)
+      end
+
+      #
+      # search with date params & code.
+      #
+      def search(year, month = nil, day = nil, code = nil, basedir = @dirname)
+        return enum_for(:search, year, month, day, code, basedir) unless block_given?
 
         subdir = year.to_s + LucaSupport::Code.encode_month(month)
-        filename = LucaSupport::Code.encode_date(day)
-        open_records(basedir, subdir, filename) do |f, path|
+        open_records(basedir, subdir, LucaSupport::Code.encode_date(day), code) do |f, path|
           if @record_type == 'raw'
             yield f, path
           else
@@ -56,18 +71,23 @@ module LucaRecord
       # open records with 'basedir/month/date-code' path structure.
       # Glob pattern can be specified like folloing examples.
       #
-      # * '2020': All month of 2020
-      # * '2020[FG]': June & July of 2020
+      #   '2020': All month of 2020
+      #   '2020[FG]': June & July of 2020
+      #
+      # Block will receive code fragments as 2nd parameter. Array format is as bellows:
+      # 1. encoded month
+      # 2. encoded day + record number of the day
+      # 3. codes. More than 3 are all code set except first 2 parameters.
       #
       def open_records(basedir, subdir, filename = nil, code = nil, mode = 'r')
         return enum_for(:open_records, basedir, subdir, filename, code, mode) unless block_given?
 
-        file_pattern = filename.nil? ? "*" : "#{filename}*"
+        file_pattern = filename.nil? ? '*' : "#{filename}*"
         Dir.chdir(abs_path(basedir)) do
           Dir.glob("#{subdir}*/#{file_pattern}").sort.each do |subpath|
             next if skip_on_unmatch_code(subpath, code)
 
-            File.open(subpath, mode) { |f| yield(f, subpath.split('/')) }
+            File.open(subpath, mode) { |f| yield(f, subpath.split('/').map { |str| str.split('-') }.flatten) }
           end
         end
       end
@@ -84,44 +104,19 @@ module LucaRecord
         File.open((dirpath + filename).to_s, mode) { |f| yield f }
       end
 
-      def load_data(io, path=nil)
+      #
+      # Decode basic format.
+      # If specific decode is needed, override this method in each class.
+      #
+      def load_data(io, path = nil)
         case @record_type
         when 'raw'
+          # TODO: raw may be unneeded in favor of override
           io
         when 'json'
           # TODO: implement JSON parse
-          # load_journal(io, path)
         else
           YAML.load(io.read)
-        end
-      end
-
-      def load_journal(io, path)
-        {}.tap do |record|
-          record[:id] = /^([^-]+)/.match(path.last)[1].gsub('/', '')
-          CSV.new(io, headers: false, col_sep: "\t", encoding: 'UTF-8')
-            .each.with_index(0) do |line, i|
-            break if i >= rows
-
-            case i
-            when 0
-              record[:debit] = line.map{|row| { code: row } }
-            when 1
-              line.each_with_index do |amount, i|
-                record[:debit][i][:amount] = amount.to_i # TODO: bigdecimal support
-              end
-            when 2
-              record[:credit] = line.map{|row| { code: row } }
-              break if ! code.nil? && file.length <= 4 && ! (record[:debit]+record[:credit]).include?(code)
-            when 3
-              line.each_with_index do |amount, i|
-                record[:credit][i][:amount] = amount.to_i # TODO: bigdecimal support
-              end
-            when 4
-              record[:note] = line.join(' ')
-            end
-            record[:note] = line.first if i == 4
-          end
         end
       end
 
