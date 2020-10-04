@@ -26,7 +26,8 @@ module LucaSalary
     def calc
       self.class.prepare_dir!(datadir / 'payments', @date)
       country = @driver.new(@pjdir, @config, @date)
-      load_profiles do |profile|
+      #load_profiles do |profile|
+      self.class.all('profiles') do |profile|
         h = country.calc_payment(profile)
         gen_payment!(profile, h)
       end
@@ -46,7 +47,7 @@ module LucaSalary
     end
 
     def gen_aggregation!
-      load_profiles do |profile|
+      self.class.all('profiles') do |profile|
         id = profile.dig('id')
         payment = {}
         targetdir = @date.year.to_s + 'Z'
@@ -90,22 +91,6 @@ module LucaSalary
       target = obj.select { |k, v| /^#{code}[0-9A-Fa-f]{,3}$/.match(k) }
       target = target.reject { |k, v| exclude.include?(k) } if exclude
       target.values.inject(:+) || 0
-    end
-
-    def load_profiles
-      [].tap do |a|
-        open_profiles do |f, name|
-          data = YAML.load(f.read)
-          yield data
-        end
-      end
-    end
-
-    def open_profiles
-      match_files = datadir + 'profiles' + "*" + "*"
-      Dir.glob(match_files.to_s).each do |file_name|
-        File.open(file_name, 'r') { |f| yield(f, file_name) }
-      end
     end
 
     def datadir

@@ -66,6 +66,17 @@ module LucaRecord
       end
 
       #
+      # retrieve all data
+      #
+      def all(basedir = @dirname)
+        return enum_for(:all, basedir) unless block_given?
+
+        open_all(basedir) do |f| 
+          yield load_data(f)
+        end
+      end
+
+      #
       # open records with 'basedir/month/date-code' path structure.
       # Glob pattern can be specified like folloing examples.
       #
@@ -101,6 +112,18 @@ module LucaRecord
         dirpath = Pathname(abs_path(basedir)) + subdir
         FileUtils.mkdir_p(dirpath.to_s) if mode != 'r'
         File.open((dirpath + filename).to_s, mode) { |f| yield f }
+      end
+
+      #
+      # scan through all files
+      #
+      def open_all(basedir, mode = 'r')
+        return enum_for(:open_all, basedir, mode) unless block_given?
+
+        dirpath = Pathname(abs_path(basedir)) / '*' / '*'
+        Dir.glob(dirpath.to_s).each do |filename|
+          File.open(filename, mode) { |f| yield f }
+        end
       end
 
       #
