@@ -6,42 +6,30 @@ require 'luca_record'
 
 module LucaDeal
   class Contract < LucaRecord::Base
+    @dirname = 'contracts'
+
     def initialize(date = nil)
       @date = date ? Date.parse(date) : Date.today
       @pjdir = Pathname(Dir.pwd)
     end
 
-    def self.active(date, pjdir = nil)
-      all(pjdir) do |data|
-        next if ! active_period?(data, date)
+    #
+    # collect active contracts
+    #
+    def active
+      self.class.all do |data|
+        contract = parse_current(data)
+        next if !self.class.active_period?(contract)
 
-        yield data
+        yield contract
       end
-    end
-
-    def self.all(pjdir = nil)
-      pjdir ||= Dir.pwd
-      open_contracts(pjdir) do |f, name|
-        data = YAML.load(f.read)
-        yield data
-      end
-    end
-
-    def self.open_contracts(pjdir)
-      match_files = datadir(pjdir) / 'contracts' / "*" / "*"
-      Dir.glob(match_files.to_s).each do |file_name|
-        File.open(file_name, 'r') { |f| yield(f, file_name) }
-      end
-    end
-
-    def self.datadir(pjdir)
-      Pathname(pjdir) / 'data'
     end
 
     def generate!(customer_id)
       id = issue_random_id
       LucaDeal::Customer.find(customer_id) do |customer|
-        obj = { 'id' => id, 'customer_id' => customer['id'], 'customer_name' => take_active(customer, 'name') }
+        current_customer = parse_current(customer)
+        obj = { 'id' => id, 'customer_id' => current_customer['id'], 'customer_name' => current_customer['name'] }
         obj['items'] = [{
                           'name' => '_ITEM_NAME_FOR_INVOICE_',
                           'qty' => 1,
@@ -55,14 +43,8 @@ module LucaDeal
       end
     end
 
-    def self.active_period?(dat, date)
-      defunct = dat.dig('terms', 'defunct')
-      if defunct && Date.parse(defunct.to_s) < date
-        false
-      else
-        effective = dat.dig('terms', 'effective')
-        Date.parse(effective.to_s) < date
-      end
+    def self.active_period?(dat)
+      !dat.dig('terms').nil?
     end
   end
 end

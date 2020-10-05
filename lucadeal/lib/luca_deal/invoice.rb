@@ -102,7 +102,7 @@ module LucaDeal
     end
 
     def monthly_invoice
-      LucaDeal::Contract.active(@date, @pjdir) do |contract|
+      LucaDeal::Contract.new(@date.to_s).active do |contract|
         next if contract.dig('terms', 'billing_cycle') != 'monthly'
         # TODO: provide another I/F for force re-issue if needed
         next if duplicated_contract? contract['id']
@@ -115,9 +115,9 @@ module LucaDeal
         invoice['issue_date'] = @date
         invoice['items'] = contract.dig('items').map do |item|
           {}.tap do |h|
-            h['name'] = take_active(item, 'name')
-            h['price'] = take_active(item, 'price')
-            h['qty'] = take_active(item, 'qty')
+            h['name'] = item.dig('name')
+            h['price'] = item.dig('price')
+            h['qty'] = item.dig('qty')
           end
         end
         invoice['subtotal'] = subtotal(invoice['items'])
@@ -141,19 +141,19 @@ module LucaDeal
     def get_customer(id)
       {}.tap do |res|
         LucaDeal::Customer.find(id) do |dat|
-          res['id'] = dat['id']
-          res['name'] = take_active(dat, 'name')
-          res['address'] = take_active(dat, 'address')
-          res['address2'] = take_active(dat, 'address2')
-          res['to'] = dat.dig('contacts').map{|h| take_active(h, 'mail')}.compact
+          customer = parse_current(dat)
+          res['id'] = customer['id']
+          res['name'] = customer.dig('name')
+          res['address'] = customer.dig('address')
+          res['address2'] = customer.dig('address2')
+          res['to'] = customer.dig('contacts').map { |h| take_current(h, 'mail') }.compact
         end
       end
     end
 
     def gen_invoice!(invoice)
       id = invoice.dig('contract_id')
-      invoice_dir = (datadir + 'invoices').to_s
-      gen_record_file!(invoice_dir, @date, Array(id)) do |f|
+      self.class.gen_record_file!('invoices', @date, Array(id)) do |f|
         f.write(YAML.dump(invoice.sort.to_h))
       end
     end
@@ -211,25 +211,18 @@ module LucaDeal
     def load_tax_rate(name)
       return 0 if @config.dig('tax_rate', name).nil?
 
-      BigDecimal(take_active(@config['tax_rate'], name).to_s)
+      BigDecimal(take_current(@config['tax_rate'], name).to_s)
     end
 
     def attachment_name(dat, type)
-      "invoice-#{dat.dig('id')[0, 7]}.#{type.to_s}"
+      "invoice-#{dat.dig('id')[0, 7]}.#{type}"
     end
 
     def duplicated_contract?(id)
-      open_invoices do |f, file_name|
-        return true if /#{id}/.match(file_name)
+      self.class.asof(@date.year, @date.month, @date.day) do |_f, path|
+        return true if path.include?(id)
       end
       false
-    end
-
-    def open_invoices
-      match_files = Pathname(@pjdir) / 'data' / 'invoices' / encode_dirname(@date) / "*"
-      Dir.glob(match_files.to_s).each do |file_name|
-        File.open(file_name, 'r') { |f| yield(f, file_name) }
-      end
     end
   end
 end

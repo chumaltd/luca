@@ -17,28 +17,8 @@ module LucaDeal
     end
 
     def list_name
-      self.class.all(@pjdir) do |dat|
-        puts "#{take_active(dat, 'id')}    #{take_active(dat, 'name')}"
-      end
-    end
-
-    def self.all(pjdir = nil)
-      pjdir ||= Dir.pwd
-      open_customers(pjdir) do |f, name|
-        data = YAML.load(f.read)
-        yield data
-      end
-    end
-
-    def self.open_customers(pjdir)
-      match_files = datadir(pjdir) + 'customers' + "*" + "*"
-      Dir.glob(match_files.to_s).each do |file_name|
-        File.open(file_name, 'r') { |f| yield(f, file_name) }
-      end
-    end
-
-    def self.datadir(pjdir)
-      Pathname(pjdir) + 'data'
+      list = self.class.all.map { |dat| parse_current(dat) }
+      YAML.dump(list).tap { |l| puts l }
     end
 
     def generate!(name)

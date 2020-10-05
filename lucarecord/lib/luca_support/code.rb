@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'date'
 require 'securerandom'
 require 'digest/sha1'
@@ -39,7 +41,7 @@ module LucaSupport
     end
 
     def delimit_num(num)
-      num.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\1,').reverse
+      num.to_s.reverse.gsub!(/(\d{3})(?=\d)/, '\1,').reverse!
     end
 
     #
@@ -70,17 +72,37 @@ module LucaSupport
       Digest::SHA1.hexdigest(SecureRandom.uuid)
     end
 
-    def take_active(dat, item, attr='val')
-      target = dat.dig(item)
-      if target.class.name == 'Array'
-        target.filter { |a| Date.parse(a.dig('effective').to_s) < @date }
-          .map { |a|
-          return nil if ! a.dig('defunct').nil? && Date.parse(a.dig('defunct').to_s) < @date
+    #
+    # convert effective/defunct data into current hash on @date
+    #
+    def parse_current(dat)
+      {}.tap do |processed|
+        dat.each { |k, _v| processed[k] = take_current(dat, k) }
+      end
+    end
 
-          a
-        }
-          .max { |a, b| Date.parse(a.dig('effective').to_s) <=> Date.parse(b.dig('effective').to_s) }
-          .dig(attr)
+    #
+    # return current value with effective/defunct on target @date
+    # For multiple attribues, return hash on other than 'val'. Examples are as bellows:
+    #
+    #   - effective: 2020-1-1
+    #     val: 3000
+    #   => 3000
+    #
+    #   - effective: 2020-1-1
+    #     rank: 5
+    #     point: 1000
+    #   => { 'effective' => 2020-1-1, 'rank' => 5, '' => 'point' => 1000 }
+    #
+    def take_current(dat, item)
+      target = dat.dig(item)
+      if target.class.name == 'Array' && target.map(&:keys).flatten.include?('effective')
+        latest = target
+                 .filter { |a| Date.parse(a.dig('effective').to_s) < @date }
+                 .max { |a, b| Date.parse(a.dig('effective').to_s) <=> Date.parse(b.dig('effective').to_s) }
+        return nil if !latest.dig('defunct').nil? && Date.parse(latest.dig('defunct').to_s) < @date
+
+        latest.dig('val') || latest
       else
         target
       end

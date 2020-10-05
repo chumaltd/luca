@@ -26,22 +26,22 @@ module LucaSalary
     def calc
       self.class.prepare_dir!(datadir / 'payments', @date)
       country = @driver.new(@pjdir, @config, @date)
-      #load_profiles do |profile|
       self.class.all('profiles') do |profile|
-        h = country.calc_payment(profile)
-        gen_payment!(profile, h)
+        current_profile = parse_current(profile)
+        h = country.calc_payment(current_profile)
+        gen_payment!(current_profile, h)
       end
     end
 
     def gen_payment!(profile, payment)
       id = profile.dig('id')
-      if self.class.search(@date.year, @date.month, @date.day, id)
+      if self.class.search(@date.year, @date.month, @date.day, id).first
         puts 'payment record already exists.'
         return nil
       end
 
       payment_dir = (datadir + 'payments').to_s
-      gen_record_file!(payment_dir, @date, Array(id)) do |f|
+      self.class.gen_record_file!(payment_dir, @date, Array(id)) do |f|
         f.write(YAML.dump(payment.sort.to_h))
       end
     end
@@ -72,11 +72,7 @@ module LucaSalary
     end
 
     def select_code(dat, code)
-      {}.tap do |h|
-        dat.keys.filter { |k| /^#{code}[0-9A-Fa-f]{,3}$/.match(k.to_s) }.map do |k|
-          h[k.to_s] = take_active(dat, k)
-        end
-      end
+      dat.filter { |k, _v| /^#{code}[0-9A-Fa-f]{,3}$/.match(k.to_s) }
     end
 
     def amount_by_code(obj)

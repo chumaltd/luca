@@ -38,28 +38,29 @@ class Monthly < LucaRecord::Base
         subject '[luca salary] Monthly Payment'
       end
       mail.to = @salary.config.dig('mail', 'report_mail')
-      mail.text_part = payslip
+      mail.text_part = YAML.dump(payslip)
       LucaSupport::Mail.new(mail, @salary.pjdir).deliver
     else
-      puts payslip
+      puts YAML.dump(payslip)
     end
   end
 
   def payslip
-    [].tap do |person|
-      person << "As of: #{@date.year}/#{@date.month}"
+    {}.tap do |report|
+      report['asof'] = "#{@date.year}/#{@date.month}"
+      report['records'] = []
 
       LucaSalary::Payment.asof(@date.year, @date.month) do |payment|
-        slip = [].tap do |line|
+        slip = {}.tap do |line|
           payment.each do |k, v|
             next if k == 'id'
 
-            line << "#{@salary.dict.dig(k, :label) || k}: #{v}"
+            line["#{@salary.dict.dig(k, :label) || k}"] = v
           end
         end
-        person << slip.join("\n")
+        report['records'] << slip
       end
-    end.join("\n\n")
+    end
   end
 
   def accumulate

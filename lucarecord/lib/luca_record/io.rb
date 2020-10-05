@@ -18,6 +18,28 @@ module LucaRecord
       klass.extend ClassMethods
     end
 
+    #
+    # Used @date for searching current settings
+    # query can be nested hash for other than 'val'
+    #
+    #   where(contract_status: 'active')
+    #   where(graded: {rank: 5})
+    #
+    def where(**query)
+      return enum_for(:where, **query) unless block_given?
+
+      query.each do |key, val|
+        v = val.respond_to?(:values) ? val.values.first : val
+        label = val.respond_to?(:keys) ? val.keys.first : 'val'
+        self.class.all do |data|
+          next unless data.keys.map(&:to_sym).include?(key)
+
+          processed = parse_current(data)
+          yield processed if v == processed.dig(key.to_s, label.to_s)
+        end
+      end
+    end
+
     module ClassMethods
       #
       # find ID based record. Support uuid and encoded date.
@@ -46,7 +68,11 @@ module LucaRecord
       # * data id. Array like [2020H, V001]
       #
       def asof(year, month = nil, day = nil, basedir = @dirname)
-        search(year, month, day, nil, basedir)
+        return enum_for(:search, year, month, day, nil, basedir) unless block_given?
+
+        search(year, month, day, nil, basedir) do |data, path|
+          yield data, path
+        end
       end
 
       #
@@ -149,10 +175,10 @@ module LucaRecord
 
       # true when file doesn't have record on code
       # false when file may have one
-      def skip_on_unmatch_code(subpath, code=nil)
+      def skip_on_unmatch_code(subpath, code = nil)
         # p filename.split('-')[1..-1]
         filename = subpath.split('/').last
-        return false if code.nil? or filename.length <= 4
+        return false if code.nil? || filename.length <= 4
 
         !filename.split('-')[1..-1].include?(code)
       end
