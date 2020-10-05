@@ -8,9 +8,9 @@ require 'luca_salary/monthly'
 def export(args = nil, _params = nil)
   if args
     args << 28 if args.length == 2 # specify safe last day
-    Monthly.new(args.join('-')).export_json
+    LucaSalary::Monthly.new(args.join('-')).export_json
   else
-    Monthly.new.export_json
+    LucaSalary::Monthly.new.export_json
   end
 end
 
@@ -26,9 +26,9 @@ end
 def report(args = nil, params = nil)
   if args
     args << 28 if args.length == 2 # specify safe last day
-    Monthly.new(args.join('-')).report(params.dig('mode'))
+    LucaSalary::Monthly.new(args.join('-')).report(params.dig('mode'))
   else
-    Monthly.new.report(params.dig('mode'))
+    LucaSalary::Monthly.new.report(params.dig('mode'))
   end
 end
 

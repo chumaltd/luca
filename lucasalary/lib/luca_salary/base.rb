@@ -20,30 +20,16 @@ module LucaSalary
       @dict = load_dict
     end
 
-    def load_dict
-      LucaRecord::Dict.load_tsv_dict(@pjdir / 'dict' / 'code.tsv')
-    end
-
+    #
+    # call country specific calculation
+    #
     def calc
       self.class.prepare_dir!(datadir / 'payments', @date)
       country = @driver.new(@pjdir, @config, @date)
       LucaSalary::Profile.all do |profile|
         current_profile = parse_current(profile)
         h = country.calc_payment(current_profile)
-        gen_payment!(current_profile, h)
-      end
-    end
-
-    def gen_payment!(profile, payment)
-      id = profile.dig('id')
-      if self.class.search(@date.year, @date.month, @date.day, id).first
-        puts 'payment record already exists.'
-        return nil
-      end
-
-      payment_dir = (datadir + 'payments').to_s
-      self.class.gen_record_file!(payment_dir, @date, Array(id)) do |f|
-        f.write(YAML.dump(payment.sort.to_h))
+        LucaSalary::Payment.new(@date.to_s).create(current_profile, h)
       end
     end
 
@@ -88,8 +74,14 @@ module LucaSalary
       target.values.inject(:+) || 0
     end
 
+    private
+
     def datadir
-      Pathname(@pjdir) + 'data'
+      @pjdir / 'data'
+    end
+
+    def load_dict
+      LucaRecord::Dict.load_tsv_dict(@pjdir / 'dict' / 'code.tsv')
     end
 
     def set_driver
