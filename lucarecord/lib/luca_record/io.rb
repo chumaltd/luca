@@ -103,87 +103,6 @@ module LucaRecord
       end
 
       #
-      # open records with 'basedir/month/date-code' path structure.
-      # Glob pattern can be specified like folloing examples.
-      #
-      #   '2020': All month of 2020
-      #   '2020[FG]': June & July of 2020
-      #
-      # Block will receive code fragments as 2nd parameter. Array format is as bellows:
-      # 1. encoded month
-      # 2. encoded day + record number of the day
-      # 3. codes. More than 3 are all code set except first 2 parameters.
-      #
-      def open_records(basedir, subdir, filename = nil, code = nil, mode = 'r')
-        return enum_for(:open_records, basedir, subdir, filename, code, mode) unless block_given?
-
-        file_pattern = filename.nil? ? '*' : "#{filename}*"
-        Dir.chdir(abs_path(basedir)) do
-          Dir.glob("#{subdir}*/#{file_pattern}").sort.each do |subpath|
-            next if skip_on_unmatch_code(subpath, code)
-
-            id_set = subpath.split('/').map { |str| str.split('-') }.flatten
-            File.open(subpath, mode) { |f| yield(f, id_set) }
-          end
-        end
-      end
-
-      #
-      # git object like structure
-      #
-      def open_hashed(basedir, id, mode = 'r')
-        return enum_for(:open_hashed, basedir, id, mode) unless block_given?
-
-        subdir, filename = encode_hashed_path(id)
-        dirpath = Pathname(abs_path(basedir)) + subdir
-        FileUtils.mkdir_p(dirpath.to_s) if mode != 'r'
-        File.open((dirpath + filename).to_s, mode) { |f| yield f }
-      end
-
-      #
-      # scan through all files
-      #
-      def open_all(basedir, mode = 'r')
-        return enum_for(:open_all, basedir, mode) unless block_given?
-
-        dirpath = Pathname(abs_path(basedir)) / '*' / '*'
-        Dir.glob(dirpath.to_s).each do |filename|
-          File.open(filename, mode) { |f| yield f }
-        end
-      end
-
-      #
-      # Decode basic format.
-      # If specific decode is needed, override this method in each class.
-      #
-      def load_data(io, path = nil)
-        case @record_type
-        when 'raw'
-          # TODO: raw may be unneeded in favor of override
-          io
-        when 'json'
-          # TODO: implement JSON parse
-        else
-          YAML.load(io.read)
-        end
-      end
-
-      # TODO: replace with data_dir method
-      def abs_path(base_dir)
-        Pathname(LucaSupport::Config::Pjdir) / 'data' / base_dir
-      end
-
-      # true when file doesn't have record on code
-      # false when file may have one
-      def skip_on_unmatch_code(subpath, code = nil)
-        # p filename.split('-')[1..-1]
-        filename = subpath.split('/').last
-        return false if code.nil? || filename.length <= 4
-
-        !filename.split('-')[1..-1].include?(code)
-      end
-
-      #
       # convert ID to file path. Normal argument is as follows:
       #
       # * [2020H, V001]
@@ -256,6 +175,99 @@ module LucaRecord
         LucaSupport::Code.encode_txid(new_record_no(basedir, date_obj))
       end
 
+      def prepare_dir!(basedir, date_obj)
+        dir_name = (Pathname(basedir) + encode_dirname(date_obj)).to_s
+        FileUtils.mkdir_p(dir_name) unless Dir.exist?(dir_name)
+        dir_name
+      end
+
+      def encode_dirname(date_obj)
+        date_obj.year.to_s + LucaSupport::Code.encode_month(date_obj)
+      end
+
+      private
+
+      #
+      # open records with 'basedir/month/date-code' path structure.
+      # Glob pattern can be specified like folloing examples.
+      #
+      #   '2020': All month of 2020
+      #   '2020[FG]': June & July of 2020
+      #
+      # Block will receive code fragments as 2nd parameter. Array format is as bellows:
+      # 1. encoded month
+      # 2. encoded day + record number of the day
+      # 3. codes. More than 3 are all code set except first 2 parameters.
+      #
+      def open_records(basedir, subdir, filename = nil, code = nil, mode = 'r')
+        return enum_for(:open_records, basedir, subdir, filename, code, mode) unless block_given?
+
+        file_pattern = filename.nil? ? '*' : "#{filename}*"
+        Dir.chdir(abs_path(basedir)) do
+          Dir.glob("#{subdir}*/#{file_pattern}").sort.each do |subpath|
+            next if skip_on_unmatch_code(subpath, code)
+
+            id_set = subpath.split('/').map { |str| str.split('-') }.flatten
+            File.open(subpath, mode) { |f| yield(f, id_set) }
+          end
+        end
+      end
+
+      #
+      # git object like structure
+      #
+      def open_hashed(basedir, id, mode = 'r')
+        return enum_for(:open_hashed, basedir, id, mode) unless block_given?
+
+        subdir, filename = encode_hashed_path(id)
+        dirpath = Pathname(abs_path(basedir)) + subdir
+        FileUtils.mkdir_p(dirpath.to_s) if mode != 'r'
+        File.open((dirpath + filename).to_s, mode) { |f| yield f }
+      end
+
+      #
+      # scan through all files
+      #
+      def open_all(basedir, mode = 'r')
+        return enum_for(:open_all, basedir, mode) unless block_given?
+
+        dirpath = Pathname(abs_path(basedir)) / '*' / '*'
+        Dir.glob(dirpath.to_s).each do |filename|
+          File.open(filename, mode) { |f| yield f }
+        end
+      end
+
+      #
+      # Decode basic format.
+      # If specific decode is needed, override this method in each class.
+      #
+      def load_data(io, path = nil)
+        case @record_type
+        when 'raw'
+          # TODO: raw may be unneeded in favor of override
+          io
+        when 'json'
+        # TODO: implement JSON parse
+        else
+          YAML.load(io.read)
+        end
+      end
+
+      # TODO: replace with data_dir method
+      def abs_path(base_dir)
+        Pathname(LucaSupport::Config::Pjdir) / 'data' / base_dir
+      end
+
+      # true when file doesn't have record on code
+      # false when file may have one
+      def skip_on_unmatch_code(subpath, code = nil)
+        # p filename.split('-')[1..-1]
+        filename = subpath.split('/').last
+        return false if code.nil? || filename.length <= 4
+
+        !filename.split('-')[1..-1].include?(code)
+      end
+
       # AUTO INCREMENT
       def new_record_no(basedir, date_obj)
         dir_name = (Pathname(basedir) + encode_dirname(date_obj)).to_s
@@ -267,16 +279,6 @@ module LucaRecord
 
           return LucaSupport::Code.decode_txid(last_file[1, 3]) + 1
         end
-      end
-
-      def prepare_dir!(basedir, date_obj)
-        dir_name = (Pathname(basedir) + encode_dirname(date_obj)).to_s
-        FileUtils.mkdir_p(dir_name) unless Dir.exist?(dir_name)
-        dir_name
-      end
-
-      def encode_dirname(date_obj)
-        date_obj.year.to_s + LucaSupport::Code.encode_month(date_obj)
       end
     end # end of ClassModules
 
