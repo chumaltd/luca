@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name          = 'lucasuite'
-  spec.version       = '0.0.0'
+  spec.version       = '0.1.0'
   spec.authors       = ['Chuma Takahiro']
   spec.email         = ['co.chuma@gmail.com']
 
@@ -17,8 +17,6 @@ Gem::Specification.new do |spec|
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.
   if spec.respond_to?(:metadata)
-    spec.metadata["allowed_push_host"] = "TODO: Set to 'http://mygemserver.com'"
-
     spec.metadata['homepage_uri'] = spec.homepage
     spec.metadata['source_code_uri'] = 'https://github.com/chumaltd/luca'
     spec.metadata['changelog_uri'] = 'https://github.com/chumaltd/luca/CHANGELOG.md'
@@ -30,7 +28,7 @@ Gem::Specification.new do |spec|
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
   spec.files         = Dir["LICENSE"]
-  spec.bindir        = "exe"
+  spec.bindir        = 'exe'
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
 
   spec.add_dependency 'lucabook'
