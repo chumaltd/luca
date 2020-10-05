@@ -2,13 +2,10 @@ require 'date'
 require 'yaml'
 require 'luca_record'
 
-class Profile < LucaRecord::Base
+class LucaSalary::Profile < LucaRecord::Base
+  @dirname = 'profiles'
 
   def self.gen_profile!(name)
-    id = issue_random_id
-    obj = { 'id' => id, 'name' => name }
-    LucaRecord::Base.open_hashed('profiles', id, 'w') do |f|
-      f.write(YAML.dump(obj))
-    end
+    create({ 'name' => name })
   end
 end

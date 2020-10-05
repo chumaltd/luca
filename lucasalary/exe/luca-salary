@@ -4,7 +4,6 @@
 require 'optparse'
 require 'luca_salary'
 require 'luca_salary/monthly'
-require 'luca_salary/profile'
 
 def export(args = nil, _params = nil)
   if args
@@ -34,7 +33,7 @@ def report(args = nil, params = nil)
 end
 
 def add_person(args = nil, _params = nil)
-  Profile.gen_profile!(args.first)
+  LucaSalary::Profile.gen_profile!(args.first)
 end
 
 cmd = ARGV.shift
