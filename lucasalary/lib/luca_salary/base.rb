@@ -3,7 +3,8 @@ require 'luca_salary/version'
 require 'date'
 require 'yaml'
 require 'pathname'
-require 'luca_salary/fileop'
+require 'luca_support'
+require 'luca_salary'
 require 'luca_record'
 
 module LucaSalary
@@ -13,20 +14,20 @@ module LucaSalary
 
     def initialize(date = nil)
       @date = date.nil? ? Date.today : Date.parse(date)
-      @pjdir = Pathname(Dir.pwd)
+      @pjdir = Pathname(LucaSupport::Config::Pjdir)
       @config = load_config(@pjdir + 'config.yml')
       @driver = set_driver
-      @dict = @driver.load_dict
+      @dict = load_dict
     end
 
-    def self.load_dict
-      load_dict_tsv(country_path)
+    def load_dict
+      LucaRecord::Dict.load_tsv_dict(@pjdir / 'dict' / 'code.tsv')
     end
 
     def calc
       self.class.prepare_dir!(datadir / 'payments', @date)
       country = @driver.new(@pjdir, @config, @date)
-      self.class.all('profiles') do |profile|
+      LucaSalary::Profile.all do |profile|
         current_profile = parse_current(profile)
         h = country.calc_payment(current_profile)
         gen_payment!(current_profile, h)
@@ -47,12 +48,12 @@ module LucaSalary
     end
 
     def gen_aggregation!
-      self.class.all('profiles') do |profile|
+      LucaSalary::Profile.all do |profile|
         id = profile.dig('id')
         payment = {}
         targetdir = @date.year.to_s + 'Z'
         past_data = LucaRecord::Base.find(id, "payments/#{targetdir}").first
-        nodata = (1..12).map do |month|
+        (1..12).map do |month|
           origin_dir = @date.year.to_s + [nil, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'][month]
           origin = LucaRecord::Base.find(id, "payments/#{origin_dir}").first
           # TODO: to be updated null check

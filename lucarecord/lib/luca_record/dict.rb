@@ -97,14 +97,25 @@ module LucaRecord
       end
     end
 
-    # TODO: This is not generic code
+    #
+    # generate dictionary from TSV file. Minimum assumption is as bellows:
+    # 1st row is converted symbol.
+    #
+    # * row[0] is 'code'. Converted hash keys
+    # * row[1] is 'label'. Should be human readable labels
+    # * after row[2] can be app specific data
+    #
     def self.load_tsv_dict(path)
-      {}.tap do |dic|
+      {}.tap do |dict|
         CSV.read(path, headers: true, col_sep: "\t", encoding: 'UTF-8').each do |row|
-          entry = { label: row['label'] }
-          entry[:consumption_tax] = row[2].to_i if ! row[2].nil?
-          entry[:income_tax] = row[3].to_i if ! row[3].nil?
-          dic[row['code']] = entry
+          {}.tap do |entry|
+            row.each do |header, field|
+              next if row.index(header).zero?
+
+              entry[header.to_sym] = field unless field.nil?
+            end
+            dict[row[0]] = entry
+          end
         end
       end
     end

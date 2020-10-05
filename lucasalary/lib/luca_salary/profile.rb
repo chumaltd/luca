@@ -1,5 +1,5 @@
-require 'date'
-require 'yaml'
+# frozen_string_literal: true
+
 require 'luca_record'
 
 class LucaSalary::Profile < LucaRecord::Base
