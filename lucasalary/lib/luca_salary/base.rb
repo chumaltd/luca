@@ -52,22 +52,20 @@ module LucaSalary
         payment = {}
         targetdir = @date.year.to_s + 'Z'
         past_data = LucaRecord::Base.find(id, "payments/#{targetdir}").first
-        nodata = (1..12).map do |month| 
+        nodata = (1..12).map do |month|
           origin_dir = @date.year.to_s + [nil, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'][month]
           origin = LucaRecord::Base.find(id, "payments/#{origin_dir}").first
           # TODO: to be updated null check
           if origin == {}
             month
           else
-            origin.select { |k, v| /^[1-4][0-9A-Fa-f]{,3}$/.match(k) }.each do |k, v|
+            origin.select { |k, _v| /^[1-4][0-9A-Fa-f]{,3}$/.match(k) }.each do |k, v|
               payment[k] = payment[k] ? payment[k] + v : v
             end
             nil
           end
         end
-        LucaRecord::Base.open_hashed("payments/#{targetdir}", id, 'w') do |f|
-          f.write(YAML.dump(past_data.merge!(payment).sort.to_h))
-        end
+        self.class.create(past_data.merge!(payment), "payments/#{targetdir}")
       end
     end
 

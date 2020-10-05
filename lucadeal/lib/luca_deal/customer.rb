@@ -22,21 +22,16 @@ module LucaDeal
     end
 
     def generate!(name)
-      id = issue_random_id
       contact = {
         'mail' => '_MAIL_ADDRESS_FOR_CONTACT_'
       }
       obj = {
-        'id' => id,
         'name' => name,
         'address' => '_CUSTOMER_ADDRESS_FOR_INVOICE_',
         'address2' => '_CUSTOMER_ADDRESS_FOR_INVOICE_',
         'contacts' => [contact]
       }
-      LucaRecord::Base.open_hashed('customers', id, 'w') do |f|
-        f.write(YAML.dump(obj))
-      end
-      id
+      self.class.create(obj)
     end
   end
 end

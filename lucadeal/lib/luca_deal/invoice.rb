@@ -158,10 +158,6 @@ module LucaDeal
       end
     end
 
-    def datadir
-      Pathname(@pjdir) + 'data'
-    end
-
     def issue_date(date)
       base =  date.nil? ? Date.today : Date.parse(date)
       Date.new(base.year, base.month, -1)

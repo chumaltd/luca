@@ -26,20 +26,16 @@ module LucaDeal
     end
 
     def generate!(customer_id)
-      id = issue_random_id
       LucaDeal::Customer.find(customer_id) do |customer|
         current_customer = parse_current(customer)
-        obj = { 'id' => id, 'customer_id' => current_customer['id'], 'customer_name' => current_customer['name'] }
+        obj = { 'customer_id' => current_customer['id'], 'customer_name' => current_customer['name'] }
         obj['items'] = [{
                           'name' => '_ITEM_NAME_FOR_INVOICE_',
                           'qty' => 1,
                           'price' => 0
                         }]
         obj['terms'] = { 'billing_cycle' => 'monthly', 'effective' => @date }
-        LucaRecord::Base.open_hashed('contracts', id, 'w') do |f|
-          f.write(YAML.dump(obj))
-        end
-        id
+        self.class.create(obj)
       end
     end
 

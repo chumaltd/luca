@@ -221,6 +221,19 @@ module LucaRecord
         File.write(path, YAML.dump(origin.sort.to_h))
       end
 
+      #
+      # create hash based record
+      #
+      def create(obj, basedir = @dirname)
+        id = LucaSupport::Code.issue_random_id
+        obj['id'] = id
+        open_hashed(basedir, id, 'w') do |f|
+          f.write(YAML.dump(obj.sort.to_h))
+        end
+        id
+      end
+
+      #
       # define new transaction ID & write data at once
       #
       def create_record!(date_obj, codes = nil, basedir = @dirname)
