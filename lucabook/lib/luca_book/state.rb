@@ -218,6 +218,7 @@ module LucaBook
       end
     end
 
+    # TODO: replace load_tsv -> generic load_tsv_dict
     def load_start
       file = LucaSupport::Config::Pjdir + 'start.tsv'
       {}.tap do |dic|
@@ -225,6 +226,13 @@ module LucaBook
           dic[row[0]] = row[2].to_i if ! row[2].nil?
         end
       end
+    end
+
+    def load_tsv(path)
+      return enum_for(:load_tsv, path) unless block_given?
+
+      data = CSV.read(path, headers: true, col_sep: "\t", encoding: 'UTF-8')
+      data.each { |row| yield row }
     end
 
     def self.calc_diff(num, code)

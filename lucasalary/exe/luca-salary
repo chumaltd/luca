@@ -36,6 +36,7 @@ def add_person(args = nil, _params = nil)
   LucaSalary::Profile.gen_profile!(args.first)
 end
 
+LucaRecord::Base.valid_project?
 cmd = ARGV.shift
 
 case cmd

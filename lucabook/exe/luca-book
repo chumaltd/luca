@@ -24,6 +24,7 @@ def report(args, params)
   end
 end
 
+LucaRecord::Base.valid_project?
 cmd = ARGV.shift
 
 case cmd

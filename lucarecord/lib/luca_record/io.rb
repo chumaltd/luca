@@ -18,32 +18,12 @@ module LucaRecord
       klass.extend ClassMethods
     end
 
-    #
-    # Used @date for searching current settings
-    # query can be nested hash for other than 'val'
-    #
-    #   where(contract_status: 'active')
-    #   where(graded: {rank: 5})
-    #
-    def where(**query)
-      return enum_for(:where, **query) unless block_given?
-
-      query.each do |key, val|
-        v = val.respond_to?(:values) ? val.values.first : val
-        label = val.respond_to?(:keys) ? val.keys.first : 'val'
-        self.class.all do |data|
-          next unless data.keys.map(&:to_sym).include?(key)
-
-          processed = parse_current(data)
-          yield processed if v == processed.dig(key.to_s, label.to_s)
-        end
-      end
-    end
-
     module ClassMethods
-      #
+      #-----------------------------------------------------------------
+      # :section: Query Methods
+      #-----------------------------------------------------------------
+
       # find ID based record. Support uuid and encoded date.
-      #
       def find(id, basedir = @dirname)
         return enum_for(:find, id, basedir) unless block_given?
 
@@ -61,7 +41,6 @@ module LucaRecord
         end
       end
 
-      #
       # search date based record.
       #
       # * data hash
@@ -75,7 +54,6 @@ module LucaRecord
         end
       end
 
-      #
       # search with date params & code.
       #
       def search(year, month = nil, day = nil, code = nil, basedir = @dirname)
@@ -91,7 +69,6 @@ module LucaRecord
         end
       end
 
-      #
       # retrieve all data
       #
       def all(basedir = @dirname)
@@ -102,47 +79,11 @@ module LucaRecord
         end
       end
 
-      #
-      # convert ID to file path. Normal argument is as follows:
-      #
-      # * [2020H, V001]
-      # * "2020H/V001"
-      # * "a7b806d04a044c6dbc4ce72932867719"
-      #
-      def id2path(id)
-        if id.is_a?(Array)
-          id.join('/')
-        elsif id.include?('/')
-          id
-        else
-          encode_hashed_path(id)
-        end
-      end
+      #-----------------------------------------------------------------
+      # :section: Write Methods
+      #-----------------------------------------------------------------
 
-      #
-      # Directory separation for performance. Same as Git way.
-      #
-      def encode_hashed_path(id, split_factor = 3)
-        len = id.length
-        if len <= split_factor
-          ['', id]
-        else
-          [id[0, split_factor], id[split_factor, len - split_factor]]
-        end
-      end
-
-      def add_status!(id, status, basedir = @dirname)
-        path = abs_path(basedir) / id2path(id)
-        origin = YAML.load_file(path, {})
-        newline = { status => DateTime.now.to_s }
-        origin['status'] = [] if origin['status'].nil?
-        origin['status'] << newline
-        File.write(path, YAML.dump(origin.sort.to_h))
-      end
-
-      #
       # create hash based record
-      #
       def create(obj, basedir = @dirname)
         id = LucaSupport::Code.issue_random_id
         obj['id'] = id
@@ -152,9 +93,7 @@ module LucaRecord
         id
       end
 
-      #
       # define new transaction ID & write data at once
-      #
       def create_record!(date_obj, codes = nil, basedir = @dirname)
         gen_record_file!(basedir, date_obj, codes) do |f|
           f.write CSV.generate('', col_sep: "\t", headers: false) { |c| yield(c) }
@@ -171,23 +110,66 @@ module LucaRecord
         File.open(path.to_s, 'w') { |f| yield(f) }
       end
 
-      def new_record_id(basedir, date_obj)
-        LucaSupport::Code.encode_txid(new_record_no(basedir, date_obj))
-      end
-
       def prepare_dir!(basedir, date_obj)
         dir_name = (Pathname(basedir) + encode_dirname(date_obj)).to_s
         FileUtils.mkdir_p(dir_name) unless Dir.exist?(dir_name)
         dir_name
       end
 
+      def add_status!(id, status, basedir = @dirname)
+        path = abs_path(basedir) / id2path(id)
+        origin = YAML.load_file(path, {})
+        newline = { status => DateTime.now.to_s }
+        origin['status'] = [] if origin['status'].nil?
+        origin['status'] << newline
+        File.write(path, YAML.dump(origin.sort.to_h))
+      end
+
+      #-----------------------------------------------------------------
+      # :section: Path Utilities
+      #-----------------------------------------------------------------
+
+      # convert ID to file path. Normal argument is as follows:
+      #
+      #   [2020H, V001]
+      #   "2020H/V001"
+      #   "a7b806d04a044c6dbc4ce72932867719"
+      def id2path(id)
+        if id.is_a?(Array)
+          id.join('/')
+        elsif id.include?('/')
+          id
+        else
+          encode_hashed_path(id)
+        end
+      end
+
+      # Directory separation for performance. Same as Git way.
+      def encode_hashed_path(id, split_factor = 3)
+        len = id.length
+        if len <= split_factor
+          ['', id]
+        else
+          [id[0, split_factor], id[split_factor, len - split_factor]]
+        end
+      end
+
       def encode_dirname(date_obj)
         date_obj.year.to_s + LucaSupport::Code.encode_month(date_obj)
       end
 
+      # test if having required dirs/files under exec path
+      def valid_project?(path = LucaSupport::Config::Pjdir)
+        project_dir = Pathname(path)
+        FileTest.file?((project_dir + 'config.yml').to_s) and FileTest.directory?( (project_dir + 'data').to_s)
+      end
+
+      def new_record_id(basedir, date_obj)
+        LucaSupport::Code.encode_txid(new_record_no(basedir, date_obj))
+      end
+
       private
 
-      #
       # open records with 'basedir/month/date-code' path structure.
       # Glob pattern can be specified like folloing examples.
       #
@@ -198,7 +180,6 @@ module LucaRecord
       # 1. encoded month
       # 2. encoded day + record number of the day
       # 3. codes. More than 3 are all code set except first 2 parameters.
-      #
       def open_records(basedir, subdir, filename = nil, code = nil, mode = 'r')
         return enum_for(:open_records, basedir, subdir, filename, code, mode) unless block_given?
 
@@ -213,7 +194,6 @@ module LucaRecord
         end
       end
 
-      #
       # git object like structure
       #
       def open_hashed(basedir, id, mode = 'r')
@@ -225,7 +205,6 @@ module LucaRecord
         File.open((dirpath + filename).to_s, mode) { |f| yield f }
       end
 
-      #
       # scan through all files
       #
       def open_all(basedir, mode = 'r')
@@ -237,7 +216,6 @@ module LucaRecord
         end
       end
 
-      #
       # Decode basic format.
       # If specific decode is needed, override this method in each class.
       #
@@ -282,25 +260,28 @@ module LucaRecord
       end
     end # end of ClassModules
 
-    def set_data_dir(dir_path = LucaSupport::Config::Pjdir)
-      if dir_path.nil?
-        raise 'No project path is specified'
-      elsif !valid_project?(dir_path)
-        raise 'Specified path is not for valid project'
-      else
-        project_dir = Pathname(dir_path)
-      end
-
-      (project_dir + 'data/').to_s
-    end
-
-    def valid_project?(path)
-      project_dir = Pathname(path)
-      FileTest.file?((project_dir + 'config.yml').to_s) and FileTest.directory?( (project_dir + 'data').to_s)
-    end
-
+    # Used @date for searching current settings
+    # query can be nested hash for other than 'val'
     #
-    # for date based records
+    #   where(contract_status: 'active')
+    #   where(graded: {rank: 5})
+    #
+    def where(**query)
+      return enum_for(:where, **query) unless block_given?
+
+      query.each do |key, val|
+        v = val.respond_to?(:values) ? val.values.first : val
+        label = val.respond_to?(:keys) ? val.keys.first : 'val'
+        self.class.all do |data|
+          next unless data.keys.map(&:to_sym).include?(key)
+
+          processed = parse_current(data)
+          yield processed if v == processed.dig(key.to_s, label.to_s)
+        end
+      end
+    end
+
+    # parse data dir and respond existing months
     #
     def scan_terms(base_dir, query = nil)
       pattern = query.nil? ? "*" : "#{query}*"
@@ -313,25 +294,11 @@ module LucaRecord
 
     def load_config(path = nil)
       path = path.to_s
-      if File.exists?(path)
+      if File.exist?(path)
         YAML.load_file(path, **{})
       else
         {}
       end
-    end
-
-    def has_status?(dat, status)
-      return false if dat['status'].nil?
-
-      dat['status'].map { |h| h.key?(status) }
-        .include?(true)
-    end
-
-    def load_tsv(path)
-      return enum_for(:load_tsv, path) unless block_given?
-
-      data = CSV.read(path, headers: true, col_sep: "\t", encoding: 'UTF-8')
-      data.each { |row| yield row }
     end
   end
 end

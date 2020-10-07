@@ -63,6 +63,7 @@ def new_pj(args = nil, params = {})
   LucaDeal::Setup.create_project args[0]
 end
 
+LucaRecord::Base.valid_project?
 cmd = ARGV.shift
 
 case cmd

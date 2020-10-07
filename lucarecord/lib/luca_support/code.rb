@@ -107,5 +107,12 @@ module LucaSupport
         target
       end
     end
+
+    def has_status?(dat, status)
+      return false if dat['status'].nil?
+
+      dat['status'].map { |h| h.key?(status) }
+        .include?(true)
+    end
   end
 end
