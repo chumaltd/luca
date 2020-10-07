@@ -15,7 +15,7 @@ module LucaSalary
     def initialize(date = nil)
       @date = date.nil? ? Date.today : Date.parse(date)
       @pjdir = Pathname(LucaSupport::Config::Pjdir)
-      @config = load_config(@pjdir + 'config.yml')
+      @config = load_config(@pjdir / 'config.yml')
       @driver = set_driver
       @dict = load_dict
     end
@@ -60,17 +60,32 @@ module LucaSalary
       dat.filter { |k, _v| /^#{code}[0-9A-Fa-f]{,3}$/.match(k.to_s) }
     end
 
+    #
+    # Subtotal each items.
+    # 1::
+    #    Base salary or wages.
+    # 2::
+    #    Deduction directly related to work payment, including tax, insurance, pension and so on.
+    # 3::
+    #    Deduction for miscellaneous reasons.
+    # 4::
+    #    Addition for miscellaneous reasons.
+    # 5::
+    #    Net payment amount.
+    #
     def amount_by_code(obj)
       {}.tap do |h|
         (1..4).each do |n|
-          h["#{n}00"] = sum_code(obj, n)
+          code = n.to_s
+          h[code] = sum_code(obj, code)
         end
+        h['5'] = h['1'] - h['2'] - h['3'] + h['4']
       end
     end
 
     def sum_code(obj, code, exclude = nil)
-      target = obj.select { |k, v| /^#{code}[0-9A-Fa-f]{,3}$/.match(k) }
-      target = target.reject { |k, v| exclude.include?(k) } if exclude
+      target = obj.select { |k, _v| /^#{code}[0-9A-Fa-f]{,3}$/.match(k) }
+      target = target.reject { |k, _v| exclude.include?(k) } if exclude
       target.values.inject(:+) || 0
     end
 
