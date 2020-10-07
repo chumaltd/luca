@@ -35,6 +35,13 @@ module LucaBook
       end
     end
 
+    # define new transaction ID & write data at once
+    def self.create_record!(date_obj, codes = nil)
+      gen_record_file!(@dirname, date_obj, codes) do |f|
+        f.write CSV.generate('', col_sep: "\t", headers: false) { |c| yield(c) }
+      end
+    end
+
     #
     # collect values on specified key
     #

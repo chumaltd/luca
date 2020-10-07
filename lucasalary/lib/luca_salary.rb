@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'luca_record'
 require 'luca_salary/version'
 
 module LucaSalary

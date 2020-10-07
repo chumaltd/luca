@@ -153,9 +153,7 @@ module LucaDeal
 
     def gen_invoice!(invoice)
       id = invoice.dig('contract_id')
-      self.class.gen_record_file!('invoices', @date, Array(id)) do |f|
-        f.write(YAML.dump(invoice.sort.to_h))
-      end
+      self.class.create_record!(invoice, @date, Array(id))
     end
 
     def issue_date(date)

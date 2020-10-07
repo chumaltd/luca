@@ -8,10 +8,10 @@ require 'pathname'
 require 'luca_support/code'
 require 'luca_support/config'
 
-# == IO
-# Read / Write hash data with id and/or date.
-# Manage both database & historical records.
-module LucaRecord
+module LucaRecord # :nodoc:
+  # == IO
+  # Read / Write hash data with id and/or date.
+  # Manage both database & historical records.
   module IO
     include LucaSupport::Code
 
@@ -100,20 +100,10 @@ module LucaRecord
       end
 
       # define new transaction ID & write data at once
-      def create_record!(date_obj, codes = nil, basedir = @dirname)
+      def create_record!(obj, date_obj, codes = nil, basedir = @dirname)
         gen_record_file!(basedir, date_obj, codes) do |f|
-          f.write CSV.generate('', col_sep: "\t", headers: false) { |c| yield(c) }
+          f.write(YAML.dump(obj.sort.to_h))
         end
-      end
-
-      def gen_record_file!(basedir, date_obj, codes = nil)
-        d = prepare_dir!(abs_path(basedir), date_obj)
-        filename = LucaSupport::Code.encode_date(date_obj) + new_record_id(abs_path(basedir), date_obj)
-        if codes
-          filename += codes.inject('') { |fragment, code| "#{fragment}-#{code}" }
-        end
-        path = Pathname(d) + filename
-        File.open(path.to_s, 'w') { |f| yield(f) }
       end
 
       def prepare_dir!(basedir, date_obj)
@@ -235,6 +225,16 @@ module LucaRecord
         else
           YAML.load(io.read)
         end
+      end
+
+      def gen_record_file!(basedir, date_obj, codes = nil)
+        d = prepare_dir!(abs_path(basedir), date_obj)
+        filename = LucaSupport::Code.encode_date(date_obj) + new_record_id(abs_path(basedir), date_obj)
+        if codes
+          filename += codes.inject('') { |fragment, code| "#{fragment}-#{code}" }
+        end
+        path = Pathname(d) + filename
+        File.open(path.to_s, 'w') { |f| yield(f) }
       end
 
       # TODO: replace with data_dir method

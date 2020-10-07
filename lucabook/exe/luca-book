@@ -1,7 +1,12 @@
 #!/usr/bin/ruby
 
-require "optparse"
-require "luca_book/console"
+require 'optparse'
+require 'luca_book'
+require 'luca_book/console'
+
+def import(args, params)
+  LucaBook::Import.new(args[0]).import_csv
+end
 
 def list(args, params)
   if params["c"] or params["code"]
@@ -28,7 +33,15 @@ LucaRecord::Base.valid_project?
 cmd = ARGV.shift
 
 case cmd
-when "list"
+when 'import'
+  params = {}
+  OptionParser.new do |opt|
+    opt.banner = 'Usage: luca import filepath'
+    # TODO: need to handle import config
+    args = opt.parse!(ARGV)
+    import(args, params)
+  end
+when 'list'
   params = {}
   OptionParser.new do |opt|
     opt.banner = 'Usage: luca list [year month]'
@@ -37,7 +50,7 @@ when "list"
     args = opt.parse!(ARGV)
     list(args, params)
   end
-when "report"
+when 'report'
   params = {}
   OptionParser.new do |opt|
     opt.banner = 'Usage: luca report'
@@ -46,8 +59,9 @@ when "report"
     args = opt.parse!(ARGV)
     report(args, params)
   end
-when "--help"
+when '--help'
   puts 'Usage: luca subcommand'
+  puts '  import: import records'
   puts '  list: list records'
   puts '  report: show reports'
 else

@@ -17,7 +17,6 @@ module LucaSalary
       @dict = LucaRecord::Dict.load_tsv_dict(@pjdir / 'dict' / 'code.tsv')
     end
 
-    #
     # create record with LucaSalary::Profile instance and apyment data
     #
     def create(profile, payment)
@@ -27,9 +26,7 @@ module LucaSalary
         return nil
       end
 
-      self.class.gen_record_file!('payments', @date, Array(id)) do |f|
-        f.write(YAML.dump(payment.sort.to_h))
-      end
+      self.class.create_record!(payment, @date, Array(id))
     end
 
     def payslip
