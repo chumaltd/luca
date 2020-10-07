@@ -103,7 +103,7 @@ module LucaSalary
       code = @config['countryCode']
       if code
         require "luca_salary/#{code.downcase}"
-        Kernel.const_get "LucaSalary#{code.upcase}"
+        Kernel.const_get "LucaSalary::#{code.upcase}"
       else
         nil
       end
