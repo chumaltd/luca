@@ -5,8 +5,11 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 Gem::Specification.new do |spec|
   spec.name          = 'lucasuite'
   spec.version       = '0.1.0'
+  spec.license       = 'GPL'
   spec.authors       = ['Chuma Takahiro']
   spec.email         = ['co.chuma@gmail.com']
+
+  spec.required_ruby_version = '>= 2.6.0'
 
   spec.summary       = %q{ERP apps}
   spec.description   = <<~DESC
@@ -14,8 +17,6 @@ Gem::Specification.new do |spec|
   DESC
   spec.homepage      = 'https://github.com/chumaltd/luca'
 
-  # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
-  # to allow pushing to a single host or delete this section to allow pushing to any host.
   if spec.respond_to?(:metadata)
     spec.metadata['homepage_uri'] = spec.homepage
     spec.metadata['source_code_uri'] = 'https://github.com/chumaltd/luca'
