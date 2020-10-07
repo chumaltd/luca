@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'csv'
 require 'date'
 require 'fileutils'
@@ -6,10 +8,9 @@ require 'pathname'
 require 'luca_support/code'
 require 'luca_support/config'
 
-#
-# Low level API
-# manipulate files based on transaction date
-#
+# == IO
+# Read / Write hash data with id and/or date.
+# Manage both database & historical records.
 module LucaRecord
   module IO
     include LucaSupport::Code
@@ -21,6 +22,9 @@ module LucaRecord
     module ClassMethods
       #-----------------------------------------------------------------
       # :section: Query Methods
+      # Provide sematic search interfaces.
+      # <tt>basedir</tt> is set by class instance variable <tt>@dirname</tt>
+      # of each concrete class.
       #-----------------------------------------------------------------
 
       # find ID based record. Support uuid and encoded date.
@@ -81,6 +85,8 @@ module LucaRecord
 
       #-----------------------------------------------------------------
       # :section: Write Methods
+      # <tt>basedir</tt> is set by class instance variable <tt>@dirname</tt>
+      # of each concrete class.
       #-----------------------------------------------------------------
 
       # create hash based record
