@@ -73,7 +73,8 @@ module LucaSupport
     end
 
     #
-    # convert effective/defunct data into current hash on @date
+    # convert effective/defunct data into current hash on @date.
+    # not parse nested children.
     #
     def parse_current(dat)
       {}.tap do |processed|
@@ -92,7 +93,7 @@ module LucaSupport
     #   - effective: 2020-1-1
     #     rank: 5
     #     point: 1000
-    #   => { 'effective' => 2020-1-1, 'rank' => 5, '' => 'point' => 1000 }
+    #   => { 'effective' => 2020-1-1, 'rank' => 5, 'point' => 1000 }
     #
     def take_current(dat, item)
       target = dat.dig(item)

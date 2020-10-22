@@ -19,6 +19,7 @@ module LucaDeal
     def active
       self.class.all do |data|
         contract = parse_current(data)
+        contract['items'] = contract['items'].map { |item| parse_current(item) }
         next if !self.class.active_period?(contract)
 
         yield contract

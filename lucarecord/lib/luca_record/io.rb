@@ -20,12 +20,12 @@ module LucaRecord # :nodoc:
     end
 
     module ClassMethods
-      #-----------------------------------------------------------------
+      # ----------------------------------------------------------------
       # :section: Query Methods
       # Provide sematic search interfaces.
       # <tt>basedir</tt> is set by class instance variable <tt>@dirname</tt>
       # of each concrete class.
-      #-----------------------------------------------------------------
+      # ----------------------------------------------------------------
 
       # find ID based record. Support uuid and encoded date.
       def find(id, basedir = @dirname)
@@ -83,11 +83,11 @@ module LucaRecord # :nodoc:
         end
       end
 
-      #-----------------------------------------------------------------
+      # ----------------------------------------------------------------
       # :section: Write Methods
       # <tt>basedir</tt> is set by class instance variable <tt>@dirname</tt>
       # of each concrete class.
-      #-----------------------------------------------------------------
+      # ----------------------------------------------------------------
 
       # create hash based record
       def create(obj, basedir = @dirname)
@@ -121,9 +121,9 @@ module LucaRecord # :nodoc:
         File.write(path, YAML.dump(origin.sort.to_h))
       end
 
-      #-----------------------------------------------------------------
+      # ----------------------------------------------------------------
       # :section: Path Utilities
-      #-----------------------------------------------------------------
+      # ----------------------------------------------------------------
 
       # convert ID to file path. Normal argument is as follows:
       #
