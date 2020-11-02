@@ -114,7 +114,7 @@ module LucaRecord # :nodoc:
 
       def add_status!(id, status, basedir = @dirname)
         path = abs_path(basedir) / id2path(id)
-        origin = YAML.load_file(path, {})
+        origin = YAML.load_file(path, **{})
         newline = { status => DateTime.now.to_s }
         origin['status'] = [] if origin['status'].nil?
         origin['status'] << newline
@@ -125,14 +125,25 @@ module LucaRecord # :nodoc:
       # :section: Path Utilities
       # ----------------------------------------------------------------
 
-      # convert ID to file path. Normal argument is as follows:
+      # Convert ID to file directory/filename path.
+      # 1st element of Array is used as directory, the others as filename.
+      # String without '/' is converted as git-like structure.
+      # Normal argument is as follows:
       #
-      #   [2020H, V001]
-      #   "2020H/V001"
-      #   "a7b806d04a044c6dbc4ce72932867719"
+      #   ['2020H', 'V001', 'a7b806d04a044c6dbc4ce72932867719']
+      #     => '2020H/V001-a7b806d04a044c6dbc4ce72932867719'
+      #   'a7b806d04a044c6dbc4ce72932867719'
+      #     => 'a7b/806d04a044c6dbc4ce72932867719'
+      #   '2020H/V001'
+      #     => '2020H/V001'
       def id2path(id)
         if id.is_a?(Array)
-          id.join('/')
+          case id.length
+          when 0..2
+            id.join('/')
+          else
+            [id[0], id[1..-1].join('-')].join('/')
+          end
         elsif id.include?('/')
           id
         else
