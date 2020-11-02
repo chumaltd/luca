@@ -12,7 +12,7 @@ module LucaSupport
     def encode_txid(num)
       txmap = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
       l = txmap.length
-      txmap[num / (l**2)] + txmap[(num%(l**2)) / l] + txmap[num % l]
+      txmap[num / (l**2)] + txmap[(num % (l**2)) / l] + txmap[num % l]
     end
 
     def decode_txid(id)

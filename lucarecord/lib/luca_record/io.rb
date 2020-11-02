@@ -147,7 +147,7 @@ module LucaRecord # :nodoc:
         elsif id.include?('/')
           id
         else
-          encode_hashed_path(id)
+          encode_hashed_path(id).join('/')
         end
       end
 
