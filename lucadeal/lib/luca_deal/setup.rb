@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "luca_deal/version"
+require 'luca_deal/version'
 require 'fileutils'
 
 module LucaDeal

@@ -8,7 +8,7 @@ require 'securerandom'
 Rake::TestTask.new(:test) do |t|
   #t.libs << 'test'
   #t.libs << 'lib'
-  t.test_files = FileList['lucarecord/test/**/*_test.rb', 'lucadeal/test/*_test.rb']
+  t.test_files = FileList['lucarecord/test/**/*_test.rb', 'lucabook/test/**/*_test.rb', 'lucadeal/test/**/*_test.rb']
 end
 
 ENV['LUCA_TEST_DIR'] = (Pathname(__dir__) / 'tmp' / SecureRandom.uuid).to_s
