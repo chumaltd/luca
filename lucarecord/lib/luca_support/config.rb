@@ -6,6 +6,6 @@
 module LucaSupport
   module Config
     # Project top directory.
-    Pjdir = Dir.pwd.freeze
+    Pjdir = ENV['LUCA_TEST_DIR'] || Dir.pwd.freeze
   end
 end

@@ -1,5 +1,15 @@
-$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
+# frozen_string_literal: true
+
+require 'bundler'
+Bundler.require
+
+require 'simplecov'
+SimpleCov.start
+
+require 'fileutils'
+require 'pathname'
 require 'luca_deal'
+require 'luca_record/io'
 
 require 'minitest/autorun'
 
