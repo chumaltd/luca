@@ -1,15 +1,13 @@
-# Luca::Deal
+# LucaDeal
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/luca/deal`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+LucaDeal is Sales contract management application.
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'luca-deal'
+gem 'lucadeal'
 ```
 
 And then execute:
@@ -18,11 +16,39 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install luca-deal
+    $ gem install lucadeal
 
 ## Usage
 
 TODO: Write usage instructions here
+
+### Customer
+
+| Top level | Second level |      | Description     |
+|-----------|--------------|------|-----------------|
+| id        |              | auto | uuid            |
+| name      |              | must | customer's name |
+| address   |              |      |                 |
+| address2  |              |      |                 |
+
+
+### Contract
+
+| Top level   | Second level  |          | Description                                                                                          |
+|-------------|---------------|----------|------------------------------------------------------------------------------------------------------|
+| id          |               | auto     | uuid                                                                                                 |
+| customer_id |               | must     | customer's uuid                                                                                      |
+| terms       |               |          |                                                                                                      |
+|             | effective     | must     |                                                                                                      |
+|             | defunct       |          |                                                                                                      |
+|             | billing_cycle | optional | If 'monthly', invoices are generated on each month.                                                  |
+|             | category      | optional | If 'sales_fee', contract is treated as selling commission.                                           |
+| items       |               |          | Array of items.                                                                                      |
+|             | name          |          |                                                                                                      |
+|             | price         |          |                                                                                                      |
+|             | qty           |          |                                                                                                      |
+|             | type          | optional | If 'initial', this item is treated as initial cost, applied only on the first month of the contract. |
+|             |               |          |                                                                                                      |
 
 ## Development
 

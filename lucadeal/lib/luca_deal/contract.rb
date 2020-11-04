@@ -20,7 +20,7 @@ module LucaDeal
       self.class.all do |data|
         contract = parse_current(data)
         contract['items'] = contract['items'].map { |item| parse_current(item) }
-        next if !self.class.active_period?(contract)
+        next if !active_period?(contract.dig('terms'))
 
         yield contract
       end
@@ -40,8 +40,13 @@ module LucaDeal
       end
     end
 
-    def self.active_period?(dat)
-      !dat.dig('terms').nil?
+    def active_period?(dat)
+      unless dat.dig('defunct').nil?
+        defunct = dat.dig('defunct').respond_to?(:year) ? dat.dig('defunct') : Date.parse(dat.dig('defunct'))
+        return false if @date > defunct
+      end
+      effective = dat.dig('effective').respond_to?(:year) ? dat.dig('effective') : Date.parse(dat.dig('effective'))
+      @date >= effective
     end
 
     private

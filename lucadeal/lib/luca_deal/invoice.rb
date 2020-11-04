@@ -114,12 +114,15 @@ module LucaDeal
         invoice['due_date'] = due_date(@date)
         invoice['issue_date'] = @date
         invoice['items'] = contract.dig('items').map do |item|
+          next if item.dig('type') == 'initial' && subsequent_month?(contract.dig('terms', 'effective'))
+
           {}.tap do |h|
             h['name'] = item.dig('name')
             h['price'] = item.dig('price')
-            h['qty'] = item.dig('qty')
+            h['qty'] = item.dig('qty') || 1
+            h['type'] = item.dig('type') if item.dig('type')
           end
-        end
+        end.compact
         invoice['subtotal'] = subtotal(invoice['items'])
                               .map { |k, v| v.tap { |dat| dat['rate'] = k } }
         gen_invoice!(invoice)
@@ -217,6 +220,11 @@ module LucaDeal
         return true if path.include?(id)
       end
       false
+    end
+
+    def subsequent_month?(effective_date)
+      effective_date = Date.parse(effective_date) unless effective_date.respond_to? :year
+      effective_date.year != @date.year || effective_date.month != @date.month
     end
   end
 end
