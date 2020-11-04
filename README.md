@@ -1,15 +1,29 @@
-# Luca
+# LucaSuite
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/luca`. To experiment with that code, run `bin/console` for an interactive prompt.
+## What's LucaSuite
 
-TODO: Delete this and the text above, and describe your gem
+LucaSuite is work-in-progress ERP applications, named after [Luca Pacioli](https://en.wikipedia.org/wiki/Luca_Pacioli)(1447 - 1517).
+
+* LucaBook: Accounting
+* LucaDeal: Sales contract management
+* LucaSalary: Salary calculation
+
+
+## Framework
+
+LucaSuite is built on top of framework like LucaRecord.
+
+* Git aware: App data can be stored in git repository. DBMS free.
+* CLI intensive: Flexible integration with various CI tools.
+* Extensible: Configurable importer, domain specific extensions.
+
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'luca'
+gem 'lucasuite'
 ```
 
 And then execute:
@@ -32,4 +46,4 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/luca.
+Bug reports and pull requests are welcome on GitHub at https://github.com/chumaltd/luca .
