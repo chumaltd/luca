@@ -14,8 +14,8 @@ module LucaRecord
     include LucaSupport::Code
 
     def initialize(file = @filename)
-      @path = file
-      #@path = dict_path(file)
+      #@path = file
+      @path = self.class.dict_path(file)
       set_driver
     end
 

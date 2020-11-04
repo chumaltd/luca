@@ -1,0 +1,17 @@
+---
+config:
+  label: 7
+  counter_label: "Saving accounts"
+  debit_value: 8
+  credit_value: 9
+  note: 7
+  encoding: UTF-8
+  year: 0
+  month: 1
+  day: 2
+definitions:
+  Interest: "Interest income"
+  TotalCredit: "Accounts payable - other"
+  LucaLand: Rents
+  CandSCompany: "Accounts payable - trade"
+

@@ -2,7 +2,7 @@
 
 require_relative 'test_helper'
 
-class LucaBook::InvoiceTest < Minitest::Test
+class LucaBook::SetupTest < Minitest::Test
   include LucaRecord::IO
 
   def setup

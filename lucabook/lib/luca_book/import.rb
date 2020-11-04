@@ -12,12 +12,12 @@ module LucaBook
     DEBIT_DEFAULT = '仮払金'
     CREDIT_DEFAULT = '仮受金'
 
-    def initialize(path)
+    def initialize(path, dict)
       raise 'no such file' unless FileTest.file?(path)
 
       @target_file = path
       # TODO: yaml need to be configurable
-      @dict = LucaRecord::Dict.new('import.yaml')
+      @dict = LucaRecord::Dict.new("import-#{dict}.yaml")
       @code_map = LucaRecord::Dict.reverse(LucaRecord::Dict.load('base.tsv'))
       @config = @dict.csv_config
     end

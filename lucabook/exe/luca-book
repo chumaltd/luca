@@ -5,12 +5,15 @@ require 'luca_book'
 require 'luca_book/console'
 
 def import(args, params)
-  LucaBook::Import.new(args[0]).import_csv
-end
+  if params['config']
+    LucaBook::Import.new(args[0], params['config']).import_csv
+  else
+    puts 'Usage: luca-book import -c import_config'
+  end
 
 def list(args, params)
-  if params["c"] or params["code"]
-    code = params["c"] || params["code"]
+  if params['c'] or params['code']
+    code = params['c'] || params['code']
     LucaBookConsole.new.by_code(code, args.dig(0), args.dig(1))
   elsif args.length > 0
     LucaBookConsole.new.by_month(args[0], args.dig(1))
@@ -37,7 +40,7 @@ when 'import'
   params = {}
   OptionParser.new do |opt|
     opt.banner = 'Usage: luca import filepath'
-    # TODO: need to handle import config
+    opt.on('-c', '--config VAL', 'import definition'){|v| params["config"] = v }
     args = opt.parse!(ARGV)
     import(args, params)
   end
@@ -53,14 +56,14 @@ when 'list'
 when 'report'
   params = {}
   OptionParser.new do |opt|
-    opt.banner = 'Usage: luca report'
+    opt.banner = 'Usage: luca-book report'
     opt.on('--bs', 'show Balance sheet'){|v| params["bs"] = v }
     opt.on('--pl', 'show Income statement'){|v| params["pl"] = v }
     args = opt.parse!(ARGV)
     report(args, params)
   end
 when '--help'
-  puts 'Usage: luca subcommand'
+  puts 'Usage: luca-book subcommand'
   puts '  import: import records'
   puts '  list: list records'
   puts '  report: show reports'
