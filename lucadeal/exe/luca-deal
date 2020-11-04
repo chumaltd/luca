@@ -28,7 +28,7 @@ def contract(args = nil, params = {})
   case params['mode']
   when 'create'
     if params['customer_id']
-      id = LucaDeal::Contract.new.generate!(params['customer_id'])
+      id = LucaDeal::Contract.new.generate!(params['customer_id'], params['category'])
       puts "Successfully generated Contract  #{id}" if id
       puts 'Conditions are tentative. Edit contract detail.' if id
     else
@@ -86,6 +86,9 @@ when 'contract'
     opt.on('--create CustomerId', 'register new contract') do |v|
       params['mode'] = 'create'
       params['customer_id'] = v
+    end
+    opt.on('--salesfee', 'create contract as sales fee definition') do |_v|
+      params['category'] = 'sales_fee'
     end
     args = opt.parse(ARGV)
     contract(args, params)
