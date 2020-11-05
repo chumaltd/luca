@@ -24,12 +24,14 @@ TODO: Write usage instructions here
 
 ### Customer
 
-| Top level | Second level |      | Description     |
-|-----------|--------------|------|-----------------|
-| id        |              | auto | uuid            |
-| name      |              | must | customer's name |
-| address   |              |      |                 |
-| address2  |              |      |                 |
+| Top level | Second level |      | Description                    |
+|-----------|--------------|------|--------------------------------|
+| id        |              | auto | uuid                           |
+| name      |              | must | customer's name                |
+| address   |              |      |                                |
+| address2  |              |      |                                |
+| contact   |              |      | Array of contact information   |
+|           | mail         |      | mail address receiving invoice |
 
 
 ### Contract
@@ -42,13 +44,15 @@ TODO: Write usage instructions here
 |             | effective     | must     |                                                                                                      |
 |             | defunct       |          |                                                                                                      |
 |             | billing_cycle | optional | If 'monthly', invoices are generated on each month.                                                  |
-|             | category      | optional | If 'sales_fee', contract is treated as selling commission.                                           |
+|             | category      | optional | Default: 'subscription'. If 'sales_fee', contract is treated as selling commission.                  |
 | items       |               |          | Array of items.                                                                                      |
 |             | name          |          |                                                                                                      |
 |             | price         |          |                                                                                                      |
-|             | qty           |          |                                                                                                      |
+|             | qty           | optional | quantity. Default: 1.                                                                                |
 |             | type          | optional | If 'initial', this item is treated as initial cost, applied only on the first month of the contract. |
-|             |               |          |                                                                                                      |
+| rate        |               | optional |                                                                                                      |
+|             | default       |          | sales fee rate.                                                                                      |
+|             | initial       |          | sales fee rate for items of type=initial.                                                            |
 
 ## Development
 

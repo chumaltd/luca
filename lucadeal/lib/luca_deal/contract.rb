@@ -13,29 +13,44 @@ module LucaDeal
       @pjdir = Pathname(Dir.pwd)
     end
 
+    # returns active contracts on specified date.
     #
-    # collect active contracts
-    #
-    def active
-      self.class.all do |data|
-        contract = parse_current(data)
-        contract['items'] = contract['items'].map { |item| parse_current(item) }
-        next if !active_period?(contract.dig('terms'))
+    def self.asof(year, month, day)
+      return enum_for(:asof, year, month, day) unless block_given?
 
+      new("#{year}-#{month}-#{day}").active do |contract|
         yield contract
       end
     end
 
-    def generate!(customer_id, mode = nil)
+    #
+    # collect active contracts
+    #
+    def active
+      return enum_for(:active) unless block_given?
+
+      self.class.all do |data|
+        next if !active_period?(data.dig('terms'))
+
+        contract = parse_current(data)
+        contract['items'] = contract['items']&.map { |item| parse_current(item) }
+        # TODO: handle sales_fee rate change
+        contract['rate'] = contract['rate']
+        yield contract.compact
+      end
+    end
+
+    def generate!(customer_id, mode = 'subscription')
       LucaDeal::Customer.find(customer_id) do |customer|
         current_customer = parse_current(customer)
-        obj = { 'customer_id' => current_customer['id'], 'customer_name' => current_customer['name'] }
-        obj['terms'] = { 'effective' => @date }
         if mode == 'sales_fee'
-          obj.merge! salesfee_template
+          obj = salesfee_template
         else
-          obj.merge! monthly_template
+          obj = monthly_template
         end
+        obj.merge!({ 'customer_id' => current_customer['id'], 'customer_name' => current_customer['name'] })
+        obj['terms'] ||= {}
+        obj['terms']['effective'] = @date
         self.class.create(obj)
       end
     end
