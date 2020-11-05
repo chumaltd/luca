@@ -29,6 +29,8 @@ Records are stored in YAML format. On historical records, see [LucaRecord](../lu
 
 ### Customer
 
+Customer consists of label information.
+
 | Top level | Second level |      | historical | Description                    |
 |-----------|--------------|------|------------|--------------------------------|
 | id        |              | auto |            | uuid                           |
@@ -39,53 +41,58 @@ Records are stored in YAML format. On historical records, see [LucaRecord](../lu
 |           | mail         |      |            | mail address receiving invoice |
 
 
-
 ### Contract
 
-| Top level   | Second level  |          | historical | Description                                                                                          |
-|-------------|---------------|----------|------------|------------------------------------------------------------------------------------------------------|
-| id          |               | auto     |            | uuid                                                                                                 |
-| customer_id |               | must     | x        | customer's uuid                                                                                      |
-| terms       |               |          |            |                                                                                                      |
-|             | effective     | must     |            | Start date of the contract.                                                                     |
-|             | defunct       |          |            | End date of the contract.                                                                            |
-|             | billing_cycle | optional |            | If 'monthly', invoices are generated on each month.                                                  |
-|             | category      | optional |            | Default: 'subscription'. If 'sales_fee', contract is treated as selling commission.                  |
-| items       |               |          |            | Array of items.                                                                                      |
-|             | name          |          | x          | Item name.                                                                                           |
-|             | price         |          | x          | Item price.                                                                                          |
-|             | qty           | optional | x          | quantity. Default: 1.                                                                                |
-|             | type          | optional |            | If 'initial', this item is treated as initial cost, applied only on the first month of the contract. |
-| rate        |               | optional |            |                                                                                                      |
-|             | default       |          |            | sales fee rate.                                                                                      |
-|             | initial       |          |            | sales fee rate for items of type=initial.                                                            |
+Contract is core object for calculation.
+
+| Top level   | Second level  |          | historical | Description                                                                                          |   |
+|-------------|---------------|----------|------------|------------------------------------------------------------------------------------------------------|---|
+| id          |               | auto     |            | uuid                                                                                                 |   |
+| customer_id |               | must     | x          | customer's uuid                                                                                      |   |
+| terms       |               |          |            |                                                                                                      |   |
+|             | effective     | must     |            | Start date of the contract.                                                                          |   |
+|             | defunct       |          |            | End date of the contract.                                                                            |   |
+|             | billing_cycle | optional |            | If 'monthly', invoices are generated on each month.                                                  |   |
+|             | category      | optional |            | Default: 'subscription'. If 'sales_fee', contract is treated as selling commission.                  |   |
+| items       |               |          |            | Array of items.                                                                                      |   |
+|             | name          |          | x          | Item name.                                                                                           |   |
+|             | price         |          | x          | Item price.                                                                                          |   |
+|             | qty           | optional | x          | quantity. Default: 1.                                                                                |   |
+|             | type          | optional |            | If 'initial', this item is treated as initial cost, applied only on the first month of the contract. |   |
+| sales_fee   |               | optional |            |                                                                                                      |   |
+|             | id            |          |            | contract id of fee with sales partner.                                                               |   |
+| rate        |               | optional |            |                                                                                                      |   |
+|             | default       |          |            | sales fee rate.                                                                                      |   |
+|             | initial       |          |            | sales fee rate for items of type=initial.                                                            |   |
 
 
 ### Invoice
 
 Invoice is basically auto generated from Customer and Contract objects.
 
-| Top level | Second level | Description                              |
-|-----------|--------------|------------------------------------------|
-| id        |              | uuid                                     |
+| Top level  | Second level | Description                              |
+|------------|--------------|------------------------------------------|
+| id         |              | uuid                                     |
 | issue_date |              |                                          |
-| due_date  |              |                                          |
-| customer  |              |                                          |
-|           | id           | customer's uuid                          |
-|           | name         | customer name                            |
-|           | address      |                                          |
-|           | address2     |                                          |
-|           | to           | Array of mail addresses                  |
-| items     |              | Array of items.                          |
-|           | name         | Item name.                               |
-|           | price        | Item price.                              |
-|           | qty          | quantity. Default: 1.                    |
-|           | type         |                                          |
-| subtotal  |              | Array of subtotal by tax category.       |
-|           | items        | amount of items                          |
-|           | tax          | amount of tax                            |
-|           | rate         | applied tax category. Default: 'default' |
-| status    |              | Array of status with timestamp.          |
+| due_date   |              |                                          |
+| customer   |              |                                          |
+|            | id           | customer's uuid                          |
+|            | name         | customer name                            |
+|            | address      |                                          |
+|            | address2     |                                          |
+|            | to           | Array of mail addresses                  |
+| items      |              | Array of items.                          |
+|            | name         | Item name.                               |
+|            | price        | Item price.                              |
+|            | qty          | quantity. Default: 1.                    |
+|            | type         |                                          |
+| subtotal   |              | Array of subtotal by tax category.       |
+|            | items        | amount of items                          |
+|            | tax          | amount of tax                            |
+|            | rate         | applied tax category. Default: 'default' |
+| sales_fee  |              |                                          |
+|            | id           | contract id of fee with sales partner.   |
+| status     |              | Array of status with timestamp.          |
 
 
 ### Fee
