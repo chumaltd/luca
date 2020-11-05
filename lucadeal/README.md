@@ -41,6 +41,21 @@ Customer consists of label information.
 |           | mail         |      |            | mail address receiving invoice |
 
 
+### Product
+
+Product is items template referred by Contract.
+
+| Top level | Second level |          | historical | Description                                                                                          |
+|-----------|--------------|----------|------------|------------------------------------------------------------------------------------------------------|
+| id        |              | auto     |            | uuid                                                                                                 |
+| name      |              |          | x          | Product name.                                                                                    |
+| items     |              |          |            | Array of items.                                                                                      |
+|           | name         |          | x          | Item name.                                                                                           |
+|           | price        |          | x          | Item price.                                                                                          |
+|           | qty          | optional | x          | quantity. Default: 1.                                                                                |
+|           | type         | optional |            | If 'initial', this item is treated as initial cost, applied only on the first month of the contract. |
+
+
 ### Contract
 
 Contract is core object for calculation. Common fields are as follows:

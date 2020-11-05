@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'luca_deal/version'
 
 require 'yaml'
