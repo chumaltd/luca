@@ -14,7 +14,7 @@ class LucaDeal::ProductTest < Minitest::Test
     FileUtils.rm_rf(['data', 'config.yml'])
   end
 
-  def test_that_it_create_multiple_contracts
+  def test_that_it_create_multiple_products
     product_id = LucaDeal::Product.create(name: 'SampleProduct1', price: 30000, initial: { name: 'Initial fee', price: 50000 })
     assert_equal 1, Dir.glob('data/products/*/*').length
     assert_equal 1, LucaDeal::Product.all.count
