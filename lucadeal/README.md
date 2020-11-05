@@ -22,37 +22,42 @@ Or install it yourself as:
 
 TODO: Write usage instructions here
 
+
+## Data Structure
+
+On historical records, see [LucaRecord](../lucarecord/README.md#historical-field).
+
 ### Customer
 
-| Top level | Second level |      | Description                    |
-|-----------|--------------|------|--------------------------------|
-| id        |              | auto | uuid                           |
-| name      |              | must | customer's name                |
-| address   |              |      |                                |
-| address2  |              |      |                                |
-| contact   |              |      | Array of contact information   |
-|           | mail         |      | mail address receiving invoice |
+| Top level | Second level |      | historical | Description                    |
+|-----------|--------------|------|------------|--------------------------------|
+| id        |              | auto |            | uuid                           |
+| name      |              | must | x          | customer's name                |
+| address   |              |      | x          |                                |
+| address2  |              |      | x          |                                |
+| contact   |              |      |            | Array of contact information   |
+|           | mail         |      |            | mail address receiving invoice |
 
 
 ### Contract
 
-| Top level   | Second level  |          | Description                                                                                          |
-|-------------|---------------|----------|------------------------------------------------------------------------------------------------------|
-| id          |               | auto     | uuid                                                                                                 |
-| customer_id |               | must     | customer's uuid                                                                                      |
-| terms       |               |          |                                                                                                      |
-|             | effective     | must     |                                                                                                      |
-|             | defunct       |          |                                                                                                      |
-|             | billing_cycle | optional | If 'monthly', invoices are generated on each month.                                                  |
-|             | category      | optional | Default: 'subscription'. If 'sales_fee', contract is treated as selling commission.                  |
-| items       |               |          | Array of items.                                                                                      |
-|             | name          |          |                                                                                                      |
-|             | price         |          |                                                                                                      |
-|             | qty           | optional | quantity. Default: 1.                                                                                |
-|             | type          | optional | If 'initial', this item is treated as initial cost, applied only on the first month of the contract. |
-| rate        |               | optional |                                                                                                      |
-|             | default       |          | sales fee rate.                                                                                      |
-|             | initial       |          | sales fee rate for items of type=initial.                                                            |
+| Top level   | Second level  |          | historical | Description                                                                                          |
+|-------------|---------------|----------|------------|------------------------------------------------------------------------------------------------------|
+| id          |               | auto     |            | uuid                                                                                                 |
+| customer_id |               | must     | x        | customer's uuid                                                                                      |
+| terms       |               |          |            |                                                                                                      |
+|             | effective     | must     |            | Start date of the contract.                                                                     |
+|             | defunct       |          |            | End date of the contract.                                                                            |
+|             | billing_cycle | optional |            | If 'monthly', invoices are generated on each month.                                                  |
+|             | category      | optional |            | Default: 'subscription'. If 'sales_fee', contract is treated as selling commission.                  |
+| items       |               |          |            | Array of items.                                                                                      |
+|             | name          |          | x          | Item name.                                                                                           |
+|             | price         |          | x          | Item price.                                                                                          |
+|             | qty           | optional | x          | quantity. Default: 1.                                                                                |
+|             | type          | optional |            | If 'initial', this item is treated as initial cost, applied only on the first month of the contract. |
+| rate        |               | optional |            |                                                                                                      |
+|             | default       |          |            | sales fee rate.                                                                                      |
+|             | initial       |          |            | sales fee rate for items of type=initial.                                                            |
 
 ## Development
 
@@ -62,4 +67,4 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/luca-deal.
+Bug reports and pull requests are welcome on GitHub at https://github.com/chumaltd/luca .
