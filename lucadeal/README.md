@@ -43,27 +43,41 @@ Customer consists of label information.
 
 ### Contract
 
-Contract is core object for calculation.
+Contract is core object for calculation. Common fields are as follows:
 
-| Top level   | Second level  |          | historical | Description                                                                                          |   |
-|-------------|---------------|----------|------------|------------------------------------------------------------------------------------------------------|---|
-| id          |               | auto     |            | uuid                                                                                                 |   |
-| customer_id |               | must     | x          | customer's uuid                                                                                      |   |
-| terms       |               |          |            |                                                                                                      |   |
-|             | effective     | must     |            | Start date of the contract.                                                                          |   |
-|             | defunct       |          |            | End date of the contract.                                                                            |   |
-|             | billing_cycle | optional |            | If 'monthly', invoices are generated on each month.                                                  |   |
-|             | category      | optional |            | Default: 'subscription'. If 'sales_fee', contract is treated as selling commission.                  |   |
-| items       |               |          |            | Array of items.                                                                                      |   |
-|             | name          |          | x          | Item name.                                                                                           |   |
-|             | price         |          | x          | Item price.                                                                                          |   |
-|             | qty           | optional | x          | quantity. Default: 1.                                                                                |   |
-|             | type          | optional |            | If 'initial', this item is treated as initial cost, applied only on the first month of the contract. |   |
-| sales_fee   |               | optional |            |                                                                                                      |   |
-|             | id            |          |            | contract id of fee with sales partner.                                                               |   |
-| rate        |               | optional |            |                                                                                                      |   |
-|             | default       |          |            | sales fee rate.                                                                                      |   |
-|             | initial       |          |            | sales fee rate for items of type=initial.                                                            |   |
+| Top level   | Second level  |          | historical | Description                                                                                          |
+|-------------|---------------|----------|------------|------------------------------------------------------------------------------------------------------|
+| id          |               | auto     |            | uuid                                                                                                 |
+| customer_id |               | must     | x          | customer's uuid                                                                                      |
+| terms       |               |          |            |                                                                                                      |
+|             | effective     | must     |            | Start date of the contract.                                                                          |
+|             | defunct       |          |            | End date of the contract.                                                                            |
+
+Fields for subscription customers are as bellows:
+
+| Top level | Second level  |          | historical | Description                                                                                          |
+|-----------|---------------|----------|------------|------------------------------------------------------------------------------------------------------|
+| terms     |               |          |            |                                                                                                      |
+|           | billing_cycle | optional |            | If 'monthly', invoices are generated on each month.                                                  |
+|           | category      | optional |            | Default: 'subscription'                                                                              |
+| items     |               |          |            | Array of items.                                                                                      |
+|           | name          |          | x          | Item name.                                                                                           |
+|           | price         |          | x          | Item price.                                                                                          |
+|           | qty           | optional | x          | quantity. Default: 1.                                                                                |
+|           | type          | optional |            | If 'initial', this item is treated as initial cost, applied only on the first month of the contract. |
+| sales_fee |               | optional |            |                                                                                                      |
+|           | id            |          |            | contract id of fee with sales partner.                                                               |
+
+
+Fields for sales fee are as bellows:
+
+| Top level | Second level |          | historical | Description                                                                         |
+|-----------|--------------|----------|------------|-------------------------------------------------------------------------------------|
+| terms     |              |          |            |                                                                                     |
+|           | category     |          |            | If 'sales_fee', contract is treated as selling commission. |
+| rate      |              | optional |            |                                                                                     |
+|           | default      |          |            | sales fee rate.                                                                     |
+|           | initial      |          |            | sales fee rate for items of type=initial.                                           |
 
 
 ### Invoice
