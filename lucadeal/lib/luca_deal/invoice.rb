@@ -58,7 +58,6 @@ module LucaDeal
       mail
     end
 
-    #
     # Output seriarized invoice data to stdout.
     # Returns previous N months on multiple count
     #
@@ -129,7 +128,6 @@ module LucaDeal
       end
     end
 
-    #
     # set variables for ERB template
     #
     def invoice_vars(invoice_dat)
@@ -175,7 +173,6 @@ module LucaDeal
       __dir__
     end
 
-    #
     # load user company profile from config.
     #
     def set_company
@@ -186,7 +183,6 @@ module LucaDeal
       end
     end
 
-    #
     # calc items & tax amount by tax category
     #
     def subtotal(items)
@@ -202,7 +198,6 @@ module LucaDeal
       end
     end
 
-    #
     # load Tax Rate from config.
     #
     def load_tax_rate(name)

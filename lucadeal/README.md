@@ -39,6 +39,7 @@ Records are stored in YAML format. On historical records, see [LucaRecord](../lu
 |           | mail         |      |            | mail address receiving invoice |
 
 
+
 ### Contract
 
 | Top level   | Second level  |          | historical | Description                                                                                          |
@@ -58,6 +59,7 @@ Records are stored in YAML format. On historical records, see [LucaRecord](../lu
 | rate        |               | optional |            |                                                                                                      |
 |             | default       |          |            | sales fee rate.                                                                                      |
 |             | initial       |          |            | sales fee rate for items of type=initial.                                                            |
+
 
 ### Invoice
 
@@ -84,6 +86,30 @@ Invoice is basically auto generated from Customer and Contract objects.
 |           | tax          | amount of tax                            |
 |           | rate         | applied tax category. Default: 'default' |
 | status    |              | Array of status with timestamp.          |
+
+
+### Fee
+
+Fee is basically auto generated from Contract and Invoice objects.
+
+| Top level | Second level | Description                                  |
+|-----------|--------------|----------------------------------------------|
+| id        |              | uuid                                         |
+| sales_fee |              |                                              |
+|           | id           | contract id with sales partner.              |
+|           | default.fee  | Amount of fee on dafault rate.               |
+|           | default.tax  | Amount of tax for default.fee.               |
+|           | initial.fee  | Amount of fee on initial cost.               |
+|           | initial.tax  | Amount of tax for initial.fee.               |
+| invoice   |              | Carbon copy of Invoice attributes.           |
+|           | id           |                                              |
+|           | contract_id  |                                              |
+|           | issue_date   |                                              |
+|           | due_date     |                                              |
+| customer  |              | Carbon copy of Invoice customer except 'to'. |
+| items     |              | Carbon copy of Invoice items.                |
+| subtotal  |              | Carbon copy of Invoice subtotal.             |
+| status    |              | Array of status with timestamp.              |
 
 
 ## Development
