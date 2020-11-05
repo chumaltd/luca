@@ -25,7 +25,7 @@ TODO: Write usage instructions here
 
 ## Data Structure
 
-On historical records, see [LucaRecord](../lucarecord/README.md#historical-field).
+Records are stored in YAML format. On historical records, see [LucaRecord](../lucarecord/README.md#historical-field).
 
 ### Customer
 

@@ -5,16 +5,18 @@
 LucaSuite is work-in-progress ERP applications, named after [Luca Pacioli](https://en.wikipedia.org/wiki/Luca_Pacioli)(1447 - 1517).
 
 * LucaBook: Accounting
-* LucaDeal: Sales contract management
+* [LucaDeal](lucadeal/README.md): Sales contract management
 * LucaSalary: Salary calculation
 
 
 ## Framework
 
-LucaSuite is built on top of framework like LucaRecord.
+LucaSuite is built on top of framework like [LucaRecord](lucarecord/README.md).
 
 * Git aware: App data can be stored in git repository. DBMS free.
+* Minimal: Written with Ruby standard library at its core.
 * CLI intensive: Flexible integration with various CI tools.
+* Historical API: Notation for changing attributes.
 * Extensible: Configurable importer, domain specific extensions.
 
 
