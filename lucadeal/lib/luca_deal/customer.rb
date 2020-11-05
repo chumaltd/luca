@@ -21,17 +21,20 @@ module LucaDeal
       YAML.dump(list).tap { |l| puts l }
     end
 
-    def generate!(name)
-      contact = {
+    def self.create(obj)
+      raise ':name is required' if obj[:name].nil?
+
+      contacts = obj[:contact]&.map { |c| { 'mail' => c[:mail] } }&.compact
+      contacts ||= [{
         'mail' => '_MAIL_ADDRESS_FOR_CONTACT_'
+      }]
+      h = {
+        'name' => obj[:name],
+        'address' => obj[:address] || '_CUSTOMER_ADDRESS_FOR_INVOICE_',
+        'address2' => obj[:address2] || '_CUSTOMER_ADDRESS_FOR_INVOICE_',
+        'contacts' => contacts
       }
-      obj = {
-        'name' => name,
-        'address' => '_CUSTOMER_ADDRESS_FOR_INVOICE_',
-        'address2' => '_CUSTOMER_ADDRESS_FOR_INVOICE_',
-        'contacts' => [contact]
-      }
-      self.class.create(obj)
+      super(h)
     end
   end
 end

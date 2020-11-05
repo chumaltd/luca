@@ -11,7 +11,7 @@ def customer(args = nil, params = {})
     LucaDeal::Customer.new.list_name
   when 'create'
     if params['name']
-      id = LucaDeal::Customer.new.generate!(params['name'])
+      id = LucaDeal::Customer.create(name: params['name'])
       puts "Successfully generated Customer  #{id}" if id
       puts 'Edit customer detail.' if id
     else

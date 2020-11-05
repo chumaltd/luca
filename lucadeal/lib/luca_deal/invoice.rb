@@ -112,7 +112,7 @@ module LucaDeal
         invoice['customer'] = get_customer(contract.dig('customer_id'))
         invoice['due_date'] = due_date(@date)
         invoice['issue_date'] = @date
-        invoice['sales_fee'] = contract.dig['sales_fee']
+        invoice['sales_fee'] = contract.dig('sales_fee')
         invoice['items'] = contract.dig('items').map do |item|
           next if item.dig('type') == 'initial' && subsequent_month?(contract.dig('terms', 'effective'))
 

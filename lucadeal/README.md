@@ -37,7 +37,7 @@ Customer consists of label information.
 | name      |              | must | x          | customer's name                |
 | address   |              |      | x          |                                |
 | address2  |              |      | x          |                                |
-| contact   |              |      |            | Array of contact information   |
+| contacts  |              |      |            | Array of contact information   |
 |           | mail         |      |            | mail address receiving invoice |
 
 

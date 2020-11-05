@@ -78,7 +78,7 @@ module LucaRecord # :nodoc:
       def all(basedir = @dirname)
         return enum_for(:all, basedir) unless block_given?
 
-        open_all(basedir) do |f| 
+        open_all(basedir) do |f|
           yield load_data(f)
         end
       end
