@@ -59,6 +59,33 @@ On historical records, see [LucaRecord](../lucarecord/README.md#historical-field
 |             | default       |          |            | sales fee rate.                                                                                      |
 |             | initial       |          |            | sales fee rate for items of type=initial.                                                            |
 
+### Invoice
+
+Invoice is basically auto generated from Customer and Contract objects.
+
+| Top level | Second level | Description                              |
+|-----------|--------------|------------------------------------------|
+| id        |              | uuid                                     |
+| issue_date |              |                                          |
+| due_date  |              |                                          |
+| customer  |              |                                          |
+|           | id           | customer's uuid                          |
+|           | name         | customer name                            |
+|           | address      |                                          |
+|           | address2     |                                          |
+|           | to           | Array of mail addresses                  |
+| items     |              | Array of items.                          |
+|           | name         | Item name.                               |
+|           | price        | Item price.                              |
+|           | qty          | quantity. Default: 1.                    |
+|           | type         |                                          |
+| subtotal  |              | Array of subtotal by tax category.       |
+|           | items        | amount of items                          |
+|           | tax          | amount of tax                            |
+|           | rate         | applied tax category. Default: 'default' |
+| status    |              | Array of status with timestamp.          |
+
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
