@@ -10,6 +10,7 @@ require 'luca_record'
 module LucaDeal
   class Customer < LucaRecord::Base
     @dirname = 'customers'
+    @required = ['name']
 
     def initialize(pjdir = nil)
       @date = Date.today

@@ -12,6 +12,7 @@ require 'luca_record'
 module LucaDeal
   class Invoice < LucaRecord::Base
     @dirname = 'invoices'
+    @required = ['issue_date', 'customer', 'items', 'subtotal']
 
     def initialize(date = nil)
       @date = issue_date(date)

@@ -17,9 +17,8 @@ class LucaDeal::ContractTest < Minitest::Test
   def test_that_it_create_multiple_contracts
     customer_id = LucaDeal::Customer.create(name: 'Customer Co.')
     LucaDeal::Contract.new('2020-3-1').generate!(customer_id)
-    assert_equal 1, Dir.glob('data/contracts/*/*').length
+    assert_equal 1, LucaDeal::Contract.all.count
     LucaDeal::Contract.new('2020-4-1').generate!(customer_id)
-    assert_equal 2, Dir.glob('data/contracts/*/*').length
     assert_equal 2, LucaDeal::Contract.all.count
     assert_equal 0, LucaDeal::Contract.asof(2020, 2, 1).count
     assert_equal 1, LucaDeal::Contract.asof(2020, 3, 15).count
@@ -29,9 +28,8 @@ class LucaDeal::ContractTest < Minitest::Test
   def test_that_it_create_multiple_salesfee_contracts
     customer_id = LucaDeal::Customer.create(name: 'Sales Partner Co.')
     LucaDeal::Contract.new('2020-3-1').generate!(customer_id, 'sales_fee')
-    assert_equal 1, Dir.glob('data/contracts/*/*').length
+    assert_equal 1, LucaDeal::Contract.all.count
     LucaDeal::Contract.new('2020-4-1').generate!(customer_id, 'sales_fee')
-    assert_equal 2, Dir.glob('data/contracts/*/*').length
     assert_equal 2, LucaDeal::Contract.all.count
     assert_equal 0, LucaDeal::Contract.asof(2020, 2, 1).count
     assert_equal 1, LucaDeal::Contract.asof(2020, 3, 15).count

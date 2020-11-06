@@ -91,6 +91,7 @@ module LucaRecord # :nodoc:
 
       # create hash based record
       def create(obj, basedir = @dirname)
+        validate_keys(obj)
         id = LucaSupport::Code.issue_random_id
         obj['id'] = id
         open_hashed(basedir, id, 'w') do |f|
@@ -126,6 +127,7 @@ module LucaRecord # :nodoc:
         if obj['id'].nil?
           create(obj, basedir)
         else
+          validate_keys(obj)
           open_hashed(basedir, obj['id'], 'w') do |f|
             f.write(YAML.dump(obj.sort.to_h))
           end
@@ -252,7 +254,17 @@ module LucaRecord # :nodoc:
         when 'json'
         # TODO: implement JSON parse
         else
-          YAML.load(io.read)
+          YAML.load(io.read).tap { |obj| validate_keys(obj) }
+        end
+      end
+
+      def validate_keys(obj)
+        return nil unless @required
+
+        keys = obj.keys
+        [].tap do |errors|
+          @required.each { |r| errors << r unless keys.include?(r) }
+          raise "Missing keys: #{errors.join(' ')}" unless errors.empty?
         end
       end
 

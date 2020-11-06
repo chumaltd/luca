@@ -9,6 +9,7 @@ require 'luca_record'
 module LucaDeal
   class Contract < LucaRecord::Base
     @dirname = 'contracts'
+    @required = ['customer_id', 'terms']
 
     def initialize(date = nil)
       @date = date ? Date.parse(date) : Date.today
