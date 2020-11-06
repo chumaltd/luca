@@ -121,6 +121,24 @@ module LucaRecord # :nodoc:
         File.write(path, YAML.dump(origin.sort.to_h))
       end
 
+      # update file with obj[:id]
+      def save(obj, basedir = @dirname)
+        if obj['id'].nil?
+          create(obj, basedir)
+        else
+          open_hashed(basedir, obj['id'], 'w') do |f|
+            f.write(YAML.dump(obj.sort.to_h))
+          end
+        end
+        obj['id']
+      end
+
+      # delete file by id
+      def delete(id, basedir = @dirname)
+        FileUtils.rm(Pathname(abs_path(basedir)) / id2path(id))
+        id
+      end
+
       # ----------------------------------------------------------------
       # :section: Path Utilities
       # ----------------------------------------------------------------
