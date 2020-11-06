@@ -22,7 +22,7 @@ class LucaRecord::IoWriteTest < Minitest::Test
     id = SampleRecord.create('name' => 'SampleProduct1', 'initial' => { 'name' => 'Initial fee', 'price' => 50000 })
     assert_equal 1, Dir.glob('data/samples/*/*').length
     assert_equal 1, SampleRecord.all.count
-    load_data = SampleRecord.find(id).first
+    load_data = SampleRecord.find(id)
     assert_equal 50000, load_data['initial']['price']
     assert_equal 'SampleProduct1', load_data['name']
     assert_nil load_data['update']
@@ -30,7 +30,7 @@ class LucaRecord::IoWriteTest < Minitest::Test
     SampleRecord.save(load_data)
     assert_equal 1, Dir.glob('data/samples/*/*').length
     assert_equal 1, SampleRecord.all.count
-    load_data2 = SampleRecord.find(id).first
+    load_data2 = SampleRecord.find(id)
     assert_equal 50000, load_data['initial']['price']
     assert_equal 'SampleProduct1', load_data['name']
     assert_equal 1, load_data['update']

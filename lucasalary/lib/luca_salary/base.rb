@@ -38,10 +38,10 @@ module LucaSalary
         id = profile.dig('id')
         payment = {}
         targetdir = @date.year.to_s + 'Z'
-        past_data = LucaRecord::Base.find(id, "payments/#{targetdir}").first
+        past_data = LucaRecord::Base.find(id, "payments/#{targetdir}")
         (1..12).map do |month|
           origin_dir = @date.year.to_s + [nil, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'][month]
-          origin = LucaRecord::Base.find(id, "payments/#{origin_dir}").first
+          origin = LucaRecord::Base.find(id, "payments/#{origin_dir}")
           # TODO: to be updated null check
           if origin == {}
             month

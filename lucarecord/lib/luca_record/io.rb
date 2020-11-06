@@ -29,7 +29,7 @@ module LucaRecord # :nodoc:
 
       # find ID based record. Support uuid and encoded date.
       def find(id, basedir = @dirname)
-        return enum_for(:find, id, basedir) unless block_given?
+        return enum_for(:find, id, basedir).first unless block_given?
 
         if id.length >= 40
           open_hashed(basedir, id) do |f|
@@ -121,7 +121,7 @@ module LucaRecord # :nodoc:
         File.write(path, YAML.dump(origin.sort.to_h))
       end
 
-      # update file with obj[:id]
+      # update file with obj['id']
       def save(obj, basedir = @dirname)
         if obj['id'].nil?
           create(obj, basedir)

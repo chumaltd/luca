@@ -18,7 +18,7 @@ class LucaDeal::CustomerTest < Minitest::Test
     customer_id = LucaDeal::Customer.create(name: 'SampleCustomer co.', address: 'Shibuya', address2: 'Tokyo')
     assert_equal 1, Dir.glob('data/customers/*/*').length
     assert_equal 1, LucaDeal::Customer.all.count
-    load_data = LucaDeal::Customer.find(customer_id).first
+    load_data = LucaDeal::Customer.find(customer_id)
     assert_equal 'SampleCustomer co.', load_data['name']
     assert_equal 'Shibuya', load_data['address']
     assert_equal 'Tokyo', load_data['address2']
