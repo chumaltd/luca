@@ -93,4 +93,60 @@ class LucaDeal::InvoiceTest < Minitest::Test
       assert invoice['items'].map { |i| i['price'] }.include?(500)
     end
   end
+
+  def test_that_it_refers_initial_cost_on_first_month
+    customer_id = LucaDeal::Customer.create({name: 'Test Company'})
+    product_id = LucaDeal::Product.create(name: 'Premium Subscription', price: 2000, initial: { name: 'Initial Cost', price: 1000 })
+    LucaDeal::Contract.create({ 'customer_id' => customer_id,
+                                'terms' => {
+                                  'effective' => '2020-2-1',
+                                  'billing_cycle' => 'monthly'
+                                },
+                                'products' => [
+                                  { 'id' => product_id }
+                                ],
+                                'items' => [
+                                  { 'name' => 'Custom Option Service', 'price' => 500 },
+                                  { 'name' => 'Custom Initial Cost', 'price' => 1500, 'type' => 'initial' }
+                                ]})
+    LucaDeal::Invoice.new('2020-2-25').monthly_invoice
+    LucaDeal::Invoice.asof(2020, 2) do |invoice|
+      assert_equal 4, invoice['items'].length
+      assert invoice['items'].map { |i| i['name'] }.include?('Premium Subscription')
+      assert invoice['items'].map { |i| i['name'] }.include?('Initial Cost')
+      assert invoice['items'].map { |i| i['name'] }.include?('Custom Option Service')
+      assert invoice['items'].map { |i| i['name'] }.include?('Custom Initial Cost')
+      assert invoice['items'].map { |i| i['price'] }.include?(2000)
+      assert invoice['items'].map { |i| i['price'] }.include?(1500)
+      assert invoice['items'].map { |i| i['price'] }.include?(1000)
+      assert invoice['items'].map { |i| i['price'] }.include?(500)
+      assert_equal 5000, invoice['subtotal'][0]['items']
+    end
+  end
+
+  def test_that_it_omits_initial_cost_on_following_month
+    customer_id = LucaDeal::Customer.create({name: 'Test Company'})
+    product_id = LucaDeal::Product.create(name: 'Premium Subscription', price: 2000, initial: { name: 'Initial Cost', price: 1000 })
+    LucaDeal::Contract.create({ 'customer_id' => customer_id,
+                                'terms' => {
+                                  'effective' => '2020-2-1',
+                                  'billing_cycle' => 'monthly'
+                                },
+                                'products' => [
+                                  { 'id' => product_id }
+                                ],
+                                'items' => [
+                                  { 'name' => 'Custom Option Service', 'price' => 500 },
+                                  { 'name' => 'Custom Initial Cost', 'price' => 1500, 'type' => 'initial' }
+                                ]})
+    LucaDeal::Invoice.new('2020-3-25').monthly_invoice
+    LucaDeal::Invoice.asof(2020, 3) do |invoice|
+      assert_equal 2, invoice['items'].length
+      assert invoice['items'].map { |i| i['name'] }.include?('Premium Subscription')
+      assert invoice['items'].map { |i| i['name'] }.include?('Custom Option Service')
+      assert invoice['items'].map { |i| i['price'] }.include?(2000)
+      assert invoice['items'].map { |i| i['price'] }.include?(500)
+      assert_equal 2500, invoice['subtotal'][0]['items']
+    end
+  end
 end
