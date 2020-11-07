@@ -75,6 +75,8 @@ Fields for subscription customers are as bellows:
 | terms     |               |          |            |                                                                                                      |
 |           | billing_cycle | optional |            | If 'monthly', invoices are generated on each month.                                                  |
 |           | category      | optional |            | Default: 'subscription'                                                                              |
+| products  |               |          |            | Array of products.                                                                                   |
+|           | id            |          |            | reference for Product                                                            |
 | items     |               |          |            | Array of items.                                                                                      |
 |           | name          |          | x          | Item name.                                                                                           |
 |           | price         |          | x          | Item price.                                                                                          |
@@ -115,6 +117,7 @@ Invoice is basically auto generated from Customer and Contract objects.
 |            | price        | Item price.                              |
 |            | qty          | quantity. Default: 1.                    |
 |            | type         |                                          |
+|            | product_id   | refrence for Product                     |
 | subtotal   |              | Array of subtotal by tax category.       |
 |            | items        | amount of items                          |
 |            | tax          | amount of tax                            |

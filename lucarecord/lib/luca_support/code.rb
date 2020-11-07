@@ -97,7 +97,7 @@ module LucaSupport
     #
     def take_current(dat, item)
       target = dat.dig(item)
-      if target.class.name == 'Array' && target.map(&:keys).flatten.include?('effective')
+      if target.is_a?(Array) && target.map(&:keys).flatten.include?('effective')
         latest = target
                  .filter { |a| Date.parse(a.dig('effective').to_s) < @date }
                  .max { |a, b| Date.parse(a.dig('effective').to_s) <=> Date.parse(b.dig('effective').to_s) }

@@ -114,16 +114,12 @@ module LucaDeal
         invoice['due_date'] = due_date(@date)
         invoice['issue_date'] = @date
         invoice['sales_fee'] = contract.dig('sales_fee')
-        invoice['items'] = contract.dig('items').map do |item|
-          next if item.dig('type') == 'initial' && subsequent_month?(contract.dig('terms', 'effective'))
-
-          {}.tap do |h|
-            h['name'] = item.dig('name')
-            h['price'] = item.dig('price')
-            h['qty'] = item.dig('qty') || 1
-            h['type'] = item.dig('type') if item.dig('type')
-          end
-        end.compact
+        invoice['items'] = get_products(contract['products'])
+                             .concat(contract['items']&.map { |i| i['qty'] ||= 1; i } || [])
+                             .compact
+        invoice['items'].reject! do |item|
+          item.dig('type') == 'initial' && subsequent_month?(contract.dig('terms', 'effective'))
+        end
         invoice['subtotal'] = subtotal(invoice['items'])
                               .map { |k, v| v.tap { |dat| dat['rate'] = k } }
         gen_invoice!(invoice)
@@ -150,6 +146,20 @@ module LucaDeal
           res['address'] = customer.dig('address')
           res['address2'] = customer.dig('address2')
           res['to'] = customer.dig('contacts').map { |h| take_current(h, 'mail') }.compact
+        end
+      end
+    end
+
+    def get_products(products)
+      return [] if products.nil?
+
+      [].tap do |res|
+        products.each do |product|
+          LucaDeal::Product.find(product['id'])['items'].each do |item|
+            item['product_id'] = product['id']
+            item['qty'] ||= 1
+            res << item
+          end
         end
       end
     end
@@ -191,8 +201,9 @@ module LucaDeal
       {}.tap do |subtotal|
         items.each do |i|
           rate = i.dig('tax') || 'default'
+          qty = i['qty'] || 1
           subtotal[rate] = { 'items' => 0, 'tax' => 0 } if subtotal.dig(rate).nil?
-          subtotal[rate]['items'] += i['qty'] * i['price']
+          subtotal[rate]['items'] += qty * i['price']
         end
         subtotal.each do |rate, amount|
           amount['tax'] = (amount['items'] * load_tax_rate(rate)).to_i
