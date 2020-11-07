@@ -1,5 +1,7 @@
 # LucaDeal
 
+[![Gem Version](https://badge.fury.io/rb/lucadeal.svg)](https://badge.fury.io/rb/lucadeal)
+
 LucaDeal is Sales contract management application.
 
 ## Installation

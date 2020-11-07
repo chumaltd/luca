@@ -1,5 +1,7 @@
 # LucaRecord
 
+[![Gem Version](https://badge.fury.io/rb/lucarecord.svg)](https://badge.fury.io/rb/lucarecord)
+
 LucaRecord is Git-aware ERP app framework.
 
 ## Historical Field
