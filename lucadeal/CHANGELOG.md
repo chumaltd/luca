@@ -1,0 +1,11 @@
+## LucaDeal 0.2.14
+
+* Introduce Product for selling items template.
+
+## LucaDeal 0.2.12
+
+* Introduce Sales fee calculation.
+
+## LucaDeal 0.2.10
+
+* items can have one time cost at initial month of contract.
