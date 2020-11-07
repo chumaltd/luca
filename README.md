@@ -17,6 +17,7 @@ LucaSuite is built on top of framework like [LucaRecord](lucarecord/README.md).
 * Minimal: Written with Ruby standard library at its core.
 * CLI intensive: Flexible integration with various CI tools.
 * Historical API: Notation for changing attributes.
+* Accurate: BigDecimal codec at load/save.
 * Extensible: Configurable importer, domain specific extensions.
 
 
