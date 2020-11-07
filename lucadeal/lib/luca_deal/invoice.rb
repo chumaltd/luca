@@ -97,7 +97,7 @@ module LucaDeal
             collection << stat
           end
         end
-        puts YAML.dump(collection)
+        puts YAML.dump(LucaSupport::Code.readable(collection))
       end
     end
 
@@ -201,12 +201,12 @@ module LucaDeal
       {}.tap do |subtotal|
         items.each do |i|
           rate = i.dig('tax') || 'default'
-          qty = i['qty'] || 1
+          qty = i['qty'] || BigDecimal('1')
           subtotal[rate] = { 'items' => 0, 'tax' => 0 } if subtotal.dig(rate).nil?
-          subtotal[rate]['items'] += qty * i['price']
+          subtotal[rate]['items'] += i['price'] * qty
         end
         subtotal.each do |rate, amount|
-          amount['tax'] = (amount['items'] * load_tax_rate(rate)).to_i
+          amount['tax'] = (amount['items'] * load_tax_rate(rate))
         end
       end
     end

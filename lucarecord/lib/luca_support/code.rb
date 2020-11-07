@@ -3,6 +3,7 @@
 require 'date'
 require 'securerandom'
 require 'digest/sha1'
+require 'luca_support/config'
 
 # implement Luca IDs convention
 module LucaSupport
@@ -70,6 +71,37 @@ module LucaSupport
 
     def issue_random_id
       Digest::SHA1.hexdigest(SecureRandom.uuid)
+    end
+
+    def decimalize(obj)
+      case obj.class.name
+      when 'Array'
+        obj.map { |i| decimalize(i) }
+      when 'Hash'
+        obj.inject({}) { |h, (k, v)| h[k] = decimalize(v); h }
+      when 'Integer'
+        BigDecimal(obj.to_s)
+      when 'String'
+        /^[0-9\.]+$/.match(obj) ? BigDecimal(obj) : obj
+      when 'Float'
+        raise 'already float'
+      else
+        obj
+      end
+    end
+
+    def readable(obj, len = LucaSupport::Config::DECIMAL_NUM)
+      case obj.class.name
+      when 'Array'
+        obj.map { |i| readable(i) }
+      when 'Hash'
+        obj.inject({}) { |h, (k, v)| h[k] = readable(v); h }
+      when 'BigDecimal'
+        parts = obj.round(len).to_s('F').split('.')
+        len < 1 ? parts.first : "#{parts[0]}.#{parts[1][0, len]}"
+      else
+        obj
+      end
     end
 
     #

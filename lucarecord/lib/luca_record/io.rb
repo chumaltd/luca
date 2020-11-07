@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'bigdecimal'
 require 'csv'
 require 'date'
 require 'fileutils'
@@ -95,7 +96,7 @@ module LucaRecord # :nodoc:
         id = LucaSupport::Code.issue_random_id
         obj['id'] = id
         open_hashed(basedir, id, 'w') do |f|
-          f.write(YAML.dump(obj.sort.to_h))
+          f.write(YAML.dump(LucaSupport::Code.readable(obj.sort.to_h)))
         end
         id
       end
@@ -103,7 +104,7 @@ module LucaRecord # :nodoc:
       # define new transaction ID & write data at once
       def create_record!(obj, date_obj, codes = nil, basedir = @dirname)
         gen_record_file!(basedir, date_obj, codes) do |f|
-          f.write(YAML.dump(obj.sort.to_h))
+          f.write(YAML.dump(LucaSupport::Code.readable(obj.sort.to_h)))
         end
       end
 
@@ -129,7 +130,7 @@ module LucaRecord # :nodoc:
         else
           validate_keys(obj)
           open_hashed(basedir, obj['id'], 'w') do |f|
-            f.write(YAML.dump(obj.sort.to_h))
+            f.write(YAML.dump(LucaSupport::Code.readable(obj.sort.to_h)))
           end
         end
         obj['id']
@@ -255,6 +256,7 @@ module LucaRecord # :nodoc:
         # TODO: implement JSON parse
         else
           YAML.load(io.read).tap { |obj| validate_keys(obj) }
+            .inject({}) { |h, (k, v)| h[k] = LucaSupport::Code.decimalize(v); h }
         end
       end
 
