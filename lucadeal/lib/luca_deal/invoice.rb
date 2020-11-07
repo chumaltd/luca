@@ -113,7 +113,7 @@ module LucaDeal
         invoice['customer'] = get_customer(contract.dig('customer_id'))
         invoice['due_date'] = due_date(@date)
         invoice['issue_date'] = @date
-        invoice['sales_fee'] = contract.dig('sales_fee')
+        invoice['sales_fee'] = contract['sales_fee'] if contract.dig('sales_fee')
         invoice['items'] = get_products(contract['products'])
                              .concat(contract['items']&.map { |i| i['qty'] ||= 1; i } || [])
                              .compact
