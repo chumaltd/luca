@@ -10,7 +10,6 @@ module LucaBook
   class Journal < LucaRecord::Base
     @dirname = 'journals'
 
-    #
     # create journal from hash
     #
     def self.create!(d)
@@ -37,19 +36,17 @@ module LucaBook
 
     # define new transaction ID & write data at once
     def self.create_record!(date_obj, codes = nil)
-      gen_record_file!(@dirname, date_obj, codes) do |f|
+      create_record(nil, date_obj, codes) do |f|
         f.write CSV.generate('', col_sep: "\t", headers: false) { |c| yield(c) }
       end
     end
 
-    #
     # collect values on specified key
     #
     def self.serialize_on_key(array_of_hash, key)
       array_of_hash.map { |h| h[key] }
     end
 
-    #
     # override de-serializing journal format
     #
     def self.load_data(io, path)

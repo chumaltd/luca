@@ -26,7 +26,7 @@ module LucaSalary
         return nil
       end
 
-      self.class.create_record!(payment, @date, Array(id))
+      self.class.create(payment, date: @date, codes: Array(id))
     end
 
     def payslip

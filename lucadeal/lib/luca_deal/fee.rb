@@ -60,7 +60,7 @@ module LucaDeal
 
     def gen_fee!(fee)
       id = fee.dig('invoice', 'contract_id')
-      self.class.create_record!(fee, @date, Array(id))
+      self.class.create(fee, date: @date, codes: Array(id))
     end
 
     private

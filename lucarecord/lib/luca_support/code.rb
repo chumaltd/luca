@@ -45,7 +45,12 @@ module LucaSupport
       num.to_s.reverse.gsub!(/(\d{3})(?=\d)/, '\1,').reverse!
     end
 
+    # encode directory name from year and month.
     #
+    def encode_dirname(date_obj)
+      date_obj.year.to_s + encode_month(date_obj)
+    end
+
     # Month to code conversion.
     # Date, DateTime, String, Integer is valid input. If nil, returns empty String for consistency.
     #

@@ -166,7 +166,7 @@ module LucaDeal
 
     def gen_invoice!(invoice)
       id = invoice.dig('contract_id')
-      self.class.create_record!(invoice, @date, Array(id))
+      self.class.create(invoice, date: @date, codes: Array(id))
     end
 
     def issue_date(date)

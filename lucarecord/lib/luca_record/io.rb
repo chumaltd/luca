@@ -36,9 +36,9 @@ module LucaRecord # :nodoc:
           open_hashed(basedir, id) do |f|
             yield load_data(f)
           end
-        elsif id.length >= 9
-          # TODO: need regexp match for more flexible coding(after AD9999)
-          open_records(basedir, id[0, 5], id[5, 6]) do |f, path|
+        elsif id.length >= 7
+          parts = id.split('/')
+          open_records(basedir, parts[0], parts[1]) do |f, path|
             yield load_data(f, path)
           end
         else
@@ -90,26 +90,23 @@ module LucaRecord # :nodoc:
       # of each concrete class.
       # ----------------------------------------------------------------
 
-      # create hash based record
-      def create(obj, basedir = @dirname)
+      # create record both of uuid/date identified.
+      #
+      def create(obj, date: nil, codes: nil, basedir: @dirname)
         validate_keys(obj)
-        id = LucaSupport::Code.issue_random_id
-        obj['id'] = id
-        open_hashed(basedir, id, 'w') do |f|
-          f.write(YAML.dump(LucaSupport::Code.readable(obj.sort.to_h)))
-        end
-        id
-      end
-
-      # define new transaction ID & write data at once
-      def create_record!(obj, date_obj, codes = nil, basedir = @dirname)
-        gen_record_file!(basedir, date_obj, codes) do |f|
-          f.write(YAML.dump(LucaSupport::Code.readable(obj.sort.to_h)))
+        if date
+          create_record(obj, date, codes, basedir)
+        else
+          obj['id'] = LucaSupport::Code.issue_random_id
+          open_hashed(basedir, obj['id'], 'w') do |f|
+            f.write(YAML.dump(LucaSupport::Code.readable(obj.sort.to_h)))
+          end
+          obj['id']
         end
       end
 
       def prepare_dir!(basedir, date_obj)
-        dir_name = (Pathname(basedir) + encode_dirname(date_obj)).to_s
+        dir_name = (Pathname(basedir) + LucaSupport::Code.encode_dirname(date_obj)).to_s
         FileUtils.mkdir_p(dir_name) unless Dir.exist?(dir_name)
         dir_name
       end
@@ -129,8 +126,17 @@ module LucaRecord # :nodoc:
           create(obj, basedir)
         else
           validate_keys(obj)
-          open_hashed(basedir, obj['id'], 'w') do |f|
-            f.write(YAML.dump(LucaSupport::Code.readable(obj.sort.to_h)))
+          if obj['id'].length < 40
+            parts = obj['id'].split('/')
+            raise 'invalid ID' if parts.length != 2
+
+            open_records(basedir, parts[0], parts[1], nil, 'w') do |f, path|
+              f.write(YAML.dump(LucaSupport::Code.readable(obj.sort.to_h)))
+            end
+          else
+            open_hashed(basedir, obj['id'], 'w') do |f|
+              f.write(YAML.dump(LucaSupport::Code.readable(obj.sort.to_h)))
+            end
           end
         end
         obj['id']
@@ -182,10 +188,6 @@ module LucaRecord # :nodoc:
         end
       end
 
-      def encode_dirname(date_obj)
-        date_obj.year.to_s + LucaSupport::Code.encode_month(date_obj)
-      end
-
       # test if having required dirs/files under exec path
       def valid_project?(path = LucaSupport::Config::Pjdir)
         project_dir = Pathname(path)
@@ -197,6 +199,29 @@ module LucaRecord # :nodoc:
       end
 
       private
+
+      # define new transaction ID & write data at once
+      # ID format is like '2020H/A001', which means record no.1 of 2020/10/10.
+      # Any data format can be written with block.
+      #
+      def create_record(obj, date_obj, codes = nil, basedir = @dirname)
+        FileUtils.mkdir_p(abs_path(basedir)) unless Dir.exist?(abs_path(basedir))
+        subdir = "#{date_obj.year}#{LucaSupport::Code.encode_month(date_obj)}"
+        filename = LucaSupport::Code.encode_date(date_obj) + new_record_id(basedir, date_obj)
+        obj['id'] = "#{subdir}/#{filename}" if obj.is_a? Hash
+        filename += '-' + codes.join('-') if codes
+        Dir.chdir(abs_path(basedir)) do
+          FileUtils.mkdir_p(subdir) unless Dir.exist?(subdir)
+            File.open(Pathname(subdir) / filename, 'w') do |f|
+              if block_given?
+                yield(f)
+              else
+                f.write(YAML.dump(LucaSupport::Code.readable(obj.sort.to_h)))
+              end
+            end
+        end
+        "#{subdir}/#{filename}"
+      end
 
       # open records with 'basedir/month/date-code' path structure.
       # Glob pattern can be specified like folloing examples.
@@ -213,6 +238,7 @@ module LucaRecord # :nodoc:
 
         file_pattern = filename.nil? ? '*' : "#{filename}*"
         Dir.chdir(abs_path(basedir)) do
+          FileUtils.mkdir_p(subdir) if mode == 'w' && !Dir.exist?(subdir)
           Dir.glob("#{subdir}*/#{file_pattern}").sort.each do |subpath|
             next if skip_on_unmatch_code(subpath, code)
 
@@ -270,16 +296,6 @@ module LucaRecord # :nodoc:
         end
       end
 
-      def gen_record_file!(basedir, date_obj, codes = nil)
-        d = prepare_dir!(abs_path(basedir), date_obj)
-        filename = LucaSupport::Code.encode_date(date_obj) + new_record_id(abs_path(basedir), date_obj)
-        if codes
-          filename += codes.inject('') { |fragment, code| "#{fragment}-#{code}" }
-        end
-        path = Pathname(d) + filename
-        File.open(path.to_s, 'w') { |f| yield(f) }
-      end
-
       # TODO: replace with data_dir method
       def abs_path(base_dir)
         Pathname(LucaSupport::Config::Pjdir) / 'data' / base_dir
@@ -297,8 +313,10 @@ module LucaRecord # :nodoc:
 
       # AUTO INCREMENT
       def new_record_no(basedir, date_obj)
-        dir_name = (Pathname(basedir) + encode_dirname(date_obj)).to_s
-        raise 'No target dir exists.' unless Dir.exist?(dir_name)
+        raise 'No target dir exists.' unless Dir.exist?(abs_path(basedir))
+
+        dir_name = (Pathname(abs_path(basedir)) / LucaSupport::Code.encode_dirname(date_obj)).to_s
+        return 1 unless Dir.exist?(dir_name)
 
         Dir.chdir(dir_name) do
           last_file = Dir.glob("#{LucaSupport::Code.encode_date(date_obj)}*").max
