@@ -148,6 +148,21 @@ module LucaRecord # :nodoc:
         id
       end
 
+      # change filename with new code set
+      #
+      def change_codes(id, new_codes, basedir = @dirname)
+        raise 'invalid id' if id.split('/').length != 2
+
+        newfile = new_codes.empty? ? id : id + '-' + new_codes.join('-')
+        Dir.chdir(abs_path(basedir)) do
+          origin = Dir.glob("#{id}*")
+          raise 'duplicated files' if origin.length != 1
+
+          File.rename(origin.first, newfile)
+        end
+        newfile
+      end
+
       # ----------------------------------------------------------------
       # :section: Path Utilities
       # ----------------------------------------------------------------

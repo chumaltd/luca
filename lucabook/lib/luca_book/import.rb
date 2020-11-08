@@ -48,13 +48,13 @@ module LucaBook
       d['debit'].each { |h| h['code'] = @dict.search(h['label'], DEBIT_DEFAULT) }
       d['credit'].each { |h| h['code'] = @dict.search(h['label'], CREDIT_DEFAULT) }
 
-      LucaBook.new.create!(d)
+      LucaBook.new.create(d)
     end
 
     def import_csv
       @dict.load_csv(@target_file) do |row|
         if @config[:type] == 'single'
-          LucaBook::Journal.create!(parse_single(row))
+          LucaBook::Journal.create(parse_single(row))
         elsif @config[:type] == 'double'
           p parse_double(row)
         else
@@ -68,7 +68,7 @@ module LucaBook
     #
     def parse_single(row)
       value = row.dig(@config[:credit_value])&.empty? ? row[@config[:debit_value]] : row[@config[:credit_value]]
-      {}.tap do |d| 
+      {}.tap do |d|
         d['date'] = parse_date(row)
         if row.dig(@config[:credit_value])&.empty?
           d['debit'] = [

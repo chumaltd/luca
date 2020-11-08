@@ -12,7 +12,7 @@ module LucaBook
 
     # create journal from hash
     #
-    def self.create!(d)
+    def self.create(d)
       date = Date.parse(d['date'])
 
       debit_amount = serialize_on_key(d['debit'], 'value')
@@ -22,8 +22,9 @@ module LucaBook
       debit_code = serialize_on_key(d['debit'], 'code')
       credit_code = serialize_on_key(d['credit'], 'code')
 
-      # TODO: limit code length for filename
-      codes = (debit_code + credit_code).uniq
+      # TODO: need to sync filename & content. Limit code length for filename
+      # codes = (debit_code + credit_code).uniq
+      codes = nil
       create_record!(date, codes) do |f|
         f << debit_code
         f << debit_amount
@@ -32,6 +33,13 @@ module LucaBook
         f << []
         f << [d.dig('note')]
       end
+    end
+
+    def self.update_codes(obj)
+      debit_code = serialize_on_key(obj[:debit], :code)
+      credit_code = serialize_on_key(obj[:credit], :code)
+      codes = (debit_code + credit_code).uniq.sort.compact
+      change_codes(obj[:id], codes)
     end
 
     # define new transaction ID & write data at once
@@ -52,7 +60,7 @@ module LucaBook
     def self.load_data(io, path)
       {}.tap do |record|
         body = false
-        record[:id] = path[0] + path[1]
+        record[:id] = "#{path[0]}/#{path[1]}"
         CSV.new(io, headers: false, col_sep: "\t", encoding: 'UTF-8')
           .each.with_index(0) do |line, i|
           case i
