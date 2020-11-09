@@ -80,8 +80,8 @@ module LucaBook
               record[:note] << line.join(' ') if body
             end
           end
-          record[:note]&.join('\n')
         end
+        record[:note] = record[:note]&.join('\n')
       end
     end
   end

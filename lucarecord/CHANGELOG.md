@@ -1,3 +1,8 @@
+## LucaRecord 0.2.19
+
+* `LucaSupport::Code.decode_id()`
+* `LucaSupport::Code.encode_term()` for multiple months search. Old `scan_term()` removed.
+
 ## LucaRecord 0.2.18
 
 * `find()`, `create()`, `save()` now supports both of uuid / historical records. If specified `date:` keyword option to `create()`, then generate historical record. `find()`, `save()` identifies with 'id' attribute.

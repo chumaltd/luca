@@ -10,6 +10,13 @@ module LucaSupport
   module Code
     module_function
 
+    # Parse historical id into Array of date & transaction id.
+    #
+    def decode_id(id_str)
+      m = %r(^(?<year>[0-9]+)(?<month>[A-L])/?(?<day>[0-9A-V])(?<txid>[0-9A-Z]{,3})).match(id_str)
+      ["#{m[:year]}-#{decode_month(m[:month])}-#{decode_date(m[:day])}", decode_txid(m[:txid])]
+    end
+
     def encode_txid(num)
       txmap = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
       l = txmap.length
@@ -67,6 +74,16 @@ module LucaSupport
 
     def decode_month(char)
       '0ABCDEFGHIJKL'.index(char)
+    end
+
+    # Generate globbing phrase like ["2020[C-H]"] for range search.
+    #
+    def encode_term(start_year, start_month, end_year, end_month)
+      (start_year..end_year).to_a.map do |y|
+        g1 = y == start_year ? encode_month(start_month) : encode_month(1)
+        g2 = y == end_year ? encode_month(end_month) : encode_month(12)
+        "#{y}[#{g1}-#{g2}]"
+      end
     end
 
     def decode_term(char)

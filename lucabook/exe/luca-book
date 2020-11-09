@@ -10,15 +10,15 @@ def import(args, params)
   else
     puts 'Usage: luca-book import -c import_config'
   end
+end
 
 def list(args, params)
-  if params['c'] or params['code']
-    code = params['c'] || params['code']
-    LucaBookConsole.new.by_code(code, args.dig(0), args.dig(1))
+  if params['code']
+    LucaBook::List.term(*args, code: params['code']).flat_list.to_yaml
   elsif args.length > 0
-    LucaBookConsole.new.by_month(args[0], args.dig(1))
+    LucaBook::List.term(*args).flat_list.to_yaml
   else
-    LucaBookConsole.new.all
+    # TODO: define default function
   end
 end
 
@@ -48,7 +48,7 @@ when 'list'
   params = {}
   OptionParser.new do |opt|
     opt.banner = 'Usage: luca list [year month]'
-    opt.on('-c', '--code VAL', 'search with code'){|v| params["code"] = v }
+    opt.on('-c', '--code VAL', 'search with code') { |v| params['code'] = v }
     opt.on_tail('List records. If you specify code and/or month, search on each criteria.')
     args = opt.parse!(ARGV)
     list(args, params)

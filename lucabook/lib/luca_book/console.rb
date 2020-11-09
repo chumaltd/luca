@@ -1,25 +1,15 @@
 require 'luca_book'
 
+# This class will be deleted
+#
 class LucaBookConsole
 
   def initialize(dir_path=nil)
-    @report = LucaBookReport.new(dir_path)
+    @report = LucaBook::State.new(dir_path)
   end
 
-  def all
-    array = @report.scan_terms(@report.book.pjdir).map{|y,m| y}.uniq.map{|year|
-      @report.book.search(year)
-    }.flatten
-    show_records(array)
-  end
-
-  def by_code(code, year=nil, month=nil)
-    array = @report.by_code(code, year, month)
-    show_records(array)
-  end
-
-  def by_month(year, month)
-    array = @report.book.search(year, month)
+  def by_term(year, month, end_year = year, end_month = month)
+    array = @report.book.class.term(year, month, end_year, end_month)
     show_records(array)
   end
 

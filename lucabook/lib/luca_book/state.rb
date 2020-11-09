@@ -51,18 +51,18 @@ module LucaBook
     end
 
     def by_code(code, year=nil, month=nil)
-      raise "not supported year range yet" if ! year.nil? && month.nil?
+      raise 'not supported year range yet' if ! year.nil? && month.nil?
 
-      bl = @book.load_start.dig(code) || 0
-      full_term = scan_terms(LucaSupport::Config::Pjdir)
+      balance = @book.load_start.dig(code) || 0
+      full_term = self.class.scan_terms
       if ! month.nil?
-        pre_term = full_term.select{|y,m| y <= year.to_i && m < month.to_i }
-        bl += pre_term.map{|y,m| self.class.net(y, m)}.inject(0){|sum, h| sum + h[code]}
-        [{ code: code, balance: bl, note: "#{code} #{dict.dig(code, :label)}" }] + records_with_balance(year, month, code, bl)
+        pre_term = full_term.select { |y, m| y <= year.to_i && m < month.to_i }
+        balance += pre_term.map { |y, m| self.class.net(y, m)}.inject(0){|sum, h| sum + h[code] }
+        [{ code: code, balance: balance, note: "#{code} #{dict.dig(code, :label)}" }] + records_with_balance(year, month, code, balance)
       else
-        start = { code: code, balance: bl, note: "#{code} #{dict.dig(code, :label)}" }
-        full_term.map {|y, m| y }.uniq.map {|y|
-          records_with_balance(y, nil, code, bl)
+        start = { code: code, balance: balance, note: "#{code} #{dict.dig(code, :label)}" }
+        full_term.map { |y, m| y }.uniq.map { |y|
+          records_with_balance(y, nil, code, balance)
         }.flatten.prepend(start)
       end
     end
@@ -81,7 +81,7 @@ module LucaBook
       current = @book.load_start
       target = []
       Dir.chdir(@book.pjdir) do
-        net_records = scan_terms(@book.pjdir).map do |year, month|
+        net_records = self.class.scan_terms.map do |year, month|
           target << [year, month]
           accumulate_month(year, month)
         end

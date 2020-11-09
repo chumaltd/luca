@@ -54,8 +54,22 @@ module LucaRecord # :nodoc:
       def asof(year, month = nil, day = nil, basedir = @dirname)
         return enum_for(:search, year, month, day, nil, basedir) unless block_given?
 
-        search(year, month, day, nil, basedir) do |data, path|
-          yield data, path
+        search(year, month, day, nil, basedir) { |data, path| yield data, path }
+      end
+
+      # scan ranging data on multiple months
+      #
+      def term(start_year, start_month, end_year, end_month, code = nil, basedir = @dirname)
+        return enum_for(:term, start_year, start_month, end_year, end_month, code, basedir) unless block_given?
+
+        LucaSupport::Code.encode_term(start_year, start_month, end_year, end_month).each do |subdir| 
+          open_records(basedir, subdir, nil, code) do |f, path|
+            if @record_type == 'raw'
+              yield f, path
+            else
+              yield load_data(f, path)
+            end
+          end
         end
       end
 
@@ -285,6 +299,17 @@ module LucaRecord # :nodoc:
         end
       end
 
+      # parse data dir and respond existing months
+      #
+      def scan_terms(query = nil, base_dir = @dirname)
+        pattern = query.nil? ? "*" : "#{query}*"
+        Dir.chdir(abs_path(base_dir)) do
+          Dir.glob(pattern).select { |dir|
+            FileTest.directory?(dir) && /^[0-9]/.match(dir)
+          }.sort.map { |str| decode_term(str) }
+        end
+      end
+
       # Decode basic format.
       # If specific decode is needed, override this method in each class.
       #
@@ -359,17 +384,6 @@ module LucaRecord # :nodoc:
           processed = parse_current(data)
           yield processed if v == processed.dig(key.to_s, label.to_s)
         end
-      end
-    end
-
-    # parse data dir and respond existing months
-    #
-    def scan_terms(base_dir, query = nil)
-      pattern = query.nil? ? "*" : "#{query}*"
-      Dir.chdir(base_dir) do
-        Dir.glob(pattern).select { |dir|
-          FileTest.directory?(dir) && /^[0-9]/.match(dir)
-        }.sort.map { |str| decode_term(str) }
       end
     end
 
