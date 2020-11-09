@@ -24,15 +24,13 @@ class LucaBook::ImportTest < Minitest::Test
     assert_equal 1, Dir.glob('data/journals/9999L/F002').length
     assert_equal 1, Dir.glob('data/journals/9999L/V001').length
     LucaBook::Journal.asof(9999, 12, 9).each do |dat|
+      assert_equal BigDecimal('98.99'), dat[:debit][0][:amount]
+      assert_equal BigDecimal('98.99'), dat[:credit][0][:amount]
       assert_equal '113', dat[:debit][0][:code]
       assert_equal 'D11', dat[:credit][0][:code]
     end
-    # TODO: with Saving accounts code
+    assert_equal 2, File.read('data/journals/9999L/9001').match(/(98\.99)/).size
     assert_equal 0, Dir.glob('data/journals/9999L/*-*113*').length
-    #assert_equal 1, Dir.glob('data/journals/9999L/*-*511*').length
-    #assert_equal 1, Dir.glob('data/journals/9999L/*-*514*').length
-    #assert_equal 1, Dir.glob('data/journals/9999L/*-*C1E*').length
-    #assert_equal 1, Dir.glob('data/journals/9999L/*-*D11*').length
   end
 
   def test_that_it_create_code_index

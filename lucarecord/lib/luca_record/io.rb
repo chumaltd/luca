@@ -296,8 +296,7 @@ module LucaRecord # :nodoc:
         when 'json'
         # TODO: implement JSON parse
         else
-          YAML.load(io.read).tap { |obj| validate_keys(obj) }
-            .inject({}) { |h, (k, v)| h[k] = LucaSupport::Code.decimalize(v); h }
+          LucaSupport::Code.decimalize(YAML.load(io.read)).tap { |obj| validate_keys(obj) }
         end
       end
 

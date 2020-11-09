@@ -15,8 +15,8 @@ module LucaBook
     def self.create(d)
       date = Date.parse(d['date'])
 
-      debit_amount = serialize_on_key(d['debit'], 'value')
-      credit_amount = serialize_on_key(d['credit'], 'value')
+      debit_amount = LucaSupport::Code.decimalize(serialize_on_key(d['debit'], 'value'))
+      credit_amount = LucaSupport::Code.decimalize(serialize_on_key(d['credit'], 'value'))
       raise 'BalanceUnmatch' if debit_amount.inject(:+) != credit_amount.inject(:+)
 
       debit_code = serialize_on_key(d['debit'], 'code')
@@ -27,9 +27,9 @@ module LucaBook
       codes = nil
       create_record!(date, codes) do |f|
         f << debit_code
-        f << debit_amount
+        f << LucaSupport::Code.readable(debit_amount)
         f << credit_code
-        f << credit_amount
+        f << LucaSupport::Code.readable(credit_amount)
         f << []
         f << [d.dig('note')]
       end
@@ -67,22 +67,18 @@ module LucaBook
           when 0
             record[:debit] = line.map { |row| { code: row } }
           when 1
-            line.each_with_index do |amount, i|
-              record[:debit][i][:amount] = amount.to_i # TODO: bigdecimal support
-            end
+            line.each_with_index { |amount, j| record[:debit][j][:amount] = BigDecimal(amount.to_s) }
           when 2
             record[:credit] = line.map { |row| { code: row } }
           when 3
-            line.each_with_index do |amount, i|
-              record[:credit][i][:amount] = amount.to_i # TODO: bigdecimal support
-            end
+            line.each_with_index { |amount, j| record[:credit][j][:amount] = BigDecimal(amount.to_s) }
           else
-            if line.empty?
+            if body == false && line.empty?
               record[:note] ||= []
               body = true
-              next
+            else
+              record[:note] << line.join(' ') if body
             end
-            record[:note] << line.join(' ') if body
           end
           record[:note]&.join('\n')
         end
