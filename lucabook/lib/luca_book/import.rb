@@ -19,7 +19,7 @@ module LucaBook
       # TODO: yaml need to be configurable
       @dict = LucaRecord::Dict.new("import-#{dict}.yaml")
       @code_map = LucaRecord::Dict.reverse(LucaRecord::Dict.load('base.tsv'))
-      @config = @dict.csv_config
+      @config = @dict.csv_config if dict
     end
 
     # === JSON Format:
@@ -40,15 +40,15 @@ module LucaBook
     #     "note": "settlement for the last month trade"
     #   }
     #
-    def import_json(io)
+    def self.import_json(io)
       d = JSON.parse(io)
       validate(d)
 
-      # dict = LucaBook::Dict.reverse_dict(LucaBook::Dict::Data)
-      d['debit'].each { |h| h['code'] = @dict.search(h['label'], DEBIT_DEFAULT) }
-      d['credit'].each { |h| h['code'] = @dict.search(h['label'], CREDIT_DEFAULT) }
+      code_map = LucaRecord::Dict.reverse(LucaRecord::Dict.load('base.tsv'))
+      d['debit'].each { |h| h['code'] = code_map.dig(h['label']) || DEBIT_DEFAULT }
+      d['credit'].each { |h| h['code'] = code_map.dig(h['label']) || CREDIT_DEFAULT }
 
-      LucaBook.new.create(d)
+      LucaBook::Journal.create(d)
     end
 
     def import_csv
@@ -62,6 +62,16 @@ module LucaBook
         end
       end
     end
+
+    def self.validate(obj)
+      raise 'NoDateKey' unless obj.key?('date')
+      raise 'NoDebitKey' unless obj.key?('debit')
+      raise 'NoDebitValue' if obj['debit'].empty?
+      raise 'NoCreditKey' unless obj.key?('credit')
+      raise 'NoCreditValue' if obj['credit'].empty?
+    end
+
+    private
 
     #
     # convert single entry data
@@ -87,7 +97,7 @@ module LucaBook
         end
         d['debit'][0]['value'] = value
         d['credit'][0]['value'] = value
-        d['note'] = row[@config[:note]]
+        d['note'] = Array(@config[:note]).map{ |col| row[col] }.join(' ')
       end
     end
 
@@ -105,7 +115,7 @@ module LucaBook
           'code' => search_code(row[@config[:credit_label]], CREDIT_DEFAULT),
           'value' => row.dig(@config[:credit_value])
         }
-        d['note'] = row[@config[:note]]
+        d['note'] = Array(@config[:note]).map{ |col| row[col] }.join(' ')
       end
     end
 
@@ -117,14 +127,6 @@ module LucaBook
       return nil if row.dig(@config[:year]).empty?
 
       "#{row.dig(@config[:year])}-#{row.dig(@config[:month])}-#{row.dig(@config[:day])}"
-    end
-
-    def validate(obj)
-      raise 'NoDateKey' if ! obj.has_key?('date')
-      raise 'NoDebitKey' if ! obj.has_key?('debit')
-      raise 'NoDebitValue' if obj['debit'].length < 1
-      raise 'NoCreditKey' if ! obj.has_key?('credit')
-      raise 'NoCreditValue' if obj['credit'].length < 1
     end
   end
 end

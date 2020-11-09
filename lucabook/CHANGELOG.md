@@ -1,3 +1,7 @@
+## LucaBook 0.2.14
+
+* CLI `luca-book import -j` import via STDIN
+
 ## LucaBook 0.2.13
 
 * Replace CLI `luca-book list [--code CODE] year month [year month]` with new `LucaBook::List` class. Output YAML for [nu-shell](https://www.nushell.sh/) integration. On Nu, `luca-book list ... | from yaml` shows table format.

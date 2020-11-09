@@ -1,6 +1,7 @@
 require 'luca_deal/version'
 
 require 'mail'
+require 'json'
 require 'yaml'
 require 'pathname'
 require 'bigdecimal'
@@ -99,6 +100,24 @@ module LucaDeal
         end
         puts YAML.dump(LucaSupport::Code.readable(collection))
       end
+    end
+
+    def export_json
+      res = {}
+      res['date'] = "#{@date.year}-#{@date.month}-#{@date.day}"
+      res['debit'] = []
+      res['credit'] = []
+      self.class.asof(@date.year, @date.month) do |dat|
+        dat['subtotal'].map do |sub|
+          res['debit'] << { 'label' => '売掛金', 'value' => LucaSupport::Code.readable(sub['items']) }
+          res['debit'] << { 'label' => '売掛金', 'value' => LucaSupport::Code.readable(sub['tax']) }
+          res['credit'] << { 'label' => '売上高', 'value' => LucaSupport::Code.readable(sub['items']) }
+          res['credit'] << { 'label' => '売上高', 'value' => LucaSupport::Code.readable(sub['tax']) }
+        end
+      end
+      #res['debit'] = h[:debit].map { |k, v| { 'label' => k, 'value' => v } }
+      #res['credit'] = h[:credit].map { |k, v| { 'label' => k, 'value' => v } }
+      puts JSON.dump(res)
     end
 
     def monthly_invoice

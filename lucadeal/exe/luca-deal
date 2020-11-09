@@ -39,6 +39,15 @@ def contract(args = nil, params = {})
   end
 end
 
+def export(args = nil, _params = nil)
+  if args
+    args << 28 if args.length == 2 # specify safe last day
+    LucaDeal::Invoice.new(args.join('-')).export_json
+  else
+    LucaDeal::Invoice.new.export_json
+  end
+end
+
 def invoice(args = nil, params = {})
   date = "#{args[0]}-#{args[1]}-#{args[2] || '1'}" if !args.empty?
   case params['mode']
@@ -93,6 +102,8 @@ when 'contract'
     args = opt.parse(ARGV)
     contract(args, params)
   end
+when 'export'
+  export(ARGV)
 when 'invoice'
   params = {}
   OptionParser.new do |opt|

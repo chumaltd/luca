@@ -11,7 +11,7 @@ module LucaSupport
     # Project top directory.
     Pjdir = ENV['LUCA_TEST_DIR'] || Dir.pwd.freeze
     if File.exist?(Pathname(Pjdir) / 'config.yml')
-      DECIMAL_NUM = YAML.load_file(Pathname(Pjdir) / 'config.yml', **{})['decimal_number']
+      # DECIMAL_NUM = YAML.load_file(Pathname(Pjdir) / 'config.yml', **{})['decimal_number']
       COUNTRY = YAML.load_file(Pathname(Pjdir) / 'config.yml', **{})['country']
       DECIMAL_NUM ||= 0 if COUNTRY == 'jp'
     end

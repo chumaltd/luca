@@ -7,6 +7,8 @@ require 'luca_book/console'
 def import(args, params)
   if params['config']
     LucaBook::Import.new(args[0], params['config']).import_csv
+  elsif params['json']
+    LucaBook::Import.import_json(STDIN.read)
   else
     puts 'Usage: luca-book import -c import_config'
   end
@@ -40,7 +42,8 @@ when 'import'
   params = {}
   OptionParser.new do |opt|
     opt.banner = 'Usage: luca import filepath'
-    opt.on('-c', '--config VAL', 'import definition'){|v| params["config"] = v }
+    opt.on('-c', '--config VAL', 'import definition'){|v| params['config'] = v }
+    opt.on('-j', '--json', 'import via json format'){|_v| params['json'] = true }
     args = opt.parse!(ARGV)
     import(args, params)
   end

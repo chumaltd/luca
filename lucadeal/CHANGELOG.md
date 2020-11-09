@@ -1,3 +1,7 @@
+## LucaDeal 0.2.17
+
+* `luca-deal export` export JSON for LucaBook
+
 ## LucaDeal 0.2.14
 
 * Introduce Product for selling items template.

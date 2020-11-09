@@ -20,7 +20,7 @@ module LucaRecord
     end
 
     def search(word, default_word = nil)
-      res = max_score_code(word)
+      res = max_score_code(word.gsub(/[[:space:]]/, ''))
       if res[1] > 0.4
         res[0]
       else
@@ -65,7 +65,7 @@ module LucaRecord
         config[:type] ||= 'invalid'
         config[:debit_value] = @config['debit_value'].to_i if @config.dig('debit_value')
         config[:credit_value] = @config['credit_value'].to_i if @config.dig('credit_value')
-        config[:note] = @config['note'].to_i if @config.dig('note')
+        config[:note] = @config['note'] if @config.dig('note')
         config[:encoding] = @config['encoding'] if @config.dig('encoding')
 
         config[:year] = @config['year'] if @config.dig('year')
