@@ -22,7 +22,46 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+You can create project skelton with `new` sub command.
+
+```
+$ luca-deal new Dir
+```
+
+Example assumes setup with bundler shim. `bundle exec` prefix may be needed in most cases.
+
+
+### Manage Contract
+
+Customer object can be created by `customer create` subcommand with name.
+
+```
+$ luca-deal customer create CustomerName
+Successfully generated Customer  5976652cc2d9c0ebf4a8646f7a28aa8d6bd2d606
+Edit customer detail.
+```
+
+Customer is filed under `data/customers` as YAML. Detail need to be editted.  
+Then, Contract object is created by `contract create` sub command with customer id.
+
+```
+$ luca-deal contract create 5976652cc2d9c0ebf4a8646f7a28aa8d6bd2d606
+uccessfully generated Contract  814c6fc9fffe5566fe8e7ef683b439b355d612dc
+Conditions are tentative. Edit contract detail.
+```
+
+Contract is filed under `data/contracts` as YAML. Detail need to be editted.
+
+
+### Issue invoice
+
+Monthly invoices are generated with `invoice create --monthly` sub command. Target month is optional. Without month, this month including today is the target.
+
+```
+$ luca-deal invoice create --monthly [yyyy m]
+```
+
+Invoice conditions are defined by contracts.
 
 
 ## Data Structure
