@@ -30,6 +30,9 @@ module LucaBook
         f << LucaSupport::Code.readable(debit_amount)
         f << credit_code
         f << LucaSupport::Code.readable(credit_amount)
+        ['x-customer', 'x-editor'].each do |x_header|
+          f << [x_header, d[x_header]] if d.dig(x_header)
+        end
         f << []
         f << [d.dig('note')]
       end

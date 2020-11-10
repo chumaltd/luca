@@ -1,3 +1,7 @@
+## LucaDeal master
+
+* Add 'x-customer', 'x-editor' on export to LucaBook
+
 ## LucaDeal 0.2.17
 
 * `luca-deal export` export JSON for LucaBook

@@ -1,3 +1,8 @@
+## LucaBook master
+
+* Breaking change: import bulk records rather than single record.
+* Introduce x-header: 'x-customer', 'x-editor'
+
 ## LucaBook 0.2.14
 
 * CLI `luca-book import -j` import via STDIN

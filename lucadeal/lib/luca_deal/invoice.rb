@@ -103,21 +103,24 @@ module LucaDeal
     end
 
     def export_json
-      res = {}
-      res['date'] = "#{@date.year}-#{@date.month}-#{@date.day}"
-      res['debit'] = []
-      res['credit'] = []
-      self.class.asof(@date.year, @date.month) do |dat|
-        dat['subtotal'].map do |sub|
-          res['debit'] << { 'label' => '売掛金', 'value' => LucaSupport::Code.readable(sub['items']) }
-          res['debit'] << { 'label' => '売掛金', 'value' => LucaSupport::Code.readable(sub['tax']) }
-          res['credit'] << { 'label' => '売上高', 'value' => LucaSupport::Code.readable(sub['items']) }
-          res['credit'] << { 'label' => '売上高', 'value' => LucaSupport::Code.readable(sub['tax']) }
+      [].tap do |res|
+        self.class.asof(@date.year, @date.month) do |dat|
+          item = {}
+          item['date'] = dat['issue_date']
+          item['debit'] = []
+          item['credit'] = []
+          dat['subtotal'].map do |sub|
+            item['debit'] << { 'label' => '売掛金', 'value' => LucaSupport::Code.readable(sub['items']) }
+            item['debit'] << { 'label' => '売掛金', 'value' => LucaSupport::Code.readable(sub['tax']) }
+            item['credit'] << { 'label' => '売上高', 'value' => LucaSupport::Code.readable(sub['items']) }
+            item['credit'] << { 'label' => '売上高', 'value' => LucaSupport::Code.readable(sub['tax']) }
+          end
+          item['x-customer'] = dat['customer']['name'] if dat.dig('customer', 'name')
+          item['x-editor'] = 'LucaDeal'
+          res << item
         end
+        puts JSON.dump(res)
       end
-      #res['debit'] = h[:debit].map { |k, v| { 'label' => k, 'value' => v } }
-      #res['credit'] = h[:credit].map { |k, v| { 'label' => k, 'value' => v } }
-      puts JSON.dump(res)
     end
 
     def monthly_invoice

@@ -23,32 +23,35 @@ module LucaBook
     end
 
     # === JSON Format:
-    #   {
-    #     "date": "2020-05-04",
-    #     "debit" : [
-    #       {
-    #         "label": "savings accounts",
-    #         "value": 20000
-    #       }
-    #     ],
-    #     "credit" : [
-    #       {
-    #         "label": "trade notes receivable",
-    #         "value": 20000
-    #       }
-    #     ],
-    #     "note": "settlement for the last month trade"
-    #   }
+    #   [
+    #     {
+    #       "date": "2020-05-04",
+    #       "debit" : [
+    #         {
+    #           "label": "savings accounts",
+    #           "value": 20000
+    #         }
+    #       ],
+    #       "credit" : [
+    #         {
+    #           "label": "trade notes receivable",
+    #           "value": 20000
+    #         }
+    #       ],
+    #       "note": "settlement for the last month trade"
+    #     }
+    #   ]
     #
     def self.import_json(io)
-      d = JSON.parse(io)
-      validate(d)
+      JSON.parse(io).each do |d|
+        validate(d)
 
-      code_map = LucaRecord::Dict.reverse(LucaRecord::Dict.load('base.tsv'))
-      d['debit'].each { |h| h['code'] = code_map.dig(h['label']) || DEBIT_DEFAULT }
-      d['credit'].each { |h| h['code'] = code_map.dig(h['label']) || CREDIT_DEFAULT }
+        code_map = LucaRecord::Dict.reverse(LucaRecord::Dict.load('base.tsv'))
+        d['debit'].each { |h| h['code'] = code_map.dig(h['label']) || DEBIT_DEFAULT }
+        d['credit'].each { |h| h['code'] = code_map.dig(h['label']) || CREDIT_DEFAULT }
 
-      LucaBook::Journal.create(d)
+        LucaBook::Journal.create(d)
+      end
     end
 
     def import_csv
