@@ -1,5 +1,6 @@
-## LucaDeal master
+## LucaDeal 0.2.18
 
+* Breaking change: restructure CLI in sub-sub command format.
 * Add 'x-customer', 'x-editor' on export to LucaBook
 
 ## LucaDeal 0.2.17

@@ -5,66 +5,102 @@ require 'date'
 require 'optparse'
 require 'luca_deal'
 
-def customer(args = nil, params = {})
-  case params['mode']
-  when 'list'
-    LucaDeal::Customer.new.list_name
-  when 'create'
-    if params['name']
-      id = LucaDeal::Customer.create(name: params['name'])
-      puts "Successfully generated Customer  #{id}" if id
-      puts 'Edit customer detail.' if id
-    else
-      puts 'requires customer\'s name. exit'
-      exit 1
+module LucaCmd
+  class Customer
+    def self.create(args = nil, params = {})
+      if args
+        id = LucaDeal::Customer.create(name: args[0])
+        puts "Successfully generated Customer  #{id}" if id
+        puts 'Edit customer detail.' if id
+      else
+        puts 'requires customer\'s name. exit'
+        exit 1
+      end
     end
-  else
-    puts 'invalid option. --help for usage'
-    exit 1
-  end
-end
 
-def contract(args = nil, params = {})
-  case params['mode']
-  when 'create'
-    if params['customer_id']
-      id = LucaDeal::Contract.new.generate!(params['customer_id'], params['category'])
-      puts "Successfully generated Contract  #{id}" if id
-      puts 'Conditions are tentative. Edit contract detail.' if id
-    else
-      puts 'requires customer\'s id. exit'
-      exit 1
+    def self.delete(args = nil, params = {})
+      if args
+        id = LucaDeal::Customer.delete(args[0])
+      else
+        puts 'requires customer\'s id. exit'
+        exit 1
+      end
     end
-  else
-  end
-end
 
-def export(args = nil, _params = nil)
-  if args
-    args << 28 if args.length == 2 # specify safe last day
-    LucaDeal::Invoice.new(args.join('-')).export_json
-  else
-    LucaDeal::Invoice.new.export_json
-  end
-end
-
-def invoice(args = nil, params = {})
-  date = "#{args[0]}-#{args[1]}-#{args[2] || '1'}" if !args.empty?
-  case params['mode']
-  when 'monthly'
-    LucaDeal::Invoice.new(date).monthly_invoice
-  when 'mail'
-    LucaDeal::Invoice.new(date).deliver_mail
-  when 'preview'
-    LucaDeal::Invoice.new(date).preview_mail
-  when 'stats'
-    if args.empty?
-      date = "#{Date.today.year}-#{Date.today.month}-1"
-      count = 3
+    def self.list(args = nil, params = {})
+      LucaDeal::Customer.new.list_name
     end
-    LucaDeal::Invoice.new(date).stats(count || 1)
-  else
-    puts 'not implemented mode'
+  end
+
+  class Contract
+    def self.create(args = nil, params = {})
+      if args
+        id = LucaDeal::Contract.new.generate!(args[0], params['category'])
+        puts "Successfully generated Contract  #{id}" if id
+        puts 'Conditions are tentative. Edit contract detail.' if id
+      else
+        puts 'requires customer\'s id. exit'
+        exit 1
+      end
+    end
+
+    def self.delete(args = nil, params = {})
+      if args
+        id = LucaDeal::Contract.delete(args[0])
+      else
+        puts 'requires contract id. exit'
+        exit 1
+      end
+    end
+  end
+
+  class Invoice
+    def self.create(args = nil, params = {})
+      date = "#{args[0]}-#{args[1]}-#{args[2] || '1'}" if !args.empty?
+      case params['mode']
+      when 'monthly'
+        LucaDeal::Invoice.new(date).monthly_invoice
+      else
+        puts 'not implemented mode'
+      end
+    end
+
+    def self.delete(args = nil, params = {})
+      if args
+        id = LucaDeal::Invoice.delete(args[0])
+      else
+        puts 'requires contract id. exit'
+        exit 1
+      end
+    end
+
+    def self.export(args = nil, _params = nil)
+      if args
+        args << 28 if args.length == 2 # specify safe last day
+        LucaDeal::Invoice.new(args.join('-')).export_json
+      else
+        LucaDeal::Invoice.new.export_json
+      end
+    end
+
+    def self.list(args = nil, params = {})
+      date = "#{args[0]}-#{args[1]}-#{args[2] || '1'}" if !args.empty?
+      if args.empty?
+        date = "#{Date.today.year}-#{Date.today.month}-1"
+        count = 3
+      end
+      LucaDeal::Invoice.new(date).stats(count || 1)
+    end
+
+    def self.mail(args = nil, params = {})
+      date = "#{args[0]}-#{args[1]}-#{args[2] || '1'}" if !args.empty?
+      case params['mode']
+      when 'preview'
+        LucaDeal::Invoice.new(date).preview_mail
+      else
+        LucaDeal::Invoice.new(date).deliver_mail
+      end
+    end
   end
 end
 
@@ -74,46 +110,75 @@ end
 
 LucaRecord::Base.valid_project?
 cmd = ARGV.shift
+params = {}
 
 case cmd
 when 'customer'
-  params = {}
-  OptionParser.new do |opt|
-    opt.banner = 'Usage: luca-deal customer [options]'
-    opt.on('--list', 'list all customers') { |v| params['mode'] = 'list' }
-    opt.on('--create CustomerName', 'register new customer') do |v|
-      params['mode'] = 'create'
-      params['name'] = v
+  subcmd = ARGV.shift
+  case subcmd
+  when 'list'
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca-deal customer list [options]'
+      args = opt.parse(ARGV)
+      LucaCmd::Customer.list(args, params)
     end
-    args = opt.parse(ARGV)
-    customer(args, params)
+  when 'create'
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca-deal customer create CustomerName'
+      args = opt.parse(ARGV)
+      LucaCmd::Customer.create(args, params)
+    end
+  when 'delete'
+    LucaCmd::Customer.delete(ARGV)
+  else
+    puts 'Usage: luca-deal customer [options]'
   end
 when 'contract'
-  params = {}
-  OptionParser.new do |opt|
-    opt.banner = 'Usage: luca-deal contract [options]'
-    opt.on('--create CustomerId', 'register new contract') do |v|
-      params['mode'] = 'create'
-      params['customer_id'] = v
+  subcmd = ARGV.shift
+  case subcmd
+  when 'create'
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca-deal contract create [options] CustomerId'
+      opt.on('--salesfee', 'create contract as sales fee definition') do |_v|
+        params['category'] = 'sales_fee'
+      end
+      args = opt.parse(ARGV)
+      LucaCmd::Contract.create(args, params)
     end
-    opt.on('--salesfee', 'create contract as sales fee definition') do |_v|
-      params['category'] = 'sales_fee'
-    end
-    args = opt.parse(ARGV)
-    contract(args, params)
+  when 'delete'
+    LucaCmd::Contract.delete(ARGV)
+  else
+    puts 'Usage: luca-deal contract Subcommand'
   end
 when 'export'
-  export(ARGV)
+  LucaCmd::Invoice.export(ARGV)
 when 'invoice'
-  params = {}
-  OptionParser.new do |opt|
-    opt.banner = 'Usage: luca-deal invoice [options] year month [date]'
-    opt.on('--monthly', 'generate monthly data') { |v| params['mode'] = 'monthly' }
-    opt.on('--mail', 'send to customers') { |v| params['mode'] = 'mail' }
-    opt.on('--preview', 'send to preview user') { |v| params['mode'] = 'preview' }
-    opt.on('--stats', 'list invoices') { |v| params['mode'] = 'stats' }
-    args = opt.parse(ARGV)
-    invoice(args, params)
+  subcmd = ARGV.shift
+  case subcmd
+  when 'create'
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca-deal invoice create [options] year month [date]'
+      opt.on('--monthly', 'generate monthly data') { |v| params['mode'] = 'monthly' }
+      args = opt.parse(ARGV)
+      LucaCmd::Invoice.create(args, params)
+    end
+  when 'delete'
+    LucaCmd::Invoice.delete(ARGV)
+  when 'list'
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca-deal invoice list [options] year month [date]'
+      args = opt.parse(ARGV)
+      LucaCmd::Invoice.list(args, params)
+    end
+  when 'mail'
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca-deal invoice mail [options] year month [date]'
+      opt.on('--preview', 'send to preview user') { |v| params['mode'] = 'preview' }
+      args = opt.parse(ARGV)
+      LucaCmd::Invoice.mail(args, params)
+    end
+  else
+    puts 'Usage: luca-deal invoice SubCommand'
   end
 when 'new'
   params = {}
@@ -126,4 +191,5 @@ else
   puts '        customer'
   puts '        contract'
   puts '        invoice'
+  puts '        export'
 end
