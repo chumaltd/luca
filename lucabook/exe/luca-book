@@ -2,74 +2,87 @@
 
 require 'optparse'
 require 'luca_book'
-require 'luca_book/console'
 
-def import(args, params)
-  if params['config']
-    LucaBook::Import.new(args[0], params['config']).import_csv
-  elsif params['json']
-    LucaBook::Import.import_json(STDIN.read)
-  else
-    puts 'Usage: luca-book import -c import_config'
+module LucaCmd
+  class Journal
+    def self.import(args, params)
+      if params['config']
+        LucaBook::Import.new(args[0], params['config']).import_csv
+      elsif params['json']
+        LucaBook::Import.import_json(STDIN.read)
+      else
+        puts 'Usage: luca-book import -c import_config'
+      end
+    end
+
+    def self.list(args, params)
+      if params['code']
+        LucaBook::List.term(*args, code: params['code']).flat_list.to_yaml
+      elsif args.length > 0
+        LucaBook::List.term(*args).flat_list.to_yaml
+      else
+        # TODO: define default function
+      end
+    end
+  end
+
+  class Report
+    def self.balancesheet(args, params)
+      LucaBook::State.term(*args).bs.to_yaml
+    end
+
+    def self.profitloss(args, params)
+      LucaBook::State.term(*args).pl.to_yaml
+    end
   end
 end
 
-def list(args, params)
-  if params['code']
-    LucaBook::List.term(*args, code: params['code']).flat_list.to_yaml
-  elsif args.length > 0
-    LucaBook::List.term(*args).flat_list.to_yaml
-  else
-    # TODO: define default function
-  end
-end
-
-def report(args, params)
-  if params['bs']
-    LucaBook::State.term(*args).bs.to_yaml
-  elsif params['pl']
-    LucaBook::State.term(*args).pl.to_yaml
-  else
-    LucaBook::State.term(*args).to_yaml
-  end
-end
 
 LucaRecord::Base.valid_project?
 cmd = ARGV.shift
+params = {}
 
 case cmd
-when 'import'
-  params = {}
-  OptionParser.new do |opt|
-    opt.banner = 'Usage: luca import filepath'
-    opt.on('-c', '--config VAL', 'import definition'){|v| params['config'] = v }
-    opt.on('-j', '--json', 'import via json format'){|_v| params['json'] = true }
-    args = opt.parse!(ARGV)
-    import(args, params)
+when /journals?/, 'j'
+  subcmd = ARGV.shift
+  case subcmd
+  when 'import'
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca import filepath'
+      opt.on('-c', '--config VAL', 'import definition'){|v| params['config'] = v }
+      opt.on('-j', '--json', 'import via json format'){|_v| params['json'] = true }
+      args = opt.parse!(ARGV)
+      LucaCmd::Journal.import(args, params)
+    end
+  when 'list'
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca list [year month]'
+      opt.on('-c', '--code VAL', 'search with code') { |v| params['code'] = v }
+      opt.on_tail('List records. If you specify code and/or month, search on each criteria.')
+      args = opt.parse!(ARGV)
+      LucaCmd::Journal.list(args, params)
+    end
   end
-when 'list'
-  params = {}
-  OptionParser.new do |opt|
-    opt.banner = 'Usage: luca list [year month]'
-    opt.on('-c', '--code VAL', 'search with code') { |v| params['code'] = v }
-    opt.on_tail('List records. If you specify code and/or month, search on each criteria.')
-    args = opt.parse!(ARGV)
-    list(args, params)
-  end
-when 'report'
-  params = {}
-  OptionParser.new do |opt|
-    opt.banner = 'Usage: luca-book report'
-    opt.on('--bs', 'show Balance sheet'){|v| params["bs"] = v }
-    opt.on('--pl', 'show Income statement'){|v| params["pl"] = v }
-    args = opt.parse!(ARGV)
-    report(args, params)
+when /reports?/, 'r'
+  subcmd = ARGV.shift
+  case subcmd
+  when 'bs'
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca-book reports bs'
+      args = opt.parse!(ARGV)
+      LucaCmd::Report.balancesheet(args, params)
+    end
+  when 'pl'
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca-book reports pl'
+      args = opt.parse!(ARGV)
+      LucaCmd::Report.profitloss(args, params)
+    end
   end
 when '--help'
   puts 'Usage: luca-book subcommand'
-  puts '  import: import records'
-  puts '  list: list records'
-  puts '  report: show reports'
+  puts '  journals: operate journal records'
+  puts '  reports: show reports'
 else
   puts 'Invalid subcommand'
 end

@@ -1,5 +1,6 @@
-## LucaBook master
+## LucaBook 0.2.15
 
+* Breaking change: restructure CLI in sub-sub command format.
 * Breaking change: import bulk records rather than single record.
 * Introduce x-header: 'x-customer', 'x-editor'
 

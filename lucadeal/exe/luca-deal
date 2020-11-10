@@ -113,32 +113,32 @@ cmd = ARGV.shift
 params = {}
 
 case cmd
-when 'customer'
+when /customers?/
   subcmd = ARGV.shift
   case subcmd
   when 'list'
     OptionParser.new do |opt|
-      opt.banner = 'Usage: luca-deal customer list [options]'
+      opt.banner = 'Usage: luca-deal customers list [options]'
       args = opt.parse(ARGV)
       LucaCmd::Customer.list(args, params)
     end
   when 'create'
     OptionParser.new do |opt|
-      opt.banner = 'Usage: luca-deal customer create CustomerName'
+      opt.banner = 'Usage: luca-deal customers create CustomerName'
       args = opt.parse(ARGV)
       LucaCmd::Customer.create(args, params)
     end
   when 'delete'
     LucaCmd::Customer.delete(ARGV)
   else
-    puts 'Usage: luca-deal customer [options]'
+    puts 'Usage: luca-deal customers sub-commands'
   end
-when 'contract'
+when /contracts?/
   subcmd = ARGV.shift
   case subcmd
   when 'create'
     OptionParser.new do |opt|
-      opt.banner = 'Usage: luca-deal contract create [options] CustomerId'
+      opt.banner = 'Usage: luca-deal contracts create [options] CustomerId'
       opt.on('--salesfee', 'create contract as sales fee definition') do |_v|
         params['category'] = 'sales_fee'
       end
@@ -148,16 +148,16 @@ when 'contract'
   when 'delete'
     LucaCmd::Contract.delete(ARGV)
   else
-    puts 'Usage: luca-deal contract Subcommand'
+    puts 'Usage: luca-deal contracts Subcommand'
   end
 when 'export'
   LucaCmd::Invoice.export(ARGV)
-when 'invoice'
+when /invoices?/, 'i'
   subcmd = ARGV.shift
   case subcmd
   when 'create'
     OptionParser.new do |opt|
-      opt.banner = 'Usage: luca-deal invoice create [options] year month [date]'
+      opt.banner = 'Usage: luca-deal invoices create [options] year month [date]'
       opt.on('--monthly', 'generate monthly data') { |v| params['mode'] = 'monthly' }
       args = opt.parse(ARGV)
       LucaCmd::Invoice.create(args, params)
@@ -166,19 +166,19 @@ when 'invoice'
     LucaCmd::Invoice.delete(ARGV)
   when 'list'
     OptionParser.new do |opt|
-      opt.banner = 'Usage: luca-deal invoice list [options] year month [date]'
+      opt.banner = 'Usage: luca-deal invoices list [options] year month [date]'
       args = opt.parse(ARGV)
       LucaCmd::Invoice.list(args, params)
     end
   when 'mail'
     OptionParser.new do |opt|
-      opt.banner = 'Usage: luca-deal invoice mail [options] year month [date]'
+      opt.banner = 'Usage: luca-deal invoices mail [options] year month [date]'
       opt.on('--preview', 'send to preview user') { |v| params['mode'] = 'preview' }
       args = opt.parse(ARGV)
       LucaCmd::Invoice.mail(args, params)
     end
   else
-    puts 'Usage: luca-deal invoice SubCommand'
+    puts 'Usage: luca-deal invoices SubCommand'
   end
 when 'new'
   params = {}
@@ -188,8 +188,8 @@ when 'new'
   end
 else
   puts 'Usage: luca-deal sub-command [--help|options]'
-  puts '        customer'
-  puts '        contract'
-  puts '        invoice'
+  puts '        customers'
+  puts '        contracts'
+  puts '        invoices'
   puts '        export'
 end

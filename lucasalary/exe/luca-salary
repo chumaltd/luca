@@ -47,30 +47,30 @@ cmd = ARGV.shift
 params = {}
 
 case cmd
-when 'profile'
+when /profiles?/
   subcmd = ARGV.shift
   case subcmd
   when 'create'
     OptionParser.new do |opt|
-      opt.banner = 'Usage: luca-salary profile create Name'
+      opt.banner = 'Usage: luca-salary profiles create Name'
       args = opt.parse(ARGV)
       LucaCmd::Profile.create(args)
     end
   end
 when 'export'
   LucaCmd::Payment.export(ARGV)
-when 'payment'
+when /payments?/
   subcmd = ARGV.shift
   case subcmd
   when 'create'
     OptionParser.new do |opt|
-      opt.banner = 'Usage: luca-salary payment create year month [date]'
+      opt.banner = 'Usage: luca-salary payments create year month [date]'
       args = opt.parse(ARGV)
       LucaCmd::Payment.create(args)
     end
   when 'list'
     OptionParser.new do |opt|
-      opt.banner = 'Usage: luca-salary payment list [--mail] year month [date]'
+      opt.banner = 'Usage: luca-salary payments list [--mail] year month [date]'
       opt.on('--mail', 'send to managers') { |_v| params['mode'] = 'mail' }
       args = opt.parse(ARGV)
       LucaCmd::Payment.list(args, params)
