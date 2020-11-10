@@ -58,11 +58,15 @@ module LucaSalary
         acct_label = @dict[k][:acct_label]
         h[pos][acct_label] = h[pos].key?(acct_label) ? h[pos][acct_label] + v : v
       end
-      res = {}
-      res['date'] = "#{@date.year}-#{@date.month}-#{@date.day}"
-      res['debit'] = h[:debit].map { |k, v| { 'label' => k, 'value' => v } }
-      res['credit'] = h[:credit].map { |k, v| { 'label' => k, 'value' => v } }
-      puts JSON.dump(res)
+      [].tap do |res|
+        item = {}
+        item['date'] = "#{@date.year}-#{@date.month}-#{@date.day}"
+        item['debit'] = h[:debit].map { |k, v| { 'label' => k, 'value' => v } }
+        item['credit'] = h[:credit].map { |k, v| { 'label' => k, 'value' => v } }
+        item['x-editor'] = 'LucaSalary'
+        res << item
+        puts JSON.dump(LucaSupport::Code.readable(res))
+      end
     end
 
     private

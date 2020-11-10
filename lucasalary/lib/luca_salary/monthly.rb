@@ -20,15 +20,16 @@ module LucaSalary
     # output payslips via mail or console
     #
     def report(mode = nil)
+      data = LucaSalary::Payment.new(@date.to_s).payslip
       if mode == 'mail'
         mail = Mail.new do
           subject '[luca salary] Monthly Payment'
         end
         mail.to = @config.dig('mail', 'report_mail')
-        mail.text_part = YAML.dump(LucaSalary::Payment.new(@date.to_s).payslip)
+        mail.text_part = YAML.dump(LucaSupport::Code.readable(data))
         LucaSupport::Mail.new(mail, @pjdir).deliver
       else
-        puts YAML.dump(LucaSalary::Payment.new(@date.to_s).payslip)
+        puts YAML.dump(LucaSupport::Code.readable(data))
       end
     end
 

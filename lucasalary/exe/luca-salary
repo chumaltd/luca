@@ -5,60 +5,76 @@ require 'optparse'
 require 'luca_salary'
 require 'luca_salary/monthly'
 
-def export(args = nil, _params = nil)
-  if args
-    args << 28 if args.length == 2 # specify safe last day
-    LucaSalary::Monthly.new(args.join('-')).export_json
-  else
-    LucaSalary::Monthly.new.export_json
+module LucaCmd
+  class Profile
+    def self.create(args = nil, _params = nil)
+      LucaSalary::Profile.gen_profile!(args.first)
+    end
   end
-end
 
-def payment(args = nil, _params = nil)
-  if args
-    args << 28 if args.length == 2 # specify safe last day
-    LucaSalary::Base.new(args.join('-')).calc
-  else
-    LucaSalary::Base.new.calc
+  class Payment
+    def self.create(args = nil, _params = nil)
+      if args
+        args << 28 if args.length == 2 # specify safe last day
+        LucaSalary::Base.new(args.join('-')).calc
+      else
+        LucaSalary::Base.new.calc
+      end
+    end
+
+    def self.export(args = nil, _params = nil)
+      if args
+        args << 28 if args.length == 2 # specify safe last day
+        LucaSalary::Payment.new(args.join('-')).export_json
+      else
+        LucaSalary::Payment.new.export_json
+      end
+    end
+
+    def self.list(args = nil, params = nil)
+      if args
+        args << 28 if args.length == 2 # specify safe last day
+        LucaSalary::Monthly.new(args.join('-')).report(params.dig('mode'))
+      else
+        LucaSalary::Monthly.new.report(params.dig('mode'))
+      end
+    end
   end
-end
-
-def report(args = nil, params = nil)
-  if args
-    args << 28 if args.length == 2 # specify safe last day
-    LucaSalary::Monthly.new(args.join('-')).report(params.dig('mode'))
-  else
-    LucaSalary::Monthly.new.report(params.dig('mode'))
-  end
-end
-
-def add_person(args = nil, _params = nil)
-  LucaSalary::Profile.gen_profile!(args.first)
 end
 
 LucaRecord::Base.valid_project?
 cmd = ARGV.shift
+params = {}
 
 case cmd
-when 'add'
-  add_person(ARGV)
-when 'export'
-  export(ARGV)
-when 'report'
-  params = {}
-  OptionParser.new do |opt|
-    opt.banner = 'Usage: luca-salary report [--mail] year month [date]'
-    opt.on('--mail', 'send to managers') { |_v| params['mode'] = 'mail' }
-    args = opt.parse(ARGV)
-    report(args, params)
+when 'profile'
+  subcmd = ARGV.shift
+  case subcmd
+  when 'create'
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca-salary profile create Name'
+      args = opt.parse(ARGV)
+      LucaCmd::Profile.create(args)
+    end
   end
+when 'export'
+  LucaCmd::Payment.export(ARGV)
 when 'payment'
-  params = {}
-  OptionParser.new do |opt|
-    opt.banner = 'Usage: luca-salary payment [--mail] year month [date]'
-    opt.on('--mail', 'send to managers') { |_v| params['mode'] = 'mail' }
-    args = opt.parse(ARGV)
-    payment(args)
+  subcmd = ARGV.shift
+  case subcmd
+  when 'create'
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca-salary payment create year month [date]'
+      args = opt.parse(ARGV)
+      LucaCmd::Payment.create(args)
+    end
+  when 'list'
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca-salary payment list [--mail] year month [date]'
+      opt.on('--mail', 'send to managers') { |_v| params['mode'] = 'mail' }
+      args = opt.parse(ARGV)
+      LucaCmd::Payment.list(args, params)
+    end
   end
 else
   puts 'Invalid subcommand'
