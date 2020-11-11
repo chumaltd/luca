@@ -4,7 +4,7 @@
 
 LucaSuite is work-in-progress ERP applications, named after [Luca Pacioli](https://en.wikipedia.org/wiki/Luca_Pacioli)(1447 - 1517).
 
-* LucaBook: Accounting
+* [LucaBook](lucabook/README.md): Accounting
 * [LucaDeal](lucadeal/README.md): Sales contract management
 * LucaSalary: Salary calculation
 
@@ -35,7 +35,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install luca
+    $ gem install lucasuite
 
 ## Usage
 
