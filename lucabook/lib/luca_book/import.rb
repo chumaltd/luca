@@ -17,6 +17,7 @@ module LucaBook
 
       @target_file = path
       # TODO: yaml need to be configurable
+      @dict_name = dict
       @dict = LucaRecord::Dict.new("import-#{dict}.yaml")
       @code_map = LucaRecord::Dict.reverse(LucaRecord::Dict.load('base.tsv'))
       @config = @dict.csv_config if dict
@@ -59,7 +60,7 @@ module LucaBook
         if @config[:type] == 'single'
           LucaBook::Journal.create(parse_single(row))
         elsif @config[:type] == 'double'
-          p parse_double(row)
+          p parse_double(row) # TODO: Not implemented yet
         else
           p row
         end
@@ -101,6 +102,7 @@ module LucaBook
         d['debit'][0]['value'] = value
         d['credit'][0]['value'] = value
         d['note'] = Array(@config[:note]).map{ |col| row[col] }.join(' ')
+        d['x-editor'] = "LucaBook::Import/#{@dict_name}"
       end
     end
 
@@ -119,6 +121,7 @@ module LucaBook
           'value' => row.dig(@config[:credit_value])
         }
         d['note'] = Array(@config[:note]).map{ |col| row[col] }.join(' ')
+        d['x-editor'] = "LucaBook::Import/#{@dict_name}"
       end
     end
 

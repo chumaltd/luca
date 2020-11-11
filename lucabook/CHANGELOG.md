@@ -1,3 +1,7 @@
+## LucaBook master
+
+* LucaBook::Import append 'x-editor: LucaBook::Import' header.
+
 ## LucaBook 0.2.15
 
 * Breaking change: restructure CLI in sub-sub command format.

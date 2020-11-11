@@ -40,21 +40,18 @@ module LucaBook
     def flat_list
       convert_label
       @data = @data.map do |dat|
-        idx = dat[:debit].length >= dat[:credit].length ? :debit : :credit
-        dat[idx].map.with_index do |_k, i|
-          date, txid = LucaSupport::Code.decode_id(dat[:id])
-          {}.tap do |res|
-            res['date'] = date
-            res['no'] = txid
-            res['id'] = dat[:id]
-            res['debit_code'] = dat[:debit][i][:code] if dat[:debit][i]
-            res['debit_amount'] = dat[:debit][i][:amount] if dat[:debit][i]
-            res['credit_code'] = dat[:credit][i][:code] if dat[:credit][i]
-            res['credit_amount'] = dat[:credit][i][:amount] if dat[:credit][i]
-            res['note'] = dat[:note]
-          end
+        date, txid = LucaSupport::Code.decode_id(dat[:id])
+        {}.tap do |res|
+          res['date'] = date
+          res['no'] = txid
+          res['id'] = dat[:id]
+          res['debit_code'] = dat[:debit].length == 1 ? dat[:debit][0][:code] : dat[:debit].map { |d| d[:code] }
+          res['debit_amount'] =  dat[:debit].inject(0) { |sum, d| sum + d[:amount] }
+          res['credit_code'] = dat[:credit].length == 1 ? dat[:credit][0][:code] : dat[:credit].map { |d| d[:code] }
+          res['credit_amount'] = dat[:credit].inject(0) { |sum, d| sum + d[:amount] }
+          res['note'] = dat[:note]
         end
-      end.flatten
+      end
       self
     end
 
