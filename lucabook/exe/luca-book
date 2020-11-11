@@ -17,9 +17,9 @@ module LucaCmd
 
     def self.list(args, params)
       if params['code']
-        LucaBook::List.term(*args, code: params['code']).flat_list.to_yaml
+        LucaBook::List.term(*args, code: params['code']).list_on_code.to_yaml
       elsif args.length > 0
-        LucaBook::List.term(*args).flat_list.to_yaml
+        LucaBook::List.term(*args).list_journals.to_yaml
       else
         # TODO: define default function
       end

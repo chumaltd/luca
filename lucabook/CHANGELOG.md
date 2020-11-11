@@ -1,5 +1,6 @@
 ## LucaBook master
 
+* Handle starting balance.
 * LucaBook::Import append 'x-editor: LucaBook::Import' header.
 
 ## LucaBook 0.2.15

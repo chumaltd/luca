@@ -58,9 +58,9 @@ module LucaBook
       if ! month.nil?
         pre_term = full_term.select { |y, m| y <= year.to_i && m < month.to_i }
         balance += pre_term.map { |y, m| self.class.net(y, m)}.inject(0){|sum, h| sum + h[code] }
-        [{ code: code, balance: balance, note: "#{code} #{dict.dig(code, :label)}" }] + records_with_balance(year, month, code, balance)
+        [{ code: code, balance: balance, note: "#{code} #{@dict.dig(code, :label)}" }] + records_with_balance(year, month, code, balance)
       else
-        start = { code: code, balance: balance, note: "#{code} #{dict.dig(code, :label)}" }
+        start = { code: code, balance: balance, note: "#{code} #{@dict.dig(code, :label)}" }
         full_term.map { |y, m| y }.uniq.map { |y|
           records_with_balance(y, nil, code, balance)
         }.flatten.prepend(start)
@@ -69,7 +69,7 @@ module LucaBook
 
     def records_with_balance(year, month, code, balance)
       @book.search(year, month, nil, code).each do |h|
-        balance += self.class.calc_diff(amount_by_code(h[:debit], code), code) - @book.calc_diff(amount_by_code(h[:credit], code), code)
+        balance += Util.calc_diff(Util.amount_by_code(h[:debit], code), code) - Util.calc_diff(Util.amount_by_code(h[:credit], code), code)
         h[:balance] = balance
       end
     end
@@ -131,12 +131,6 @@ module LucaBook
     def self.accumulate_month(year, month)
       monthly_record = net(year, month)
       total_subaccount(monthly_record)
-    end
-
-    def amount_by_code(items, code)
-      items
-        .select{|item| item.dig(:code) == code }
-        .inject(0){|sum, item| sum + item[:amount] }
     end
 
     def self.total_subaccount(report)
@@ -212,8 +206,8 @@ module LucaBook
       idx = (g[:debit].keys + g[:credit].keys).uniq.sort
       {}.tap do |sum|
         idx.each do |code|
-          sum[code] = g.dig(:debit, code).nil? ? 0 : calc_diff(g[:debit][code], code)
-          sum[code] -= g.dig(:credit, code).nil? ? 0 : calc_diff(g[:credit][code], code)
+          sum[code] = g.dig(:debit, code).nil? ? 0 : Util.calc_diff(g[:debit][code], code)
+          sum[code] -= g.dig(:credit, code).nil? ? 0 : Util.calc_diff(g[:credit][code], code)
         end
       end
     end
@@ -233,26 +227,6 @@ module LucaBook
 
       data = CSV.read(path, headers: true, col_sep: "\t", encoding: 'UTF-8')
       data.each { |row| yield row }
-    end
-
-    def self.calc_diff(num, code)
-      amount = /\./.match(num.to_s) ? BigDecimal(num) : num.to_i
-      amount * pn_debit(code.to_s)
-    end
-
-    def self.pn_debit(code)
-      case code
-      when /^[0-4BCEGH]/
-        1
-      when /^[5-9ADF]/
-        -1
-      else
-        nil
-      end
-    end
-
-    def dict
-      LucaBook::Dict::Data
     end
   end
 end
