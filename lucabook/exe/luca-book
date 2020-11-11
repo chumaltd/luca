@@ -37,6 +37,9 @@ module LucaCmd
   end
 end
 
+def new_pj(args = nil, params = {})
+  LucaBook::Setup.create_project params['country'], args[0]
+end
 
 LucaRecord::Base.valid_project?
 cmd = ARGV.shift
@@ -48,7 +51,7 @@ when /journals?/, 'j'
   case subcmd
   when 'import'
     OptionParser.new do |opt|
-      opt.banner = 'Usage: luca import filepath'
+      opt.banner = 'Usage: luca-book journals import filepath'
       opt.on('-c', '--config VAL', 'import definition'){|v| params['config'] = v }
       opt.on('-j', '--json', 'import via json format'){|_v| params['json'] = true }
       args = opt.parse!(ARGV)
@@ -56,12 +59,19 @@ when /journals?/, 'j'
     end
   when 'list'
     OptionParser.new do |opt|
-      opt.banner = 'Usage: luca list [year month]'
+      opt.banner = 'Usage: luca-book journals list [year month]'
       opt.on('-c', '--code VAL', 'search with code') { |v| params['code'] = v }
       opt.on_tail('List records. If you specify code and/or month, search on each criteria.')
       args = opt.parse!(ARGV)
       LucaCmd::Journal.list(args, params)
     end
+  end
+when 'new'
+  OptionParser.new do |opt|
+    opt.banner = 'Usage: luca-book new Dir'
+    opt.on('-c', '--country VAL', 'specify country code') { |v| params['coountry'] = v }
+    args = opt.parse(ARGV)
+    new_pj(args, params)
   end
 when /reports?/, 'r'
   subcmd = ARGV.shift
