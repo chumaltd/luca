@@ -7,6 +7,14 @@ module LucaBook
   module Util
     module_function
 
+    def validate_balance(items)
+      d = items.select { |k, _v| /^[1-4]/.match(k) }
+            .inject(BigDecimal('0')) { |sum, (_k, v)| sum + BigDecimal(v[:balance] || 0) }
+      c = items.select { |k, _v| /^[5-9]/.match(k) }
+            .inject(BigDecimal('0')) { |sum, (_k, v)| sum + BigDecimal(v[:balance] || 0) }
+      [d - c, { debit: d, credit: c }]
+    end
+
     # items assumed as bellows:
     #   [{ code: '113', amount: 1000 }, ... ]
     #

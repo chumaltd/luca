@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jpfr-etax-di="http://xml.e-tax.nta.go.jp/jp/fr/etax/o/di/2013-03-25" xmlns:jpfr-oe="http://info.edinet-fsa.go.jp/jp/fr/gaap/o/oe/2012-01-25" xmlns:jpfr-t-cte="http://info.edinet-fsa.go.jp/jp/fr/gaap/t/cte/2012-01-25">
+<xbrli:context_id="CurrentYearNonConsolidatedInstant">
+    <xbrli:entity>
+        <xbrli:identifier scheme="http://www.e-tax.nta.go.jp"><%= @company %></xbrli:identifier>
+    </xbrli:entity>
+    <xbrli:period>
+        <xbrli:instant><%= @end_date %></xbrli:instant>
+    </xbrli:period>
+    <xbrli:scenario>
+        <jpfr-oe:NonConsolidated />
+    </xbrli:scenario>
+</xbrli:context>
+
+<xbrli:context_id="CurrentYearNonConsolidatedDuration">
+    <xbrli:entity>
+        <xbrli:identifier scheme="http://www.e-tax.nta.go.jp"><%= @company %></xbrli:identifier>
+    </xbrli:entity>
+    <xbrli:period>
+        <xbrli:startDate><%= @start_date %></xbrli:startDate>
+        <xbrli:endDate><%= @end_date %></xbrli:endDate>
+    </xbrli:period>
+    <xbrli:scenario>
+        <jpfr-oe:NonConsolidated />
+    </xbrli:scenario>
+</xbrli:context>
+
+<xbrli:context_id="Prior1YearNonConsolidatedInstant">
+    <xbrli:entity>
+        <xbrli:identifier scheme="http://www.e-tax.nta.go.jp"><%= @company %></xbrli:identifier>
+    </xbrli:entity>
+    <xbrli:period>
+        <xbrli:instant><%= @previous_fy_end_date %></xbrli:instant>
+    </xbrli:period>
+    <xbrli:scenario>
+        <jpfr-oe:NonConsolidated />
+    </xbrli:scenario>
+</xbrli:context>
+
+<xbrli:context_id="DocumentInfo">
+    <xbrli:entity>
+        <xbrli:identifier scheme="http://www.e-tax.nta.go.jp"><%= @company %></xbrli:identifier>
+    </xbrli:entity>
+    <xbrli:period>
+        <xbrli:instant><%= @issue_date %></xbrli:instant>
+    </xbrli:period>
+</xbrli:context>
+
+<xbrli:unit id="JPY">
+    <xbrli:measure>iso4217:JPY</xbrli:measure>
+</xbrli:unit>
+
+<%= @xbrl_entries %>
+
+<jpfr-etax-di:NonconsolidatedBalanceSheetsDocInfo contextRef="DocumentInfo"><%= @balance_sheet_selected %></jpfr-etax-di:NonconsolidatedBalanceSheetsDocInfo>
+<jpfr-etax-di:ExtendedLinkRoleLabelBalanceSheets contextRef="DocumentInfo">http://www.xbrl.org/2003/role/link</jpfr-etax-di:ExtendedLinkRoleLabelBalanceSheets>
+<jpfr-etax-di:ExtendedLinkRolePresentationBalanceSheets contextRef="DocumentInfo">http://xml.e-tax.nta.go.jp/jp/fr/etax/role/NonConsolidatedBalanceSheets</jpfr-etax-di:ExtendedLinkRolePresentationBalanceSheets>
+<jpfr-etax-di:ContextIDEndOfPeriodBalanceSheets contextRef="DocumentInfo">CurrentYearNonConsolidatedInstant</jpfr-etax-di:ContextIDEndOfPeriodBalanceSheets>
+
+<jpfr-etax-di:NonconsolidatedStatementsOfIncomeDocInfo contextRef="DocumentInfo"><%= @pl_selected %></jpfr-etax-di:NonconsolidatedStatementsOfIncomeDocInfo>
+<jpfr-etax-di:ExtendedLinkRoleLabelStatementsOfIncome contextRef="DocumentInfo">http://www.xbrl.org/2003/role/link</jpfr-etax-di:ExtendedLinkRoleLabelStatementsOfIncome>
+<jpfr-etax-di:ExtendedLinkRolePresentationStatementsOfIncome contextRef="DocumentInfo">http://xml.e-tax.nta.go.jp/jp/fr/etax/role/NonConsolidatedStatementsOfIncome</jpfr-etax-di:ExtendedLinkRolePresentationStatementsOfIncome>
+<jpfr-etax-di:ContextIDPeriodStatementsOfIncome contextRef="DocumentInfo">CurrentYearNonConsolidatedDuration</jpfr-etax-di:ContextIDPeriodStatementsOfIncome>
+
+
+<jpfr-etax-di:NonconsolidatedScheduleOfCostOfGoodsManufacturedDocInfo contextRef="DocumentInfo">false</jpfr-etax-di:NonconsolidatedScheduleOfCostOfGoodsManufacturedDocInfo>
+<jpfr-etax-di:NonconsolidatedNotesDocInfo contextRef="DocumentInfo">false</jpfr-etax-di:NonconsolidatedNotesDocInfo>
+
+<jpfr-etax-di:NonconsolidatedStatementsOfChangesInNetAssetsDocInfo contextRef="DocumentInfo"><%= @balance_sheet_selected %></jpfr-etax-di:NonconsolidatedStatementsOfChangesInNetAssetsDocInfo>
+<jpfr-etax-di:ExtendedLinkRoleLabelStatementsOfChangesInNetAssets contextRef="DocumentInfo">http://www.xbrl.org/2003/role/link</jpfr-etax-di:ExtendedLinkRoleLabelStatementsOfChangesInNetAssets>
+<jpfr-etax-di:ExtendedLinkRolePresentationStatementsOfChangesInNetAssets contextRef="DocumentInfo">http://xml.e-tax.nta.go.jp/jp/fr/etax/role/NonConsolidatedStatementsOfChangesInNetAssets</jpfr-etax-di:ExtendedLinkRolePresentationStatementsOfChangesInNetAssets>
+<jpfr-etax-di:ContextIDBeginningOfPeriodStatementsOfChangesInNetAssets contextRef="DocumentInfo">Prior1YearNonConsolidatedInstant</jpfr-etax-di:ContextIDBeginningOfPeriodStatementsOfChangesInNetAssets>
+<jpfr-etax-di:ContextIDPeriodStatementsOfChangesInNetAssets contextRef="DocumentInfo">CurrentYearNonConsolidatedDuration</jpfr-etax-di:ContextIDPeriodStatementsOfChangesInNetAssets>
+<jpfr-etax-di:ContextIDEndOfPeriodStatementsOfChangesInNetAssets contextRef="DocumentInfo">CurrentYearNonConsolidatedInstant</jpfr-etax-di:ContextIDEndOfPeriodStatementsOfChangesInNetAssets>
+
+</xbrli:xbrl>
