@@ -1,6 +1,7 @@
 ## LucaBook master
 
 * Handle starting balance.
+* XBRL taxonomy for JP EDINET & eTax
 * LucaBook::Import append 'x-editor: LucaBook::Import' header.
 * provide data/balance/start.tsv template on Setup.
 
