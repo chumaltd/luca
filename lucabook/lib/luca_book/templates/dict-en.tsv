@@ -1,23 +1,18 @@
-code	label	consumption_tax	income_tax
+code	label xbrl_id	consumption_tax	income_tax
 10	Current Assets
 110	Cash and cash equivalents
-111	Cash
-112	Petty cash
-113	Saving accounts
-114	Checking accounts
-115	定期預金
-116	通知預金
-117	納税準備預金
-118	別段預金
-120	Notes receivable
-130	Accounts receivable - trade
+1101	Saving accounts
+1102	Checking accounts
+111	Cash,us-gaap:Cash
+120	Notes receivable,us-gaap:NotesReceivableGross
+130	Accounts receivable - trade,us-gaap:AccountsReceivableGross
 140	短期貸付金
 150	未収入金
-160	棚卸資産
+160	Inventory,us-gaap:InventoryGross
 161	商品
 162	製品
-163	仕掛品
-164	貯蔵品
+163	Inventory work in process,us-gaap:InventoryWorkInProcess
+164	Supplies,us-gaap:Supplies
 180	その他流動資産
 181	前渡金
 182	Prepaid expenses
@@ -26,17 +21,17 @@ code	label	consumption_tax	income_tax
 1D0	Deferred income tax
 40	Fixed Assets
 410	Tangible Assets
-411	Buildings
+411	Buildings,us-gaap:BuildingsAndImprovementsGross
 412	Equipment
 413	Machinery
 414	Vehicles
 415	Tools
 416	Land
-417	Construction in progress
+417	Construction in progress,us-gaap:ConstructionInProgressGross
 418	Ships
 420	Intangible Assets
 421	Software
-422	Goodwill
+422	Goodwill,us-gaap:Goodwill
 423	Patents
 424	借地権
 425	商標権
@@ -55,10 +50,10 @@ code	label	consumption_tax	income_tax
 442	新株発行費
 443	社債発行費
 50	Current Liabilities
-510	Notes payable
+510	Notes payable,us-gaap:NotesPayable
 511	Accounts payable - trade
-512	Short-term debt
-513	Commercial paper
+512	Short-term borrowings,us-gaap:ShortermBorrowings
+513	Commercial paper,us-gaap:CommercialPaper
 514	Accounts payable - other
 515	Income taxes payable
 516	未払消費税等
@@ -69,7 +64,7 @@ code	label	consumption_tax	income_tax
 51B	Deferred tax liabilities
 70	Long-term Liabilities
 711	Debt securities
-712	Loans payable
+712	Loans payable,us-gaap:LoansPayable
 713	退職給付引当金
 714	Deferred tax liabilities
 90	Net Assets
@@ -77,7 +72,7 @@ code	label	consumption_tax	income_tax
 911	Capital stock
 912	Capital surplus
 913	Retained earnings
-914	Treasury stock
+914	Treasury stock,us-gaap:TreasuryStockValue
 920	評価換算差額等
 921	有価証券評価差額金
 922	為替換算調整勘定
@@ -91,31 +86,31 @@ B12	Parts
 B13	Labor
 BA	Gross profit
 C0	Operating expenses
-C11	役員報酬
-C12	Salaries
+C11	Officers Compensation,us-gaap:OfficersCompensation
+C12	Salaries,us-gaap:SalariesAndWages
 C13	Bonuses
 C14	役員賞与
 C15	退職金
 C16	Legal welfare
-C17	Travel
-C18	Communication
-C19	Repairs
-C1A	Advertising
+C17	Travel,us-gaap:TravelAndEntertainmentExpense
+C18	Communication,us-gaap:Communication
+C19	Repairs,us-gaap:CostOfPropertyRepairsAndMaintenance
+C1A	Advertising,us-gaap:AdvertisingExpense
 C1B	Entertainment
 C1C	Packing-and-freight
 C1D	Welfare
 C1E	Rents
 C1F	Utilities
-C1G	Supplies
+C1G	Supplies,us-gaap:SuppliesExpense
 C1H	Insurance
 C1I	Taxes
 C1J	賃借料
 C1K	Books
 C1L	貸倒損失
 C1M	諸会費
-C1N	支払手数料
+C1N	Fees and commisions,us-gaap:BankingFeesAndCommisions
 C1O	外注費
-C1P	Depriciation
+C1P	Depreciation
 C1Q	Miscellaneous
 C1R	貸倒引当金繰入
 CA	Operating profit/loss
