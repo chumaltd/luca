@@ -90,9 +90,6 @@ module LucaBook
 
     def bs
       base = accumulate_balance(@data.map { |data| code_sum(data).merge(data).sort.to_h })
-      balance = code_sum(Dict.latest_balance.each_with_object({}) do |(k, v), h|
-                                    h[k] = v[:balance].to_i if v[:balance]
-                                  end).merge(@start_balance)
       length = [base[:debit].length, base[:credit].length].max
       @statement = [].tap do |a|
         length.times do |i|
@@ -101,7 +98,7 @@ module LucaBook
             res['debit_balance'] = base[:debit][i] ? @start_balance.dig(base[:debit][i].keys.first) + base[:debit][i].values.first : ''
             res['debit_diff'] = base[:debit][i] ? base[:debit][i].values.first : ''
             res['credit_label'] = base[:credit][i] ? @dict.dig(base[:credit][i].keys.first, :label) : ''
-            res['credit_start'] = base[:credit][i] ? balance.dig(base[:credit][i].keys.first) + base[:credit][i].values.first : ''
+            res['credit_balance'] = base[:credit][i] ? @start_balance.dig(base[:credit][i].keys.first) + base[:credit][i].values.first : ''
             res['credit_diff'] = base[:credit][i] ? base[:credit][i].values.first : ''
             a << res
           end
@@ -120,9 +117,9 @@ module LucaBook
       { debit: [], credit: [] }.tap do |res|
         data.each do |k, v|
           case k
-          when /^[0-4].+/
+          when /^[0-4].*/
             res[:debit] << { k => v }
-          when /^[5-9].+/
+          when /^[5-9H].*/
             res[:credit] << { k => v }
           end
         end
@@ -153,9 +150,12 @@ module LucaBook
         #end
         res['10'] = sum_matched(report, /^[123].[^0]/)
         res['40'] = sum_matched(report, /^[4].[^0]}/)
+        res['4ZZ'] = res['10'] + res['40']
         res['50'] = sum_matched(report, /^[56].[^0]/)
         res['70'] = sum_matched(report, /^[78].[^0]/)
+        res['5'] = res['50'] + res['70']
         res['90'] = sum_matched(report, /^[9].[^0]/)
+        res['9ZZ'] = res['5'] + res['90']
         res['A0'] = sum_matched(report, /^[A].[^0]/)
         res['B0'] = sum_matched(report, /^[B].[^0]/)
         res['BA'] = res['A0'] - res['B0']
@@ -174,14 +174,15 @@ module LucaBook
 
     def code_sum(report)
       legal_items.each.with_object({}) do |k, h|
-        h[k] = self.class.sum_matched(report, /^#{k}.+/)
+        h[k] = self.class.sum_matched(report, /^#{k}.*/)
       end
     end
 
     def set_balance
-      self.class.total_subaccount(Dict.latest_balance.each_with_object({}) do |(k, v), h|
-                                    h[k] = v[:balance].to_i if v[:balance]
-                                  end)
+      base = Dict.latest_balance.each_with_object({}) do |(k, v), h|
+        h[k] = v[:balance].to_i if v[:balance]
+      end
+      code_sum(base).merge(self.class.total_subaccount(base))
     end
 
     def self.sum_matched(report, reg)
