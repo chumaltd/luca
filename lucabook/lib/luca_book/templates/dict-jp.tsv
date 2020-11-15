@@ -71,15 +71,21 @@ code	label	xbrl_id	consumption_tax	income_tax
 713	退職給付引当金	jppfs_cor:ProvisionForRetirementBenefits
 714	繰延税金負債	jppfs_cor:DeferredTaxLiabilities
 90	純資産	jppfs_cor:NetAssetsAbstract
-910	株主資本	jppfs_cor:ShareholdersAbstract
+91	株主資本	jppfs_cor:ShareholdersAbstract
 911	資本金	jppfs_cor:CapitalStock
-912	資本剰余金	jppfs_cor:LegalCapitalSurplus
-913	利益剰余金	jppfs_cor:RetainedEarnings
-914	自己株式	jppfs_cor:TreasuryStock
-920	評価換算差額等	jppfs_cor:ValuationAndTranslationAdjustments
+912	新株式申込証拠金
+913	資本剰余金	jppfs_cor:LegalCapitalSurplus
+9131	資本準備金
+9132	その他資本剰余金
+914	利益剰余金	jppfs_cor:RetainedEarnings
+9141	利益準備金
+9142	その他利益剰余金
+915	自己株式	jppfs_cor:TreasuryStock
+916	自己株式申込証拠金
+92	評価換算差額等	jppfs_cor:ValuationAndTranslationAdjustments
 921	有価証券評価差額金	jppfs_cor:ValuationDifferenceOnAvailableForSaleSecurities
 922	為替換算調整勘定	jppfs_cor:ForeignCurrencyTranslationAdjustment
-930	新株予約権	jppfs_cor:SubscriptionRightsToShares
+93	新株予約権	jppfs_cor:SubscriptionRightsToShares
 940	非支配株主持分	jppfs_cor:NonControllingInterests
 A0	売上	jppfs_cor:NetSalesAbstract
 A11	売上高	jppfs_cor:NetSales

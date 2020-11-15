@@ -4,6 +4,7 @@
 * XBRL taxonomy for JP EDINET & eTax
 * LucaBook::Import append 'x-editor: LucaBook::Import' header.
 * provide data/balance/start.tsv template on Setup.
+* Refine BS output with legal mandatory accounts.
 
 ## LucaBook 0.2.15
 

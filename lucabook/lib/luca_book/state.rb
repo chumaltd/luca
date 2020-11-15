@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 require 'csv'
 require 'pathname'
@@ -7,7 +8,6 @@ require 'luca_record'
 require 'luca_record/dict'
 require 'luca_book'
 
-#
 # Statement on specified term
 #
 module LucaBook
@@ -20,6 +20,7 @@ module LucaBook
     def initialize(data)
       @data = data
       @dict = LucaRecord::Dict.load('base.tsv')
+      @start_balance = set_balance
     end
 
     # TODO: not compatible with LucaRecord::Base.open_records
@@ -74,33 +75,6 @@ module LucaBook
       end
     end
 
-    #
-    # TODO: useless method. consider to remove
-    #
-    def accumulate_all
-      current = @book.load_start
-      target = []
-      Dir.chdir(@book.pjdir) do
-        net_records = self.class.scan_terms.map do |year, month|
-          target << [year, month]
-          accumulate_month(year, month)
-        end
-        all_keys = net_records.map{|h| h.keys}.flatten.uniq
-        net_records.each.with_index(0) do |diff, i|
-          all_keys.each {|key| diff[key] = 0 unless diff.has_key?(key)}
-          diff.each do |k,v|
-            if current[k]
-              current[k] += v
-            else
-              current[k] = v
-            end
-          end
-          f = { target: "#{target[i][0]}-#{target[i][1]}", diff: diff.sort, current: current.sort }
-          yield f
-        end
-      end
-    end
-
     def to_yaml
       YAML.dump(code2label).tap { |data| puts data }
     end
@@ -115,16 +89,49 @@ module LucaBook
     end
 
     def bs
-      @statement = @data.map do |data|
-        data.select { |k, v| /^[0-9].+/.match(k) }
+      base = accumulate_balance(@data.map { |data| code_sum(data).merge(data).sort.to_h })
+      balance = code_sum(Dict.latest_balance.each_with_object({}) do |(k, v), h|
+                                    h[k] = v[:balance].to_i if v[:balance]
+                                  end).merge(@start_balance)
+      length = [base[:debit].length, base[:credit].length].max
+      @statement = [].tap do |a|
+        length.times do |i|
+          {}.tap do |res|
+            res['debit_label'] = base[:debit][i] ? @dict.dig(base[:debit][i].keys.first, :label) : ''
+            res['debit_balance'] = base[:debit][i] ? @start_balance.dig(base[:debit][i].keys.first) + base[:debit][i].values.first : ''
+            res['debit_diff'] = base[:debit][i] ? base[:debit][i].values.first : ''
+            res['credit_label'] = base[:credit][i] ? @dict.dig(base[:credit][i].keys.first, :label) : ''
+            res['credit_start'] = base[:credit][i] ? balance.dig(base[:credit][i].keys.first) + base[:credit][i].values.first : ''
+            res['credit_diff'] = base[:credit][i] ? base[:credit][i].values.first : ''
+            a << res
+          end
+        end
       end
+      puts YAML.dump(@statement)
       self
     end
 
-    def pl
-      @statement = @data.map do |data|
-        data.select { |k, v| /^[A-F].+/.match(k) }
+    def accumulate_balance(monthly_diffs)
+      data = monthly_diffs.each_with_object({}) do |month, h|
+        month.each do |k, v|
+          h[k] = h[k].nil? ? v : h[k] + v
+        end
       end
+      { debit: [], credit: [] }.tap do |res|
+        data.each do |k, v|
+          case k
+          when /^[0-4].+/
+            res[:debit] << { k => v }
+          when /^[5-9].+/
+            res[:credit] << { k => v }
+          end
+        end
+      end
+    end
+
+    def pl
+      @statement = @data.map { |data| data.select { |k, _v| /^[A-H].+/.match(k) } }
+      @statement << @statement.each_with_object({}) { |item, h| item.each { |k, v| h[k].nil? ? h[k] = v : h[k] += v } }
       self
     end
 
@@ -134,16 +141,16 @@ module LucaBook
     end
 
     def self.total_subaccount(report)
-      report.dup.tap do |res|
-        report.each do |k, v|
-          if k.length >= 4
-            if res[k[0, 3]]
-              res[k[0, 3]] += v
-            else
-              res[k[0, 3]] = v
-            end
-          end
-        end
+      {}.tap do |res|
+        #report.each do |k, v|
+        #  if k.length >= 4
+        #    if res[k[0, 3]]
+        #      res[k[0, 3]] += v
+        #    else
+        #      res[k[0, 3]] = v
+        #    end
+        #  end
+        #end
         res['10'] = sum_matched(report, /^[123].[^0]/)
         res['40'] = sum_matched(report, /^[4].[^0]}/)
         res['50'] = sum_matched(report, /^[56].[^0]/)
@@ -161,7 +168,20 @@ module LucaBook
         res['G0'] = sum_matched(report, /^[G].[^0]/)
         res['GA'] = res['EA'] + res['F0'] - res['G0']
         res['HA'] = res['GA'] - sum_matched(report, /^[H].[^0]/)
+        res.sort.to_h
       end
+    end
+
+    def code_sum(report)
+      legal_items.each.with_object({}) do |k, h|
+        h[k] = self.class.sum_matched(report, /^#{k}.+/)
+      end
+    end
+
+    def set_balance
+      self.class.total_subaccount(Dict.latest_balance.each_with_object({}) do |(k, v), h|
+                                    h[k] = v[:balance].to_i if v[:balance]
+                                  end)
     end
 
     def self.sum_matched(report, reg)
@@ -214,7 +234,7 @@ module LucaBook
 
     # TODO: replace load_tsv -> generic load_tsv_dict
     def load_start
-      file = LucaSupport::Config::Pjdir + 'start.tsv'
+      file = Pathname(LucaSupport::Config::Pjdir) / 'data' / 'balance' / 'start.tsv'
       {}.tap do |dic|
         load_tsv(file) do |row|
           dic[row[0]] = row[2].to_i if ! row[2].nil?
@@ -227,6 +247,17 @@ module LucaBook
 
       data = CSV.read(path, headers: true, col_sep: "\t", encoding: 'UTF-8')
       data.each { |row| yield row }
+    end
+
+    private
+
+    def legal_items
+      return [] unless LucaSupport::Config::COUNTRY
+
+      case LucaSupport::Config::COUNTRY
+      when 'jp'
+        ['91', '911', '912', '913', '9131', '9132', '914', '9141', '9142', '915', '916', '92', '93']
+      end
     end
   end
 end

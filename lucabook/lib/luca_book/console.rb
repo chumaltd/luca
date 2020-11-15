@@ -29,6 +29,7 @@ class LucaBookConsole
     end
   end
 
+  # TODO: deprecated. accumulate_all() already removed.
   def bs
     target = []
     report = []
@@ -56,6 +57,7 @@ class LucaBookConsole
     puts "----  ----"
   end
 
+  # TODO: deprecated. accumulate_all() already removed.
   def pl
     target = []
     report = []

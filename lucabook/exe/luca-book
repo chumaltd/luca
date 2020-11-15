@@ -28,7 +28,7 @@ module LucaCmd
 
   class Report
     def self.balancesheet(args, params)
-      LucaBook::State.term(*args).bs.to_yaml
+      LucaBook::State.term(*args).bs #.to_yaml
     end
 
     def self.profitloss(args, params)
