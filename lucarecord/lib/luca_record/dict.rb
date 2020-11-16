@@ -71,6 +71,8 @@ module LucaRecord
         config[:year] = @config['year'] if @config.dig('year')
         config[:month] = @config['month'] if @config.dig('month')
         config[:day] = @config['day'] if @config.dig('day')
+        config[:default_debit] = @config['default_debit'] if @config.dig('default_debit')
+        config[:default_credit] = @config['default_credit'] if @config.dig('default_credit')
       end
     end
 

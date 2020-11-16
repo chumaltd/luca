@@ -9,8 +9,8 @@ require 'luca_record'
 
 module LucaBook
   class Import
-    DEBIT_DEFAULT = '仮払金'
-    CREDIT_DEFAULT = '仮受金'
+    DEBIT_DEFAULT = '10XX'
+    CREDIT_DEFAULT = '50XX'
 
     def initialize(path, dict)
       raise 'no such file' unless FileTest.file?(path)
@@ -86,7 +86,7 @@ module LucaBook
         d['date'] = parse_date(row)
         if row.dig(@config[:credit_value])&.empty?
           d['debit'] = [
-            { 'code' => search_code(row[@config[:label]], DEBIT_DEFAULT) }
+            { 'code' => search_code(row[@config[:label]], @config.dig(:default_debit)) || DEBIT_DEFAULT }
           ]
           d['credit'] = [
             { 'code' => @code_map.dig(@config[:counter_label]) }
@@ -96,7 +96,7 @@ module LucaBook
             { 'code' => @code_map.dig(@config[:counter_label]) }
           ]
           d['credit'] = [
-            { 'code' => search_code(row[@config[:label]], CREDIT_DEFAULT) }
+            { 'code' => search_code(row[@config[:label]], @config.dig(:default_credit)) || CREDIT_DEFAULT }
           ]
         end
         d['debit'][0]['value'] = value
@@ -113,11 +113,11 @@ module LucaBook
       {}.tap do |d|
         d['date'] = parse_date(row)
         d['debit'] = {
-          'code' => search_code(row[@config[:debit_label]], DEBIT_DEFAULT),
+          'code' => search_code(row[@config[:label]], @config.dig(:default_debit)) || DEBIT_DEFAULT,
           'value' => row.dig(@config[:debit_value])
         }
         d['credit'] = {
-          'code' => search_code(row[@config[:credit_label]], CREDIT_DEFAULT),
+          'code' => search_code(row[@config[:label]], @config.dig(:default_credit)) || CREDIT_DEFAULT,
           'value' => row.dig(@config[:credit_value])
         }
         d['note'] = Array(@config[:note]).map{ |col| row[col] }.join(' ')

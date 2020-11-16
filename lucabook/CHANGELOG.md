@@ -1,10 +1,11 @@
-## LucaBook master
+## LucaBook 0.2.16
 
 * Handle starting balance.
 * XBRL taxonomy for JP EDINET & eTax
 * LucaBook::Import append 'x-editor: LucaBook::Import' header.
 * provide data/balance/start.tsv template on Setup.
 * Refine BS output with legal mandatory accounts.
+* Default debit/credit label can be set by each importer. Default unknown code is also set(10XX/50XX).
 
 ## LucaBook 0.2.15
 

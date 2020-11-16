@@ -1,5 +1,6 @@
 code	label	xbrl_id	consumption_tax	income_tax
 10	流動資産	jppfs_cor:CurrentAssetsAbstract
+10XX	UNSETTLED_IMPORT
 110	現金及び預金	jppfs_cor:CashAndDeposits
 1101	現金
 1102	小口現金
@@ -54,6 +55,7 @@ code	label	xbrl_id	consumption_tax	income_tax
 442	新株発行費	jppfs_cor:StockIssuanceCostDA
 443	社債発行費	jppfs_cor:BondIssuanceCostDA
 50	流動負債	jppfs_cor:CurrentLiabilitiesAbstract
+50XX	UNSETTLED_IMPORT
 510	支払手形	jppfs_cor:NotePayableTrade
 511	買掛金	jppfs_cor:AccountsPayableTrade
 512	短期借入金	jppfs_cor:ShortTermLoansPayable
@@ -124,6 +126,7 @@ C1O	外注費	jppfs_cor:SubcontructExpensesSGA
 C1P	減価償却費	jppfs_cor:DepreciationSGA
 C1Q	雑費	jppfs_cor:MiscellaneousExpensesSGA
 C1R	貸倒引当金繰入	jppfs_cor:ProvisionOfAllowanceForDebtfulAccountsSGA
+C1S	支払報酬
 CA	営業利益	jppfs_cor:OperatingIncome
 D0	営業外収益	jppfs_cor:NonOperatingIncomeAbstract
 D11	受取利息	jppfs_cor:InterestIncomeNOI

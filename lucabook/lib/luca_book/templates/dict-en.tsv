@@ -1,5 +1,6 @@
 code	label xbrl_id	consumption_tax	income_tax
 10	Current Assets
+10XX	UNSETTLED_IMPORT
 110	Cash and cash equivalents
 1101	Saving accounts
 1102	Checking accounts
@@ -50,6 +51,7 @@ code	label xbrl_id	consumption_tax	income_tax
 442	新株発行費
 443	社債発行費
 50	Current Liabilities
+50XX	UNSETTLED_IMPORT
 510	Notes payable,us-gaap:NotesPayable
 511	Accounts payable - trade
 512	Short-term borrowings,us-gaap:ShortermBorrowings
