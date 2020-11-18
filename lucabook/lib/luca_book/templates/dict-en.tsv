@@ -115,6 +115,11 @@ C1O	外注費
 C1P	Depreciation
 C1Q	Miscellaneous
 C1R	貸倒引当金繰入
+C1S	支払報酬
+C1T	研修費
+C1U	採用費
+C1V	業務委託費
+C1W	会議費
 CA	Operating profit/loss
 D0	営業外収益
 D11	Interest income
@@ -139,4 +144,6 @@ G11	固定資産売却損
 G12	固定資産除却損
 G13	災害損失
 GA	Income before taxes
+H0	Income Taxes
+H11	Income Taxes Current
 HA	Net Income/Loss

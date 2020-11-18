@@ -150,7 +150,7 @@ module LucaBook
           case k
           when /^[0-4].*/
             res[:debit] << { k => v }
-          when /^[5-9H].*/
+          when /^[5-9].*/
             res[:credit] << { k => v }
           end
         end
@@ -173,12 +173,6 @@ module LucaBook
     #
     def self.total_subaccount(report)
       {}.tap do |res|
-        res['10'] = sum_matched(report, /^[123][0-9A-Z]{2,}/)
-        res['40'] = sum_matched(report, /^[4][0-9A-Z]{2,}/)
-        res['50'] = sum_matched(report, /^[56][0-9A-Z]{2,}/)
-        res['70'] = sum_matched(report, /^[78][0-9A-Z]{2,}/)
-        res['8ZZ'] = res['50'] + res['70']
-        res['9ZZ'] = sum_matched(report, /^[9][0-9A-Z]{2,}/)
         res['A0'] = sum_matched(report, /^[A][0-9A-Z]{2,}/)
         res['B0'] = sum_matched(report, /^[B][0-9A-Z]{2,}/)
         res['BA'] = res['A0'] - res['B0']
@@ -188,9 +182,18 @@ module LucaBook
         res['E0'] = sum_matched(report, /^[E][0-9A-Z]{2,}/)
         res['EA'] = res['CA'] + res['D0'] - res['E0']
         res['F0'] = sum_matched(report, /^[F][0-9A-Z]{2,}/)
-        res['G0'] = sum_matched(report, /^[G][0-9A-Z]{2,}/)
+        res['G0'] = sum_matched(report, /^[G][0-9][0-9A-Z]{1,}/)
         res['GA'] = res['EA'] + res['F0'] - res['G0']
-        res['HA'] = res['GA'] - sum_matched(report, /^[H][0-9A-Z]{2,}/)
+        res['H0'] = sum_matched(report, /^[H][0-9][0-9A-Z]{1,}/)
+        res['HA'] = res['GA'] - res['H0']
+
+        res['9142'] = (report['9142'] || 0) + res['HA']
+        res['10'] = sum_matched(report, /^[123][0-9A-Z]{2,}/)
+        res['40'] = sum_matched(report, /^[4][0-9A-Z]{2,}/)
+        res['50'] = sum_matched(report, /^[56][0-9A-Z]{2,}/)
+        res['70'] = sum_matched(report, /^[78][0-9A-Z]{2,}/)
+        res['8ZZ'] = res['50'] + res['70']
+        res['9ZZ'] = sum_matched(report, /^[9][0-9A-Z]{2,}/)
 
         res['1'] = res['10'] + res['40']
         res['5'] = res['8ZZ'] + res['9ZZ'] + res['HA']
