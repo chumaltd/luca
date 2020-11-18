@@ -1,4 +1,5 @@
 code	label	xbrl_id	consumption_tax	income_tax
+1	資産合計
 10	流動資産	jppfs_cor:CurrentAssetsAbstract
 10XX	UNSETTLED_IMPORT
 110	現金及び預金	jppfs_cor:CashAndDeposits
@@ -54,6 +55,7 @@ code	label	xbrl_id	consumption_tax	income_tax
 442	創立費	jppfs_cor:DeferredOrganisationExpensesDA
 442	新株発行費	jppfs_cor:StockIssuanceCostDA
 443	社債発行費	jppfs_cor:BondIssuanceCostDA
+5	負債・純資産合計
 50	流動負債	jppfs_cor:CurrentLiabilitiesAbstract
 50XX	UNSETTLED_IMPORT
 510	支払手形	jppfs_cor:NotePayableTrade
@@ -72,6 +74,7 @@ code	label	xbrl_id	consumption_tax	income_tax
 712	長期借入金	jppfs_cor:LongTermLoansPayable
 713	退職給付引当金	jppfs_cor:ProvisionForRetirementBenefits
 714	繰延税金負債	jppfs_cor:DeferredTaxLiabilities
+8ZZ	負債合計
 90	純資産	jppfs_cor:NetAssetsAbstract
 91	株主資本	jppfs_cor:ShareholdersAbstract
 911	資本金	jppfs_cor:CapitalStock
@@ -89,6 +92,7 @@ code	label	xbrl_id	consumption_tax	income_tax
 922	為替換算調整勘定	jppfs_cor:ForeignCurrencyTranslationAdjustment
 93	新株予約権	jppfs_cor:SubscriptionRightsToShares
 940	非支配株主持分	jppfs_cor:NonControllingInterests
+9ZZ	純資産合計
 A0	売上	jppfs_cor:NetSalesAbstract
 A11	売上高	jppfs_cor:NetSales
 B0	売上原価	jppfs_cor:CostOfSalesAbstract

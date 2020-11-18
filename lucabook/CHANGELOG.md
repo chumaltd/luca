@@ -1,3 +1,8 @@
+## LucaBook 0.2.17
+
+* add `luca-book journals stats`
+* CLI option for  account level and legal requirement on BS generation
+
 ## LucaBook 0.2.16
 
 * Handle starting balance.

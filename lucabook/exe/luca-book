@@ -24,11 +24,17 @@ module LucaCmd
         # TODO: define default function
       end
     end
+
+    def self.stats(args, params)
+      LucaBook::State.term(*args).stats(params[:level])
+    end
   end
 
   class Report
     def self.balancesheet(args, params)
-      LucaBook::State.term(*args).bs #.to_yaml
+      level = params[:level] || 2
+      legal = params[:legal] || false
+      LucaBook::State.term(*args).bs(level, legal: legal)
     end
 
     def self.profitloss(args, params)
@@ -52,8 +58,8 @@ when /journals?/, 'j'
   when 'import'
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-book journals import filepath'
-      opt.on('-c', '--config VAL', 'import definition'){|v| params['config'] = v }
-      opt.on('-j', '--json', 'import via json format'){|_v| params['json'] = true }
+      opt.on('-c', '--config VAL', 'import definition'){ |v| params['config'] = v }
+      opt.on('-j', '--json', 'import via json format'){ |_v| params['json'] = true }
       args = opt.parse!(ARGV)
       LucaCmd::Journal.import(args, params)
     end
@@ -64,6 +70,13 @@ when /journals?/, 'j'
       opt.on_tail('List records. If you specify code and/or month, search on each criteria.')
       args = opt.parse!(ARGV)
       LucaCmd::Journal.list(args, params)
+    end
+  when 'stats'
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca-book reports bs'
+      opt.on('-l', '--level VAL', 'account level') { |v| params[:level] = v.to_i }
+      args = opt.parse!(ARGV)
+      LucaCmd::Journal.stats(args, params)
     end
   end
 when 'new'
@@ -79,6 +92,8 @@ when /reports?/, 'r'
   when 'bs'
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-book reports bs'
+      opt.on('-l', '--level VAL', 'account level') { |v| params[:level] = v.to_i }
+      opt.on('--legal', 'show legal mandatory account') { |_v| params[:legal] = true }
       args = opt.parse!(ARGV)
       LucaCmd::Report.balancesheet(args, params)
     end
