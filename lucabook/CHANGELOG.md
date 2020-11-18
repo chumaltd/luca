@@ -1,3 +1,7 @@
+## LucaBook master
+
+* append date on PL and stats
+
 ## LucaBook 0.2.17
 
 * add `luca-book journals stats`

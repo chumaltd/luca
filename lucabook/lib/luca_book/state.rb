@@ -47,9 +47,9 @@ module LucaBook
       reports = [].tap do |r|
         while date <= last_date do
           diff, count = accumulate_month(date.year, date.month)
-          r << diff
-          counts << count
-          date = date.next_month
+          r << diff.tap { |c| c['_d'] = date.to_s }
+          counts << count.tap { |c| c['_d'] = date.to_s }
+          date = Date.new(date.next_month.year, date.next_month.month, -1)
         end
       end
       new reports, counts
@@ -87,16 +87,18 @@ module LucaBook
       @statement ||= @data
       @statement.map do |report|
         {}.tap do |h|
-          report.each { |k, v| h[@dict.dig(k, :label)] = v }
+          report.each { |k, v| h[@dict.dig(k, :label) || k] = v }
         end
       end
     end
 
     def stats(level = nil)
-      keys = @count.map(&:keys).flatten.uniq.sort
+      keys = @count.map(&:keys).flatten.push('_t').uniq.sort
       @count.map! do |data|
+        sum = 0
         keys.each do |k|
           data[k] ||= 0
+          sum += data[k] if /^[^_]/.match(k)
           next if level.nil? || k.length <= level
 
           if data[k[0, level]]
@@ -106,6 +108,7 @@ module LucaBook
           end
         end
         data.select! { |k, _v| k.length <= level } if level
+        data['_t'] = sum
         data.sort.to_h
       end
       keys.map! { |k| k[0, level] }.uniq.select! { |k| k.length <= level } if level
@@ -155,8 +158,9 @@ module LucaBook
     end
 
     def pl
-      @statement = @data.map { |data| data.select { |k, _v| /^[A-H].+/.match(k) } }
+      @statement = @data.map { |data| data.select { |k, _v| /^[A-H_].+/.match(k) } }
       @statement << @statement.each_with_object({}) { |item, h| item.each { |k, v| h[k].nil? ? h[k] = v : h[k] += v } }
+                      .tap { |h| h['_d'] = 'Total' }
       self
     end
 
@@ -190,6 +194,7 @@ module LucaBook
 
         res['1'] = res['10'] + res['40']
         res['5'] = res['8ZZ'] + res['9ZZ'] + res['HA']
+        res['_d'] = report['_d']
 
         report.each do |k, v|
           if k.length >= 4
