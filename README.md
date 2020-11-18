@@ -2,7 +2,8 @@
 
 ## What's LucaSuite
 
-LucaSuite is work-in-progress ERP applications, named after [Luca Pacioli](https://en.wikipedia.org/wiki/Luca_Pacioli)(1447 - 1517).
+LucaSuite is work-in-progress ERP applications, named after [Luca Pacioli](https://en.wikipedia.org/wiki/Luca_Pacioli)(1447 - 1517).  
+Built on Ruby, its primary target is terminal environment for Linux, Android [Termux](https://termux.com/), Mac.
 
 * [LucaBook](lucabook/README.md): Accounting
 * [LucaDeal](lucadeal/README.md): Sales contract management
