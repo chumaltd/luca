@@ -18,7 +18,7 @@ module LucaDeal
     end
 
     def list_name
-      list = self.class.all.map { |dat| parse_current(dat) }
+      list = self.class.all.map { |dat| parse_current(dat).sort.to_h }
       YAML.dump(list).tap { |l| puts l }
     end
 

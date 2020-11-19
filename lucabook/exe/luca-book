@@ -12,6 +12,7 @@ module LucaCmd
         LucaBook::Import.import_json(STDIN.read)
       else
         puts 'Usage: luca-book import -c import_config'
+        exit 1
       end
     end
 
@@ -22,6 +23,7 @@ module LucaCmd
         LucaBook::List.term(*args).list_journals.to_yaml
       else
         # TODO: define default function
+        exit 1
       end
     end
 
@@ -57,7 +59,7 @@ when /journals?/, 'j'
   case subcmd
   when 'import'
     OptionParser.new do |opt|
-      opt.banner = 'Usage: luca-book journals import filepath'
+      opt.banner = 'Usage: luca-book journals import [options] filepath'
       opt.on('-c', '--config VAL', 'import definition'){ |v| params['config'] = v }
       opt.on('-j', '--json', 'import via json format'){ |_v| params['json'] = true }
       args = opt.parse!(ARGV)
@@ -65,7 +67,7 @@ when /journals?/, 'j'
     end
   when 'list'
     OptionParser.new do |opt|
-      opt.banner = 'Usage: luca-book journals list [year month]'
+      opt.banner = 'Usage: luca-book journals list [options] [YYYY M]'
       opt.on('-c', '--code VAL', 'search with code') { |v| params['code'] = v }
       opt.on_tail('List records. If you specify code and/or month, search on each criteria.')
       args = opt.parse!(ARGV)
@@ -73,15 +75,23 @@ when /journals?/, 'j'
     end
   when 'stats'
     OptionParser.new do |opt|
-      opt.banner = 'Usage: luca-book reports bs'
+      opt.banner = 'Usage: luca-book journals stats [options] YYYY M'
       opt.on('-l', '--level VAL', 'account level') { |v| params[:level] = v.to_i }
       args = opt.parse!(ARGV)
       LucaCmd::Journal.stats(args, params)
     end
+  else
+    puts 'Proper subcommand needed.'
+    puts
+    puts 'Usage: luca-book (j|journal[s]) subcommand [options] YYYY M [YYYY M]'
+    puts '  import: import journals from JSON/TSV'
+    puts '  list: list journals'
+    puts '  stats: list account statistics'
+    exit 1
   end
 when 'new'
   OptionParser.new do |opt|
-    opt.banner = 'Usage: luca-book new Dir'
+    opt.banner = 'Usage: luca-book new [options] Dir'
     opt.on('-c', '--country VAL', 'specify country code') { |v| params['coountry'] = v }
     args = opt.parse(ARGV)
     new_pj(args, params)
@@ -91,7 +101,7 @@ when /reports?/, 'r'
   case subcmd
   when 'bs'
     OptionParser.new do |opt|
-      opt.banner = 'Usage: luca-book reports bs'
+      opt.banner = 'Usage: luca-book reports bs [options]'
       opt.on('-l', '--level VAL', 'account level') { |v| params[:level] = v.to_i }
       opt.on('--legal', 'show legal mandatory account') { |_v| params[:legal] = true }
       args = opt.parse!(ARGV)
@@ -103,11 +113,19 @@ when /reports?/, 'r'
       args = opt.parse!(ARGV)
       LucaCmd::Report.profitloss(args, params)
     end
+  else
+    puts 'Proper subcommand needed.'
+    puts
+    puts 'Usage: luca-book (r|report[s]) (bs|pl) [options] YYYY M'
+    puts '  bs: show balance sheet'
+    puts '  pl: show statement of income'
+    exit 1
   end
-when '--help'
-  puts 'Usage: luca-book subcommand'
+else
+  puts 'Proper subcommand needed.'
+  puts
+  puts 'Usage: luca-book (j[ournals]|r[eports]) subcommand'
   puts '  journals: operate journal records'
   puts '  reports: show reports'
-else
-  puts 'Invalid subcommand'
+  exit 1
 end

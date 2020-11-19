@@ -56,6 +56,11 @@ when /profiles?/
       args = opt.parse(ARGV)
       LucaCmd::Profile.create(args)
     end
+  else
+    puts 'Proper subcommand needed.'
+    puts
+    puts 'Usage: luca-salary profile[s] create Name'
+    exit 1
   end
 when 'export'
   LucaCmd::Payment.export(ARGV)
@@ -75,7 +80,18 @@ when /payments?/
       args = opt.parse(ARGV)
       LucaCmd::Payment.list(args, params)
     end
+  else
+    puts 'Proper subcommand needed.'
+    puts
+    puts 'Usage: luca-salary payment[s] (create|list) [--help|options]'
+    exit 1
   end
 else
-  puts 'Invalid subcommand'
+  puts 'Proper subcommand needed.'
+  puts
+  puts 'Usage: luca-salary subcommand [options]'
+  puts '        profiles'
+  puts '        payments'
+  puts '        export: puts payment data for LucaBook import'
+  exit 1
 end

@@ -88,7 +88,8 @@ module LucaDeal
                 'customer' => invoice.dig('customer', 'name'),
                 'subtotal' => amount,
                 'tax' => tax,
-                'due' => invoice.dig('due_date')
+                'due' => invoice.dig('due_date'),
+                'mail' => invoice.dig('status')&.select { |a| a.keys.include?('mail_delivered') }&.first
               }
             end
             stat['issue_date'] = scan_date.to_s

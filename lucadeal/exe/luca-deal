@@ -131,7 +131,13 @@ when /customers?/
   when 'delete'
     LucaCmd::Customer.delete(ARGV)
   else
-    puts 'Usage: luca-deal customers sub-commands'
+    puts 'Proper subcommand needed.'
+    puts
+    puts 'Usage: luca-deal customer[s] subcommands [--help|options]'
+    puts '  create'
+    puts '  list'
+    puts '  delete'
+    exit 1
   end
 when /contracts?/
   subcmd = ARGV.shift
@@ -148,7 +154,12 @@ when /contracts?/
   when 'delete'
     LucaCmd::Contract.delete(ARGV)
   else
-    puts 'Usage: luca-deal contracts Subcommand'
+    puts 'Proper subcommand needed.'
+    puts
+    puts 'Usage: luca-deal contract[s] subcommand [--help|options]'
+    puts '  create'
+    puts '  delete'
+    exit 1
   end
 when 'export'
   LucaCmd::Invoice.export(ARGV)
@@ -158,7 +169,7 @@ when /invoices?/, 'i'
   when 'create'
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-deal invoices create [options] year month [date]'
-      opt.on('--monthly', 'generate monthly data') { |v| params['mode'] = 'monthly' }
+      opt.on('--monthly', 'generate monthly data') { |_v| params['mode'] = 'monthly' }
       args = opt.parse(ARGV)
       LucaCmd::Invoice.create(args, params)
     end
@@ -173,23 +184,35 @@ when /invoices?/, 'i'
   when 'mail'
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-deal invoices mail [options] year month [date]'
-      opt.on('--preview', 'send to preview user') { |v| params['mode'] = 'preview' }
+      opt.on('--preview', 'send to preview user') { |_v| params['mode'] = 'preview' }
       args = opt.parse(ARGV)
       LucaCmd::Invoice.mail(args, params)
     end
   else
-    puts 'Usage: luca-deal invoices SubCommand'
+    puts 'Proper subcommand needed.'
+    puts
+    puts 'Usage: luca-deal invoices subcommand [--help|options]'
+    puts '  create'
+    puts '  delete'
+    puts '  list'
+    puts '  mail: send mail with invoice'
+    exit 1
   end
 when 'new'
   params = {}
   OptionParser.new do |opt|
+    opt.banner = 'Usage: luca-deal new DIR'
     args = opt.parse(ARGV)
     new_pj(args, params)
   end
 else
-  puts 'Usage: luca-deal sub-command [--help|options]'
+  puts 'Proper subcommand needed.'
+  puts
+  puts 'Usage: luca-deal subcommand [options]'
   puts '        customers'
   puts '        contracts'
   puts '        invoices'
-  puts '        export'
+  puts '        new: initialize project dir'
+  puts '        export: puts invoice data for LucaBook import'
+  exit 1
 end
