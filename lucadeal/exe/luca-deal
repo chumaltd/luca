@@ -19,11 +19,21 @@ module LucaCmd
     end
 
     def self.delete(args = nil, params = {})
-      if args
-        id = LucaDeal::Customer.delete(args[0])
-      else
+      if args.empty?
+        list = LucaDeal::Customer.id_completion('')
         puts 'requires customer\'s id. exit'
+        list.each { |item| puts "  #{item[:id]}  #{item[:label]}" }
         exit 1
+      else
+        list = LucaDeal::Customer.id_completion(args[0])
+        case list.length
+        when 1
+          id = LucaDeal::Customer.delete(list.first)
+        else
+          puts 'found multiple customer\'s id. exit'
+          list.each { |item| puts "  #{item[:id]}  #{item[:label]}" }
+          exit 1
+        end
       end
     end
 
@@ -34,22 +44,42 @@ module LucaCmd
 
   class Contract
     def self.create(args = nil, params = {})
-      if args
-        id = LucaDeal::Contract.new.generate!(args[0], params['category'])
-        puts "Successfully generated Contract  #{id}" if id
-        puts 'Conditions are tentative. Edit contract detail.' if id
-      else
+      if args.empty?
+        list = LucaDeal::Customer.id_completion('')
         puts 'requires customer\'s id. exit'
+        list.each { |item| puts "  #{item[:id]}  #{item[:label]}" }
         exit 1
+      else
+        list = LucaDeal::Customer.id_completion(args[0])
+        case list.length
+        when 1
+          id = LucaDeal::Contract.new.generate!(list.first, params['category'])
+          puts "Successfully generated Contract  #{id}" if id
+          puts 'Conditions are tentative. Edit contract detail.' if id
+        else
+          puts 'found multiple customer\'s id. exit'
+          list.each { |item| puts "  #{item[:id]}  #{item[:label]}" }
+          exit 1
+        end
       end
     end
 
     def self.delete(args = nil, params = {})
-      if args
-        id = LucaDeal::Contract.delete(args[0])
-      else
+      if args.empty?
+        list = LucaDeal::Contract.id_completion('', label: 'customer_name')
         puts 'requires contract id. exit'
+        list.each { |item| puts "  #{item[:id]}  #{item[:label]}" }
         exit 1
+      else
+        list = LucaDeal::Contract.id_completion(args[0])
+        case list.length
+        when 1
+          id = LucaDeal::Contract.delete(list.first)
+        else
+          puts 'found multiple contract id. exit'
+          list.each { |item| puts "  #{item[:id]}  #{item[:label]}" }
+          exit 1
+        end
       end
     end
   end

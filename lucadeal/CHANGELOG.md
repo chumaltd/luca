@@ -1,3 +1,7 @@
+## LucaDeal master
+
+* CLI id completion on Customer delete, Contract create/delete
+
 ## LucaDeal 0.2.18
 
 * Breaking change: restructure CLI in sub-sub command format.

@@ -119,6 +119,31 @@ module LucaRecord # :nodoc:
         end
       end
 
+      # If multiple ID matched, return short ID and human readable label.
+      #
+      def id_completion(phrase, label: 'name', basedir: @dirname)
+        list = prefix_search(phrase, basedir: basedir)
+        case list.length
+        when 1
+          list
+        when 0
+          raise 'No match on specified phrase'
+        else
+          (3..list[0].length).each do |l|
+            if list.map { |id| id[0, l] }.uniq.length == list.length
+              return list.map { |id| { id: id[0, l], label: find(id).dig(label) } }
+            end
+          end
+        end
+      end
+
+      def prefix_search(phrase, basedir: @dirname)
+        glob_str = phrase.length <= 3 ? "#{phrase}*/*" : "#{id2path(phrase)}*"
+        Dir.chdir(abs_path(basedir)) do
+          Dir.glob(glob_str).to_a.map! { |path| path.gsub!('/', '') }
+        end
+      end
+
       def prepare_dir!(basedir, date_obj)
         dir_name = (Pathname(basedir) + LucaSupport::Code.encode_dirname(date_obj)).to_s
         FileUtils.mkdir_p(dir_name) unless Dir.exist?(dir_name)

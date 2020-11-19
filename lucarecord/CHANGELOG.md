@@ -1,3 +1,7 @@
+## LucaRecord 0.2.20
+
+* UUID completion framework on prefix match
+
 ## LucaRecord 0.2.19
 
 * `LucaSupport::Code.decode_id()`
