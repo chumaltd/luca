@@ -18,6 +18,25 @@ module LucaCmd
       end
     end
 
+    def self.describe(args = nil, params = {})
+      if args.empty?
+        list = LucaDeal::Customer.id_completion('')
+        puts 'requires customer\'s id. exit'
+        list.each { |item| puts "  #{item[:id]}  #{item[:label]}" }
+        exit 1
+      else
+        list = LucaDeal::Customer.id_completion(args[0])
+        case list.length
+        when 1
+          id = LucaDeal::Customer.new.describe(list.first)
+        else
+          puts 'found multiple contract id. exit'
+          list.each { |item| puts "  #{item[:id]}  #{item[:label]}" }
+          exit 1
+        end
+      end
+    end
+
     def self.delete(args = nil, params = {})
       if args.empty?
         list = LucaDeal::Customer.id_completion('')
@@ -58,6 +77,25 @@ module LucaCmd
           puts 'Conditions are tentative. Edit contract detail.' if id
         else
           puts 'found multiple customer\'s id. exit'
+          list.each { |item| puts "  #{item[:id]}  #{item[:label]}" }
+          exit 1
+        end
+      end
+    end
+
+    def self.describe(args = nil, params = {})
+      if args.empty?
+        list = LucaDeal::Contract.id_completion('', label: 'customer_name')
+        puts 'requires contract id. exit'
+        list.each { |item| puts "  #{item[:id]}  #{item[:label]}" }
+        exit 1
+      else
+        list = LucaDeal::Contract.id_completion(args[0])
+        case list.length
+        when 1
+          id = LucaDeal::Contract.new.describe(list.first)
+        else
+          puts 'found multiple contract id. exit'
           list.each { |item| puts "  #{item[:id]}  #{item[:label]}" }
           exit 1
         end
@@ -158,6 +196,8 @@ when /customers?/
       args = opt.parse(ARGV)
       LucaCmd::Customer.create(args, params)
     end
+  when 'describe'
+    LucaCmd::Customer.describe(ARGV)
   when 'delete'
     LucaCmd::Customer.delete(ARGV)
   else
@@ -166,6 +206,7 @@ when /customers?/
     puts 'Usage: luca-deal customer[s] subcommands [--help|options]'
     puts '  create'
     puts '  list'
+    puts '  describe: show customer with contracts info'
     puts '  delete'
     exit 1
   end
@@ -181,6 +222,8 @@ when /contracts?/
       args = opt.parse(ARGV)
       LucaCmd::Contract.create(args, params)
     end
+  when 'describe'
+    LucaCmd::Contract.describe(ARGV)
   when 'delete'
     LucaCmd::Contract.delete(ARGV)
   else
@@ -188,6 +231,7 @@ when /contracts?/
     puts
     puts 'Usage: luca-deal contract[s] subcommand [--help|options]'
     puts '  create'
+    puts '  describe: show contract with puroducts or items info'
     puts '  delete'
     exit 1
   end

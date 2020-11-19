@@ -22,6 +22,21 @@ module LucaDeal
       YAML.dump(list).tap { |l| puts l }
     end
 
+    def describe(id)
+      customer = parse_current(self.class.find(id))
+      contracts = LucaDeal::Contract.all.select { |contract| contract['customer_id'] == customer['id'] }
+      if !contracts.empty?
+        customer['contracts'] = contracts.map do |c|
+          {
+            'id' => c['id'],
+            'effective' => c['terms']['effective'],
+            'defunct' => c['terms']['defunct']
+          }
+        end
+      end
+      YAML.dump(readable(customer)).tap{ |d| puts d }
+    end
+
     def self.create(obj)
       raise ':name is required' if obj[:name].nil?
 

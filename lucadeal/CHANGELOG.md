@@ -1,6 +1,7 @@
-## LucaDeal master
+## LucaDeal 0.2.19
 
 * CLI id completion on Customer delete, Contract create/delete
+* add `describe` to Customer / Contract
 
 ## LucaDeal 0.2.18
 
