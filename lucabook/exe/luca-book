@@ -33,7 +33,7 @@ module LucaCmd
 
   class Report
     def self.balancesheet(args, params)
-      level = params[:level] || 2
+      level = params[:level] || 3
       legal = params[:legal] || false
       args = LucaCmd.gen_range(params[:n] || 1) if args.empty?
       LucaBook::State.term(*args).bs(level, legal: legal)

@@ -3,10 +3,12 @@
 require 'pathname'
 require 'yaml'
 
-#
 # startup config
 #
 module LucaSupport
+  PJDIR = ENV['LUCA_TEST_DIR'] || Dir.pwd.freeze
+  CONFIG = YAML.load_file(Pathname(PJDIR) / 'config.yml', **{})
+
   module Config
     # Project top directory.
     Pjdir = ENV['LUCA_TEST_DIR'] || Dir.pwd.freeze

@@ -1,3 +1,7 @@
+## LucaBook 0.2.19
+
+* config `fy_start` month. BS/PL is calculated on Financial Year basis.
+
 ## LucaBook 0.2.18
 
 * CLI generates reports without args

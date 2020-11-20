@@ -17,10 +17,11 @@ module LucaBook
 
     attr_reader :statement
 
-    def initialize(data, count = nil)
+    def initialize(data, count = nil, date: nil)
       @data = data
       @count = count
       @dict = LucaRecord::Dict.load('base.tsv')
+      @start_date = date
       @start_balance = set_balance
     end
 
@@ -52,7 +53,7 @@ module LucaBook
           date = Date.new(date.next_month.year, date.next_month.month, -1)
         end
       end
-      new reports, counts
+      new(reports, counts, date: Date.new(from_year.to_i, from_month.to_i, -1))
     end
 
     def by_code(code, year=nil, month=nil)
@@ -118,18 +119,19 @@ module LucaBook
     end
 
     def bs(level = 3, legal: false)
+      @start_balance.keys.each { |k| @data.first[k] ||= 0 }
       @data.map! { |data| data.select { |k, _v| k.length <= level } }
       @data.map! { |data| code_sum(data).merge(data) } if legal
       base = accumulate_balance(@data)
-      length = [base[:debit].length, base[:credit].length].max
+      rows = [base[:debit].length, base[:credit].length].max
       @statement = [].tap do |a|
-        length.times do |i|
+        rows.times do |i|
           {}.tap do |res|
             res['debit_label'] = base[:debit][i] ? @dict.dig(base[:debit][i].keys[0], :label) : ''
-            res['debit_balance'] = base[:debit][i] ? @start_balance.dig(base[:debit][i].keys[0]) + base[:debit][i].values[0] : ''
+            res['debit_balance'] = base[:debit][i] ? (@start_balance.dig(base[:debit][i].keys[0]) || 0) + base[:debit][i].values[0] : ''
             res['debit_diff'] = base[:debit][i] ? base[:debit][i].values[0] : ''
             res['credit_label'] = base[:credit][i] ? @dict.dig(base[:credit][i].keys[0], :label) : ''
-            res['credit_balance'] = base[:credit][i] ? @start_balance.dig(base[:credit][i].keys[0]) + base[:credit][i].values[0] : ''
+            res['credit_balance'] = base[:credit][i] ? (@start_balance.dig(base[:credit][i].keys[0]) || 0) + base[:credit][i].values[0] : ''
             res['credit_diff'] = base[:credit][i] ? base[:credit][i].values[0] : ''
             a << res
           end
@@ -144,9 +146,9 @@ module LucaBook
         month.each do |k, v|
           h[k] = h[k].nil? ? v : h[k] + v
         end
-      end.sort.to_h
+      end
       { debit: [], credit: [] }.tap do |res|
-        data.each do |k, v|
+        data.sort.to_h.each do |k, v|
           case k
           when /^[0-4].*/
             res[:debit] << { k => v }
@@ -159,9 +161,34 @@ module LucaBook
 
     def pl
       @statement = @data.map { |data| data.select { |k, _v| /^[A-H_].+/.match(k) } }
-      @statement << @statement.each_with_object({}) { |item, h| item.each { |k, v| h[k].nil? ? h[k] = v : h[k] += v } }
-                      .tap { |h| h['_d'] = 'Total' }
+      term = @statement.each_with_object({}) { |item, h| item.each { |k, v| h[k].nil? ? h[k] = v : h[k] += v } }
+      fy = @start_balance.select { |k, _v| /^[A-H].+/.match(k) }
+      fy = {}.tap do |h|
+        (term.keys + fy.keys).uniq.each do |k|
+          h[k] = (fy[k] || 0).to_i + (term[k] || 0).to_i
+        end
+      end
+      @statement << term.tap { |h| h['_d'] = 'Period Total' }
+      @statement << fy.tap { |h| h['_d'] = 'FY Total' }
       self
+    end
+
+    def self.accumulate_term(start_year, start_month, end_year, end_month)
+      date = Date.new(start_year, start_month, 1)
+      last_date = Date.new(end_year, end_month, -1)
+      return nil if date > last_date
+
+      {}.tap do |res|
+        while date <= last_date do
+          diff, _count = net(date.year, date.month)
+          diff.each do |k, v|
+            next if /^[_]/.match(k)
+
+            res[k] = res[k].nil? ? v : res[k] + v
+          end
+          date = date.next_month
+        end
+      end
     end
 
     def self.accumulate_month(year, month)
@@ -187,17 +214,23 @@ module LucaBook
         res['H0'] = sum_matched(report, /^[H][0-9][0-9A-Z]{1,}/)
         res['HA'] = res['GA'] - res['H0']
 
-        res['9142'] = (report['9142'] || 0) + res['HA']
+        report['9142'] = (report['9142'] || 0) + res['HA']
+        res['9142'] = report['9142']
         res['10'] = sum_matched(report, /^[123][0-9A-Z]{2,}/)
         res['40'] = sum_matched(report, /^[4][0-9A-Z]{2,}/)
         res['50'] = sum_matched(report, /^[56][0-9A-Z]{2,}/)
         res['70'] = sum_matched(report, /^[78][0-9A-Z]{2,}/)
+        res['91'] = sum_matched(report, /^91[0-9A-Z]{1,}/)
         res['8ZZ'] = res['50'] + res['70']
         res['9ZZ'] = sum_matched(report, /^[9][0-9A-Z]{2,}/)
 
         res['1'] = res['10'] + res['40']
-        res['5'] = res['8ZZ'] + res['9ZZ'] + res['HA']
+        res['5'] = res['8ZZ'] + res['9ZZ']
         res['_d'] = report['_d']
+
+        report.each do |k, v|
+          res[k] = v if k.length == 3
+        end
 
         report.each do |k, v|
           if k.length >= 4
@@ -219,10 +252,22 @@ module LucaBook
     end
 
     def set_balance
+      pre_last = @start_date.prev_month
+      pre = if @start_date.month > LucaSupport::CONFIG['fy_start'].to_i
+              self.class.accumulate_term(pre_last.year, LucaSupport::CONFIG['fy_start'], pre_last.year, pre_last.month)
+            elsif @start_date.month < LucaSupport::CONFIG['fy_start'].to_i
+              self.class.accumulate_term(pre_last.year - 1, LucaSupport::CONFIG['fy_start'], pre_last.year, pre_last.month)
+            end
+
       base = Dict.latest_balance.each_with_object({}) do |(k, v), h|
         h[k] = v[:balance].to_i if v[:balance]
       end
-      code_sum(base).merge(self.class.total_subaccount(base))
+      if pre
+        idx = (pre.keys + base.keys).uniq
+        base = {}.tap { |h| idx.each { |k| h[k] = (base[k] || 0) + (pre[k] || 0) } }
+      end
+      #code_sum(base).merge(self.class.total_subaccount(base))
+      self.class.total_subaccount(base)
     end
 
     def self.sum_matched(report, reg)
@@ -291,9 +336,9 @@ module LucaBook
     # TODO: replace load_tsv -> generic load_tsv_dict
     def load_start
       file = Pathname(LucaSupport::Config::Pjdir) / 'data' / 'balance' / 'start.tsv'
-      {}.tap do |dic|
+      {}.tap do |dict|
         load_tsv(file) do |row|
-          dic[row[0]] = row[2].to_i if ! row[2].nil?
+          dict[row[0]] = row[2].to_i if ! row[2].nil?
         end
       end
     end
