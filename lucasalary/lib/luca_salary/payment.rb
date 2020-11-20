@@ -17,31 +17,28 @@ module LucaSalary
       @dict = LucaRecord::Dict.load_tsv_dict(@pjdir / 'dict' / 'code.tsv')
     end
 
-    # create record with LucaSalary::Profile instance and apyment data
-    #
-    def create(profile, payment)
-      id = profile.dig('id')
-      if self.class.search(@date.year, @date.month, @date.day, id).first
-        puts "payment record already exists: #{id}"
-        return nil
-      end
-
-      self.class.create(payment, date: @date, codes: Array(id))
-    end
-
     def payslip
       {}.tap do |report|
         report['asof'] = "#{@date.year}/#{@date.month}"
+        report['payments'] = []
         report['records'] = []
 
         self.class.asof(@date.year, @date.month) do |payment|
+          profile = LucaSalary::Profile.find(payment['profile_id'])
+          summary = {
+            'name' => profile['name'],
+            "#{@dict.dig('5', :label) || '5'}" => payment['5']
+          }
+
           slip = {}.tap do |line|
+            line['name'] = profile['name']
             payment.each do |k, v|
               next if k == 'id'
 
               line["#{@dict.dig(k, :label) || k}"] = v
             end
           end
+          report['payments'] << summary
           report['records'] << slip
         end
       end

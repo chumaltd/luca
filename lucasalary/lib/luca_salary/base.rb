@@ -9,28 +9,14 @@ require 'luca_record'
 
 module LucaSalary
   class Base < LucaRecord::Base
-    attr_reader :driver, :dict, :config, :pjdir
+    attr_reader :dict, :config, :pjdir
     @dirname = 'payments'
 
     def initialize(date = nil)
       @date = date.nil? ? Date.today : Date.parse(date)
       @pjdir = Pathname(LucaSupport::Config::Pjdir)
       @config = load_config(@pjdir / 'config.yml')
-      @driver = set_driver
       @dict = load_dict
-    end
-
-    #
-    # call country specific calculation
-    #
-    def calc
-      self.class.prepare_dir!(datadir / 'payments', @date)
-      country = @driver.new(@pjdir, @config, @date)
-      LucaSalary::Profile.all do |profile|
-        current_profile = parse_current(profile)
-        h = country.calc_payment(current_profile)
-        LucaSalary::Payment.new(@date.to_s).create(current_profile, h)
-      end
     end
 
     def gen_aggregation!
@@ -60,7 +46,6 @@ module LucaSalary
       dat.filter { |k, _v| /^#{code}[0-9A-Fa-f]{,3}$/.match(k.to_s) }
     end
 
-    #
     # Subtotal each items.
     # 1::
     #    Base salary or wages.

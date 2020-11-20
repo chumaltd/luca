@@ -9,14 +9,33 @@ require 'luca_salary'
 require 'luca_record'
 
 module LucaSalary
-  class Monthly < LucaRecord::Base
+  class Monthly < LucaSalary::Base
+    @dirname = 'payments'
+
     def initialize(date = nil)
-      @date = parse_date(date)
+      @date = date.nil? ? Date.today : Date.parse(date)
       @pjdir = Pathname(LucaSupport::Config::Pjdir)
       @config = load_config(@pjdir + 'config.yml')
+      @driver = set_driver
     end
 
+    # call country specific calculation
     #
+    def calc
+      country = @driver.new(@pjdir, @config, @date)
+      # TODO: handle retirement
+      LucaSalary::Profile.all do |profile|
+        current_profile = parse_current(profile)
+        if self.class.search(@date.year, @date.month, @date.day, current_profile['id']).count > 0
+          puts "payment record already exists: #{current_profile['id']}"
+          return nil
+        end
+        h = country.calc_payment(current_profile)
+        h['profile_id'] = current_profile['id']
+        self.class.create(h, date: @date, codes: Array(current_profile['id']))
+      end
+    end
+
     # output payslips via mail or console
     #
     def report(mode = nil)

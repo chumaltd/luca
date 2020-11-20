@@ -16,9 +16,9 @@ module LucaCmd
     def self.create(args = nil, _params = nil)
       if args
         args << 28 if args.length == 2 # specify safe last day
-        LucaSalary::Base.new(args.join('-')).calc
+        LucaSalary::Monthly.new(args.join('-')).calc
       else
-        LucaSalary::Base.new.calc
+        LucaSalary::Monthly.new.calc
       end
     end
 
