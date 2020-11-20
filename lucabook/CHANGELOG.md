@@ -1,5 +1,6 @@
-## LucaBook master
+## LucaBook 0.2.18
 
+* CLI generates reports without args
 * append date on PL and stats
 
 ## LucaBook 0.2.17
