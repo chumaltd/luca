@@ -40,8 +40,9 @@ module LucaCmd
     end
 
     def self.profitloss(args, params)
+      level = params[:level] || 2
       args = LucaCmd.gen_range(params[:n]) if args.empty?
-      LucaBook::State.term(*args).pl.to_yaml
+      LucaBook::State.term(*args).pl(level).to_yaml
     end
   end
 
@@ -121,6 +122,7 @@ when /reports?/, 'r'
   when 'pl'
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-book reports pl [options] [YYYY M YYYY M]'
+      opt.on('-l', '--level VAL', 'account level') { |v| params[:level] = v.to_i }
       opt.on('-n VAL', 'report count') { |v| params[:n] = v.to_i }
       args = opt.parse!(ARGV)
       LucaCmd::Report.profitloss(args, params)

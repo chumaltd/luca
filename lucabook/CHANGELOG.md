@@ -1,3 +1,8 @@
+## LucaBook 0.2.20
+
+* use BigDecimal for statement calculation.
+* CLI option for account level(-l, --level) on PL generation
+
 ## LucaBook 0.2.19
 
 * config `fy_start` month. BS/PL is calculated on Financial Year basis.
@@ -10,7 +15,7 @@
 ## LucaBook 0.2.17
 
 * add `luca-book journals stats`
-* CLI option for  account level and legal requirement on BS generation
+* CLI option for account level(-l, --level) and legal requirement(--legal) on BS generation
 
 ## LucaBook 0.2.16
 

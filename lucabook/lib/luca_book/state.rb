@@ -81,7 +81,7 @@ module LucaBook
     end
 
     def to_yaml
-      YAML.dump(code2label).tap { |data| puts data }
+      YAML.dump(readable(code2label)).tap { |data| puts data }
     end
 
     def code2label
@@ -137,7 +137,7 @@ module LucaBook
           end
         end
       end
-      puts YAML.dump(@statement)
+      puts YAML.dump(readable(@statement))
       self
     end
 
@@ -159,13 +159,25 @@ module LucaBook
       end
     end
 
-    def pl
-      @statement = @data.map { |data| data.select { |k, _v| /^[A-H_].+/.match(k) } }
-      term = @statement.each_with_object({}) { |item, h| item.each { |k, v| h[k].nil? ? h[k] = v : h[k] += v } }
+    def pl(level = 2)
+      term_keys = @data.inject([]) { |a, data| a + data.keys }
+                    .compact.select { |k| /^[A-H_].+/.match(k) }
       fy = @start_balance.select { |k, _v| /^[A-H].+/.match(k) }
+      keys = (term_keys + fy.keys).uniq.sort
+      keys.select! { |k| k.length <= level }
+      @statement = @data.map do |data|
+        {}.tap do |h|
+          keys.each { |k| h[k] = data[k] || BigDecimal('0') }
+        end
+      end
+      term = @statement.each_with_object({}) do |item, h|
+        item.each do |k, v|
+          h[k] = h[k].nil? ? v : h[k] + v if /^[^_]/.match(k)
+        end
+      end
       fy = {}.tap do |h|
-        (term.keys + fy.keys).uniq.each do |k|
-          h[k] = (fy[k] || 0).to_i + (term[k] || 0).to_i
+        keys.each do |k|
+          h[k] = BigDecimal(fy[k] || '0') + BigDecimal(term[k] || '0')
         end
       end
       @statement << term.tap { |h| h['_d'] = 'Period Total' }
@@ -214,7 +226,7 @@ module LucaBook
         res['H0'] = sum_matched(report, /^[H][0-9][0-9A-Z]{1,}/)
         res['HA'] = res['GA'] - res['H0']
 
-        report['9142'] = (report['9142'] || 0) + res['HA']
+        report['9142'] = (report['9142'] || BigDecimal('0')) + res['HA']
         res['9142'] = report['9142']
         res['10'] = sum_matched(report, /^[123][0-9A-Z]{2,}/)
         res['40'] = sum_matched(report, /^[4][0-9A-Z]{2,}/)
@@ -260,13 +272,14 @@ module LucaBook
             end
 
       base = Dict.latest_balance.each_with_object({}) do |(k, v), h|
-        h[k] = v[:balance].to_i if v[:balance]
+        h[k] = BigDecimal(v[:balance].to_s) if v[:balance]
       end
       if pre
         idx = (pre.keys + base.keys).uniq
-        base = {}.tap { |h| idx.each { |k| h[k] = (base[k] || 0) + (pre[k] || 0) } }
+        base = {}.tap do |h|
+          idx.each { |k| h[k] = (base[k] || BigDecimal('0')) + (pre[k] || BigDecimal('0')) }
+        end
       end
-      #code_sum(base).merge(self.class.total_subaccount(base))
       self.class.total_subaccount(base)
     end
 
@@ -275,6 +288,7 @@ module LucaBook
     end
 
     # for assert purpose
+    #
     def self.gross(year, month = nil, code = nil, date_range = nil, rows = 4)
       if ! date_range.nil?
         raise if date_range.class != Range
@@ -287,27 +301,28 @@ module LucaBook
         CSV.new(f, headers: false, col_sep: "\t", encoding: 'UTF-8')
           .each_with_index do |row, i|
           break if i >= rows
+
           case i
           when 0
             idx_memo = row.map(&:to_s)
             idx_memo.each do |r|
-              sum[:debit][r] ||= 0
+              sum[:debit][r] ||= BigDecimal('0')
               sum[:debit_count][r] ||= 0
             end
           when 1
             row.each_with_index do |r, j|
-              sum[:debit][idx_memo[j]] += r.to_i # TODO: bigdecimal support
+              sum[:debit][idx_memo[j]] += BigDecimal(r.to_s)
               sum[:debit_count][idx_memo[j]] += 1
             end
           when 2
             idx_memo = row.map(&:to_s)
             idx_memo.each do |r|
-              sum[:credit][r] ||= 0
+              sum[:credit][r] ||= BigDecimal('0')
               sum[:credit_count][r] ||= 0
             end
           when 3
             row.each_with_index do |r, j|
-              sum[:credit][idx_memo[j]] += r.to_i # TODO: bigdecimal support
+              sum[:credit][idx_memo[j]] += BigDecimal(r.to_s)
               sum[:credit_count][idx_memo[j]] += 1
             end
           else
@@ -319,35 +334,27 @@ module LucaBook
     end
 
     # netting vouchers in specified term
+    #
     def self.net(year, month = nil, code = nil, date_range = nil)
       g = gross(year, month, code, date_range)
       idx = (g[:debit].keys + g[:credit].keys).uniq.sort
       count = {}
       diff = {}.tap do |sum|
         idx.each do |code|
-          sum[code] = g.dig(:debit, code).nil? ? 0 : Util.calc_diff(g[:debit][code], code)
-          sum[code] -= g.dig(:credit, code).nil? ? 0 : Util.calc_diff(g[:credit][code], code)
+          sum[code] = g.dig(:debit, code).nil? ? BigDecimal('0') : Util.calc_diff(g[:debit][code], code)
+          sum[code] -= g.dig(:credit, code).nil? ? BigDecimal('0') : Util.calc_diff(g[:credit][code], code)
           count[code] = (g.dig(:debit_count, code) || 0) + (g.dig(:credit_count, code) || 0)
         end
       end
       [diff, count]
     end
 
-    # TODO: replace load_tsv -> generic load_tsv_dict
+    # TODO: obsolete in favor of Dict.latest_balance()
     def load_start
       file = Pathname(LucaSupport::Config::Pjdir) / 'data' / 'balance' / 'start.tsv'
       {}.tap do |dict|
-        load_tsv(file) do |row|
-          dict[row[0]] = row[2].to_i if ! row[2].nil?
-        end
+        LucaRecord::Dict.load_tsv_dict(file).each { |k, v| h[k] = v[:balance] if !v[:balance].nil? }
       end
-    end
-
-    def load_tsv(path)
-      return enum_for(:load_tsv, path) unless block_given?
-
-      data = CSV.read(path, headers: true, col_sep: "\t", encoding: 'UTF-8')
-      data.each { |row| yield row }
     end
 
     private

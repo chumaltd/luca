@@ -132,14 +132,18 @@ module LucaSupport
     end
 
     def readable(obj, len = LucaSupport::Config::DECIMAL_NUM)
-      case obj.class.name
-      when 'Array'
+      case obj
+      when Array
         obj.map { |i| readable(i) }
-      when 'Hash'
+      when Hash
         obj.inject({}) { |h, (k, v)| h[k] = readable(v); h }
-      when 'BigDecimal'
-        parts = obj.round(len).to_s('F').split('.')
-        len < 1 ? parts.first : "#{parts[0]}.#{parts[1][0, len]}"
+      when BigDecimal
+        if len == 0
+          obj.round # Integer is precise
+        else
+          parts = obj.round(len).to_s('F').split('.')
+          "#{parts[0]}.#{parts[1][0, len]}"
+        end
       else
         obj
       end
