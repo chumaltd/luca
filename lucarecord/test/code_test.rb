@@ -62,8 +62,12 @@ class LucaSupport::CodeTest < Minitest::Test
   end
 
   def test_delimit_num
-    assert_equal '1,000,000', LucaSupport::Code.delimit_num(1_000_000)
-    assert_equal '1,000,000', LucaSupport::Code.delimit_num('1000000')
+    assert_equal '1 000 000', LucaSupport::Code.delimit_num(1_000_000)
+    assert_equal '1 000 000', LucaSupport::Code.delimit_num('1000000')
+    assert_equal '1 000 000', LucaSupport::Code.delimit_num(BigDecimal('1000000'), decimal: 0)
+    assert_equal '1 000 000.123 4', LucaSupport::Code.delimit_num(BigDecimal('1000000.12345'), decimal: 4)
+    assert_equal '1,000,000.12', LucaSupport::Code.delimit_num(BigDecimal('1000000.12345'), decimal: 2, delimiter: ',')
+    assert_nil LucaSupport::Code.delimit_num(nil)
   end
 
   def test_issue_random_id

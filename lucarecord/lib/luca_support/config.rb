@@ -7,7 +7,11 @@ require 'yaml'
 #
 module LucaSupport
   PJDIR = ENV['LUCA_TEST_DIR'] || Dir.pwd.freeze
-  CONFIG = YAML.load_file(Pathname(PJDIR) / 'config.yml', **{})
+  CONFIG = begin
+             YAML.load_file(Pathname(PJDIR) / 'config.yml', **{})
+           rescue Errno::ENOENT
+             {}
+           end
 
   module Config
     # Project top directory.

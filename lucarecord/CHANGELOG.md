@@ -1,3 +1,7 @@
+## LucaRecord 0.2.21
+
+* Enhance `LucaSupport::Code.delimit_num()`. Handle with BigDecimal, decimal length & delmiter customization.
+
 ## LucaRecord 0.2.20
 
 * UUID completion framework on prefix match
