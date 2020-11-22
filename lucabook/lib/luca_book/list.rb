@@ -74,10 +74,6 @@ module LucaBook
       end
     end
 
-    def to_yaml
-      YAML.dump(LucaSupport::Code.readable(@data)).tap { |data| puts data }
-    end
-
     private
 
     def set_balance

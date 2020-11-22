@@ -25,20 +25,6 @@ module LucaBook
       @start_balance = set_balance
     end
 
-    # TODO: not compatible with LucaRecord::Base.open_records
-    def search_tag(code)
-      count = 0
-      Dir.children(LucaSupport::Config::Pjdir).sort.each do |dir|
-        next if ! FileTest.directory?(LucaSupport::Config::Pjdir+dir)
-
-        open_records(datadir, dir, 3) do |row, i|
-          next if i == 2
-          count += 1 if row.include?(code)
-        end
-      end
-      puts "#{code}: #{count}"
-    end
-
     def self.term(from_year, from_month, to_year = from_year, to_month = from_month)
       date = Date.new(from_year.to_i, from_month.to_i, -1)
       last_date = Date.new(to_year.to_i, to_month.to_i, -1)
@@ -80,20 +66,7 @@ module LucaBook
           date = Date.new(date.next_month.year, date.next_month.month, -1)
         end
       end
-      #YAML.dump(LucaSupport::Code.readable(reports)) #.tap{ |data| puts data }
-      #new(reports, counts, date: Date.new(from_year.to_i, from_month.to_i, -1))
       LucaSupport::Code.readable(reports)
-    end
-
-    def records_with_balance(year, month, code, balance)
-      @book.search(year, month, nil, code).each do |h|
-        balance += Util.calc_diff(Util.amount_by_code(h[:debit], code), code) - Util.calc_diff(Util.amount_by_code(h[:credit], code), code)
-        h[:balance] = balance
-      end
-    end
-
-    def to_yaml
-      YAML.dump(readable(code2label)).tap { |data| puts data }
     end
 
     def code2label
@@ -369,14 +342,6 @@ module LucaBook
         end
       end
       [diff, count]
-    end
-
-    # TODO: obsolete in favor of Dict.latest_balance()
-    def load_start
-      file = Pathname(LucaSupport::Config::Pjdir) / 'data' / 'balance' / 'start.tsv'
-      {}.tap do |dict|
-        LucaRecord::Dict.load_tsv_dict(file).each { |k, v| h[k] = v[:balance] if !v[:balance].nil? }
-      end
     end
 
     private
