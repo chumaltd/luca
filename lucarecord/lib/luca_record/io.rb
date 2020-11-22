@@ -62,7 +62,7 @@ module LucaRecord # :nodoc:
       def term(start_year, start_month, end_year, end_month, code = nil, basedir = @dirname)
         return enum_for(:term, start_year, start_month, end_year, end_month, code, basedir) unless block_given?
 
-        LucaSupport::Code.encode_term(start_year, start_month, end_year, end_month).each do |subdir| 
+        LucaSupport::Code.encode_term(start_year, start_month, end_year, end_month).each do |subdir|
           open_records(basedir, subdir, nil, code) do |f, path|
             if @record_type == 'raw'
               yield f, path

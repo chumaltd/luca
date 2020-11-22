@@ -42,5 +42,10 @@ module LucaSupport
       end
       nil
     end
+
+    def nushell(yml)
+      require 'open3'
+      Open3.pipeline_w(%(nu -c 'cat - | from yaml')) { |stdin| stdin.puts yml }
+    end
   end
 end

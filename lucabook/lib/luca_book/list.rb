@@ -47,7 +47,7 @@ module LucaBook
           res['note'] = dat[:note]
         end
       end
-      self
+      readable(@data)
     end
 
     def list_journals
@@ -65,7 +65,7 @@ module LucaBook
           res['note'] = dat[:note]
         end
       end
-      self
+      readable(@data)
     end
 
     def accumulate_code

@@ -56,21 +56,33 @@ module LucaBook
       new(reports, counts, date: Date.new(from_year.to_i, from_month.to_i, -1))
     end
 
-    def by_code(code, year=nil, month=nil)
-      raise 'not supported year range yet' if ! year.nil? && month.nil?
+    def self.by_code(code, from_year, from_month, to_year = from_year, to_month = from_month)
+      date = Date.new(from_year.to_i, from_month.to_i, -1)
+      last_date = Date.new(to_year.to_i, to_month.to_i, -1)
+      raise 'invalid term specified' if date > last_date
 
-      balance = @book.load_start.dig(code) || 0
-      full_term = self.class.scan_terms
-      if ! month.nil?
-        pre_term = full_term.select { |y, m| y <= year.to_i && m < month.to_i }
-        balance += pre_term.map { |y, m| self.class.net(y, m)}.inject(0){|sum, h| sum + h[code] }
-        [{ code: code, balance: balance, note: "#{code} #{@dict.dig(code, :label)}" }] + records_with_balance(year, month, code, balance)
-      else
-        start = { code: code, balance: balance, note: "#{code} #{@dict.dig(code, :label)}" }
-        full_term.map { |y, m| y }.uniq.map { |y|
-          records_with_balance(y, nil, code, balance)
-        }.flatten.prepend(start)
+      reports = [].tap do |r|
+        while date <= last_date do
+          diff = {}.tap do |h|
+            g = gross(date.year, date.month, code)
+            sum = g.dig(:debit).nil? ? BigDecimal('0') : Util.calc_diff(g[:debit], code)
+            sum -= g.dig(:credit).nil? ? BigDecimal('0') : Util.calc_diff(g[:credit], code)
+            h['code'] = code
+            h['label'] = LucaRecord::Dict.load('base.tsv').dig(code, :label)
+            h['net'] = sum
+            h['debit_amount'] = g[:debit]
+            h['debit_count'] = g[:debit_count]
+            h['credit_amount'] = g[:credit]
+            h['credit_count'] = g[:credit_count]
+            h['_d'] = date.to_s
+          end
+          r << diff
+          date = Date.new(date.next_month.year, date.next_month.month, -1)
+        end
       end
+      #YAML.dump(LucaSupport::Code.readable(reports)) #.tap{ |data| puts data }
+      #new(reports, counts, date: Date.new(from_year.to_i, from_month.to_i, -1))
+      LucaSupport::Code.readable(reports)
     end
 
     def records_with_balance(year, month, code, balance)
@@ -114,7 +126,6 @@ module LucaBook
       end
       keys.map! { |k| k[0, level] }.uniq.select! { |k| k.length <= level } if level
       @count.prepend({}.tap { |header| keys.each { |k| header[k] = @dict.dig(k, :label) }})
-      puts YAML.dump(@count)
       @count
     end
 
@@ -137,8 +148,7 @@ module LucaBook
           end
         end
       end
-      puts YAML.dump(readable(@statement))
-      self
+      readable(@statement)
     end
 
     def accumulate_balance(monthly_diffs)
@@ -182,7 +192,7 @@ module LucaBook
       end
       @statement << term.tap { |h| h['_d'] = 'Period Total' }
       @statement << fy.tap { |h| h['_d'] = 'FY Total' }
-      self
+      readable(code2label)
     end
 
     def self.accumulate_term(start_year, start_month, end_year, end_month)
@@ -297,7 +307,7 @@ module LucaBook
 
       sum = { debit: {}, credit: {}, debit_count: {}, credit_count: {} }
       idx_memo = []
-      asof(year, month) do |f, _path|
+      search(year, month, nil, code) do |f, _path|
         CSV.new(f, headers: false, col_sep: "\t", encoding: 'UTF-8')
           .each_with_index do |row, i|
           break if i >= rows
@@ -305,17 +315,23 @@ module LucaBook
           case i
           when 0
             idx_memo = row.map(&:to_s)
+            next if code && !idx_memo.include?(code)
+
             idx_memo.each do |r|
               sum[:debit][r] ||= BigDecimal('0')
               sum[:debit_count][r] ||= 0
             end
           when 1
+            next if code && !idx_memo.include?(code)
+
             row.each_with_index do |r, j|
               sum[:debit][idx_memo[j]] += BigDecimal(r.to_s)
               sum[:debit_count][idx_memo[j]] += 1
             end
           when 2
             idx_memo = row.map(&:to_s)
+            break if code && !idx_memo.include?(code)
+
             idx_memo.each do |r|
               sum[:credit][r] ||= BigDecimal('0')
               sum[:credit_count][r] ||= 0
@@ -329,6 +345,12 @@ module LucaBook
             puts row # for debug
           end
         end
+      end
+      if code
+        sum[:debit] = sum[:debit][code] || BigDecimal('0')
+        sum[:credit] = sum[:credit][code] || BigDecimal('0')
+        sum[:debit_count] = sum[:debit_count][code] || 0
+        sum[:credit_count] = sum[:credit_count][code] || 0
       end
       sum
     end

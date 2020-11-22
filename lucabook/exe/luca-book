@@ -1,10 +1,11 @@
 #!/usr/bin/ruby
 
+require 'json'
 require 'optparse'
 require 'luca_book'
 
-module LucaCmd
-  class Journal
+class LucaCmd
+  class Journal < LucaCmd
     def self.import(args, params)
       if params['config']
         LucaBook::Import.new(args[0], params['config']).import_csv
@@ -17,42 +18,55 @@ module LucaCmd
     end
 
     def self.list(args, params)
-      args = LucaCmd.gen_range(params[:n] || 1) if args.empty?
+      args = gen_range(params[:n] || 1) if args.empty?
       if params['code']
-        LucaBook::List.term(*args, code: params['code']).list_on_code.to_yaml
+        render(LucaBook::List.term(*args, code: params['code']).list_on_code, params)
       else
-        LucaBook::List.term(*args).list_journals.to_yaml
+        render(LucaBook::List.term(*args).list_journals, params)
       end
     end
 
     def self.stats(args, params)
-      args = LucaCmd.gen_range(params[:n]) if args.empty?
-      LucaBook::State.term(*args).stats(params[:level])
+      args = gen_range(params[:n]) if args.empty?
+      if params['code']
+        render(LucaBook::State.by_code(params['code'], *args), params)
+      else
+        render(LucaBook::State.term(*args).stats(params[:level]), params)
+      end
     end
   end
 
-  class Report
+  class Report < LucaCmd
     def self.balancesheet(args, params)
       level = params[:level] || 3
       legal = params[:legal] || false
-      args = LucaCmd.gen_range(params[:n] || 1) if args.empty?
-      LucaBook::State.term(*args).bs(level, legal: legal)
+      args = gen_range(params[:n] || 1) if args.empty?
+      render(LucaBook::State.term(*args).bs(level, legal: legal), params)
     end
 
     def self.profitloss(args, params)
       level = params[:level] || 2
-      args = LucaCmd.gen_range(params[:n]) if args.empty?
-      LucaBook::State.term(*args).pl(level).to_yaml
+      args = gen_range(params[:n]) if args.empty?
+      render(LucaBook::State.term(*args).pl(level), params)
     end
   end
 
-  module_function
-
-  def gen_range(count)
+  def self.gen_range(count)
     count ||= 3
     today = Date.today
     start = today.prev_month(count - 1)
     [start.year, start.month, today.year, today.month]
+  end
+
+  def self.render(dat, params)
+    case params[:output]
+    when 'json'
+      puts JSON.dump(dat)
+    when 'nu'
+      LucaSupport::View.nushell(YAML.dump(dat))
+    else
+      puts YAML.dump(dat)
+    end
   end
 end
 
@@ -81,6 +95,8 @@ when /journals?/, 'j'
       opt.banner = 'Usage: luca-book journals list [options] [YYYY M]'
       opt.on('-c', '--code VAL', 'search with code') { |v| params['code'] = v }
       opt.on('-n VAL', 'report count') { |v| params[:n] = v.to_i }
+      opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
+      opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }
       opt.on_tail('List records. If you specify code and/or month, search on each criteria.')
       args = opt.parse!(ARGV)
       LucaCmd::Journal.list(args, params)
@@ -88,7 +104,10 @@ when /journals?/, 'j'
   when 'stats'
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-book journals stats [options] [YYYY M]'
+      opt.on('-c', '--code VAL', 'search with code') { |v| params['code'] = v }
       opt.on('-n VAL', 'report count') { |v| params[:n] = v.to_i }
+      opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
+      opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }
       args = opt.parse!(ARGV)
       LucaCmd::Journal.stats(args, params)
     end
@@ -116,6 +135,8 @@ when /reports?/, 'r'
       opt.banner = 'Usage: luca-book reports bs [options] [YYYY M]'
       opt.on('-l', '--level VAL', 'account level') { |v| params[:level] = v.to_i }
       opt.on('--legal', 'show legal mandatory account') { |_v| params[:legal] = true }
+      opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
+      opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }
       args = opt.parse!(ARGV)
       LucaCmd::Report.balancesheet(args, params)
     end
@@ -124,6 +145,8 @@ when /reports?/, 'r'
       opt.banner = 'Usage: luca-book reports pl [options] [YYYY M YYYY M]'
       opt.on('-l', '--level VAL', 'account level') { |v| params[:level] = v.to_i }
       opt.on('-n VAL', 'report count') { |v| params[:n] = v.to_i }
+      opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
+      opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }
       args = opt.parse!(ARGV)
       LucaCmd::Report.profitloss(args, params)
     end

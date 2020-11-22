@@ -1,3 +1,7 @@
+## LucaRecord 0.2.22
+
+* add `LucaSupport::View.nushell()`, render nushell table directly.
+
 ## LucaRecord 0.2.21
 
 * Enhance `LucaSupport::Code.delimit_num()`. Handle with BigDecimal, decimal length & delmiter customization.

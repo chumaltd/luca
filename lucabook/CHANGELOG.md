@@ -1,3 +1,9 @@
+## LucaBook 0.2.21
+
+* Add CLI `-o`, `--output` option, yaml(default) or json.
+* Add CLI `--nu` option, show table in nushell.
+* Add CLI `journals stats -c CODE` option, show monthly debit/credit amount and journal count.
+
 ## LucaBook 0.2.20
 
 * use BigDecimal for statement calculation.
