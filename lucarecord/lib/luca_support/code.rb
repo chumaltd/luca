@@ -101,7 +101,7 @@ module LucaSupport
       (start_year..end_year).to_a.map do |y|
         g1 = y == start_year ? encode_month(start_month) : encode_month(1)
         g2 = y == end_year ? encode_month(end_month) : encode_month(12)
-        "#{y}[#{g1}-#{g2}]"
+        g1 == g2 ? "#{y}#{g1}" : "#{y}[#{g1}-#{g2}]"
       end
     end
 

@@ -1,3 +1,7 @@
+## LucaBook master
+
+* Optimize starting balance calculation.
+
 ## LucaBook 0.2.21
 
 * Add CLI `-o`, `--output` option, yaml(default) or json.

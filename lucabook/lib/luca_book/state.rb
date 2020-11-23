@@ -25,7 +25,7 @@ module LucaBook
       @start_balance = set_balance
     end
 
-    def self.term(from_year, from_month, to_year = from_year, to_month = from_month)
+    def self.range(from_year, from_month, to_year = from_year, to_month = from_month)
       date = Date.new(from_year.to_i, from_month.to_i, -1)
       last_date = Date.new(to_year.to_i, to_month.to_i, -1)
       raise 'invalid term specified' if date > last_date
@@ -50,7 +50,7 @@ module LucaBook
       reports = [].tap do |r|
         while date <= last_date do
           diff = {}.tap do |h|
-            g = gross(date.year, date.month, code)
+            g = gross(date.year, date.month, code: code)
             sum = g.dig(:debit).nil? ? BigDecimal('0') : Util.calc_diff(g[:debit], code)
             sum -= g.dig(:credit).nil? ? BigDecimal('0') : Util.calc_diff(g[:credit], code)
             h['code'] = code
@@ -174,14 +174,11 @@ module LucaBook
       return nil if date > last_date
 
       {}.tap do |res|
-        while date <= last_date do
-          diff, _count = net(date.year, date.month)
-          diff.each do |k, v|
-            next if /^[_]/.match(k)
+        diff, _count = net(date.year, date.month, last_date.year, last_date.month)
+        diff.each do |k, v|
+          next if /^[_]/.match(k)
 
-            res[k] = res[k].nil? ? v : res[k] + v
-          end
-          date = date.next_month
+          res[k] = res[k].nil? ? v : res[k] + v
         end
       end
     end
@@ -272,15 +269,17 @@ module LucaBook
 
     # for assert purpose
     #
-    def self.gross(year, month = nil, code = nil, date_range = nil, rows = 4)
+    def self.gross(start_year, start_month, end_year = nil, end_month = nil,  code:  nil, date_range: nil, rows: 4)
       if ! date_range.nil?
         raise if date_range.class != Range
         # TODO: date based range search
       end
 
+      end_year ||= start_year
+      end_month ||= start_month
       sum = { debit: {}, credit: {}, debit_count: {}, credit_count: {} }
       idx_memo = []
-      search(year, month, nil, code) do |f, _path|
+      term(start_year, start_month, end_year, end_month, code) do |f, _path|
         CSV.new(f, headers: false, col_sep: "\t", encoding: 'UTF-8')
           .each_with_index do |row, i|
           break if i >= rows
@@ -330,8 +329,8 @@ module LucaBook
 
     # netting vouchers in specified term
     #
-    def self.net(year, month = nil, code = nil, date_range = nil)
-      g = gross(year, month, code, date_range)
+    def self.net(start_year, start_month, end_year = nil, end_month = nil, code: nil, date_range: nil)
+      g = gross(start_year, start_month, end_year, end_month, code: code, date_range: date_range)
       idx = (g[:debit].keys + g[:credit].keys).uniq.sort
       count = {}
       diff = {}.tap do |sum|

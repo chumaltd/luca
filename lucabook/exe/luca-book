@@ -31,7 +31,7 @@ class LucaCmd
       if params['code']
         render(LucaBook::State.by_code(params['code'], *args), params)
       else
-        render(LucaBook::State.term(*args).stats(params[:level]), params)
+        render(LucaBook::State.range(*args).stats(params[:level]), params)
       end
     end
   end
@@ -41,13 +41,13 @@ class LucaCmd
       level = params[:level] || 3
       legal = params[:legal] || false
       args = gen_range(params[:n] || 1) if args.empty?
-      render(LucaBook::State.term(*args).bs(level, legal: legal), params)
+      render(LucaBook::State.range(*args).bs(level, legal: legal), params)
     end
 
     def self.profitloss(args, params)
       level = params[:level] || 2
       args = gen_range(params[:n]) if args.empty?
-      render(LucaBook::State.term(*args).pl(level), params)
+      render(LucaBook::State.range(*args).pl(level), params)
     end
   end
 
