@@ -26,7 +26,7 @@ class LucaBook::ImportTest < Minitest::Test
     LucaBook::Journal.asof(9999, 12, 9).each do |dat|
       assert_equal BigDecimal('98.99'), dat[:debit][0][:amount]
       assert_equal BigDecimal('98.99'), dat[:credit][0][:amount]
-      assert_equal '113', dat[:debit][0][:code]
+      assert_equal '1101', dat[:debit][0][:code]
       assert_equal 'D11', dat[:credit][0][:code]
     end
     assert_equal 2, File.read('data/journals/9999L/9001').match(/(98\.99)/).size
@@ -39,7 +39,7 @@ class LucaBook::ImportTest < Minitest::Test
       LucaBook::Journal.update_codes dat
     end
     assert_equal 4, Dir.glob('data/journals/9999L/*').length
-    assert_equal 4, Dir.glob('data/journals/9999L/*-*113*').length
+    assert_equal 4, Dir.glob('data/journals/9999L/*-*1101*').length
     assert_equal 1, Dir.glob('data/journals/9999L/*-*511*').length
     assert_equal 1, Dir.glob('data/journals/9999L/*-*514*').length
     assert_equal 1, Dir.glob('data/journals/9999L/*-*C1E*').length

@@ -13,6 +13,7 @@ module LucaBook
     # create journal from hash
     #
     def self.create(d)
+      validate(d)
       date = Date.parse(d['date'])
 
       debit_amount = LucaSupport::Code.decimalize(serialize_on_key(d['debit'], 'value'))
@@ -50,6 +51,22 @@ module LucaBook
       create_record(nil, date_obj, codes) do |f|
         f.write CSV.generate('', col_sep: "\t", headers: false) { |c| yield(c) }
       end
+    end
+
+    def self.validate(obj)
+      raise 'NoDateKey' unless obj.key?('date')
+      raise 'NoDebitKey' unless obj.key?('debit')
+      raise 'NoCreditKey' unless obj.key?('credit')
+      debit_codes = serialize_on_key(obj['debit'], 'code').compact
+      debit_values = serialize_on_key(obj['debit'], 'value').compact
+      raise 'NoDebitCode' if debit_codes.empty?
+      raise 'NoDebitValue' if debit_values.empty?
+      raise 'UnmatchDebit' if debit_codes.length != debit_values.length
+      credit_codes = serialize_on_key(obj['credit'], 'code').compact
+      credit_values = serialize_on_key(obj['credit'], 'value').compact
+      raise 'NoCreditCode' if credit_codes.empty?
+      raise 'NoCreditValue' if credit_values.empty?
+      raise 'UnmatchCredit' if credit_codes.length != credit_values.length
     end
 
     # collect values on specified key

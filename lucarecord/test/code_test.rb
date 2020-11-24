@@ -75,4 +75,19 @@ class LucaSupport::CodeTest < Minitest::Test
     assert_equal 40, LucaSupport::Code.issue_random_id.length
     assert LucaSupport::Code.issue_random_id != LucaSupport::Code.issue_random_id
   end
+
+  def test_match_score_bigram
+    assert_equal 1.to_f, LucaSupport::Code.match_score("abcdefgh", "abcdefgh")
+    assert_equal 0.to_f, LucaSupport::Code.match_score("abcdefgh", "123c456")
+    assert_operator 0.to_f, :<, LucaSupport::Code.match_score("abcdefgh", "123bc456")
+    assert_equal 0.to_f, LucaSupport::Code.match_score("abcdefgh", "123456")
+  end
+
+  def test_match_score_trigram
+    assert_equal 1.to_f, LucaSupport::Code.match_score("abcdefgh", "abcdefgh", 3)
+    assert_equal 0.to_f, LucaSupport::Code.match_score("abcdefgh", "123c456", 3)
+    assert_equal 0.to_f, LucaSupport::Code.match_score("abcdefgh", "123bc456", 3)
+    assert_operator 0.to_f, :<, LucaSupport::Code.match_score("abcdefgh", "12abc456", 3)
+    assert_equal 0.to_f, LucaSupport::Code.match_score("abcdefgh", "123456", 3)
+  end
 end

@@ -18,7 +18,7 @@ module LucaBook
       @target_file = path
       # TODO: yaml need to be configurable
       @dict_name = dict
-      @dict = LucaRecord::Dict.new("import-#{dict}.yaml")
+      @dict = LucaBook::Dict.new("import-#{dict}.yaml")
       @code_map = LucaRecord::Dict.reverse(LucaRecord::Dict.load('base.tsv'))
       @config = @dict.csv_config if dict
     end
@@ -45,8 +45,6 @@ module LucaBook
     #
     def self.import_json(io)
       JSON.parse(io).each do |d|
-        validate(d)
-
         code_map = LucaRecord::Dict.reverse(LucaRecord::Dict.load('base.tsv'))
         d['debit'].each { |h| h['code'] = code_map.dig(h['label']) || DEBIT_DEFAULT }
         d['credit'].each { |h| h['code'] = code_map.dig(h['label']) || CREDIT_DEFAULT }
@@ -67,17 +65,8 @@ module LucaBook
       end
     end
 
-    def self.validate(obj)
-      raise 'NoDateKey' unless obj.key?('date')
-      raise 'NoDebitKey' unless obj.key?('debit')
-      raise 'NoDebitValue' if obj['debit'].empty?
-      raise 'NoCreditKey' unless obj.key?('credit')
-      raise 'NoCreditValue' if obj['credit'].empty?
-    end
-
     private
 
-    #
     # convert single entry data
     #
     def parse_single(row)
@@ -106,7 +95,6 @@ module LucaBook
       end
     end
 
-    #
     # convert double entry data
     #
     def parse_double(row)
@@ -126,7 +114,7 @@ module LucaBook
     end
 
     def search_code(label, default_label)
-      @code_map.dig(@dict.search(label, default_label))
+      @code_map.dig(@dict.search(label, default_label).first)
     end
 
     def parse_date(row)
