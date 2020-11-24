@@ -1,3 +1,7 @@
+## LucaSalary 0.1.19
+
+* Support `payment_term` on config.yml for accounting export.
+
 ## LucaSalary 0.1.18
 
 * Add summary to payslip. Refactor monthly payment.

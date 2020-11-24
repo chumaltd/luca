@@ -44,10 +44,18 @@ module LucaSalary
       end
     end
 
+    # Export json for LucaBook.
+    # Accrual_date can be change with `payment_term` on config.yml. Default value is 0.
+    # `payment_term: 1` means payment on the next month of calculation target.
+    #
     def export_json
-      h = {}
-      h[:debit] = {}
-      h[:credit] = {}
+      accrual_date = if LucaSupport::CONFIG['payment_term']
+                       pt = LucaSupport::CONFIG['payment_term']
+                       Date.new(@date.prev_month(pt).year, @date.prev_month(pt).month, -1)
+                     else
+                       Date.new(@date.year, @date.month, -1)
+                     end
+      h = { debit: {}, credit: {} }
       accumulate.each do |k, v|
         next if @dict.dig(k, :acct_label).nil?
 
@@ -56,13 +64,14 @@ module LucaSalary
         h[pos][acct_label] = h[pos].key?(acct_label) ? h[pos][acct_label] + v : v
       end
       [].tap do |res|
-        item = {}
-        item['date'] = "#{@date.year}-#{@date.month}-#{@date.day}"
-        item['debit'] = h[:debit].map { |k, v| { 'label' => k, 'value' => v } }
-        item['credit'] = h[:credit].map { |k, v| { 'label' => k, 'value' => v } }
-        item['x-editor'] = 'LucaSalary'
-        res << item
-        puts JSON.dump(LucaSupport::Code.readable(res))
+        {}.tap do |item|
+          item['date'] = "#{accrual_date.year}-#{accrual_date.month}-#{accrual_date.day}"
+          item['debit'] = h[:debit].map { |k, v| { 'label' => k, 'value' => v } }
+          item['credit'] = h[:credit].map { |k, v| { 'label' => k, 'value' => v } }
+          item['x-editor'] = 'LucaSalary'
+          res << item
+        end
+        puts JSON.dump(readable(res))
       end
     end
 
