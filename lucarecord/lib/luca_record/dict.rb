@@ -17,13 +17,36 @@ module LucaRecord
       set_driver
     end
 
-    def search(word, default_word = nil)
-      res = max_score_code(word.gsub(/[[:space:]]/, ''))
-      if res[1] > 0.4
-        res[0]
+    # Search word with n-gram.
+    # If dictionary has Hash or Array, it returns [label, options].
+    #
+    def search(word, default_word = nil, main_key: 'label', options: nil)
+      res, score = max_score_code(word.gsub(/[[:space:]]/, ''))
+      return default_word if score < 0.4
+
+      case res
+      when Hash
+        hash2multiassign(res, main_key, options: options)
+      when Array
+        res.map { |item| hash2multiassign(item, main_key, options: options) }
       else
-        default_word
+        res
       end
+    end
+
+    # Separate main item from other options.
+    # If options specified as Array of string, it works as safe list filter.
+    #
+    def hash2multiassign(obj, main_key = 'label', options: nil)
+      options = {}.tap do |opt|
+        obj.map do |k, v|
+          next if k == main_key
+          next if !options.nil? && !options.include?(k)
+
+          opt[k.to_sym] = v
+        end
+      end
+      [obj[main_key], options.compact]
     end
 
     #

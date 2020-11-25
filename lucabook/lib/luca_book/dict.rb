@@ -54,17 +54,34 @@ module LucaBook
       end
     end
 
-    def search(word, default_word = nil)
-      res = super(word, default_word)
-      case res
-      when Hash
-        options = {}.tap do |opt|
-          opt[:tax_options] = res['tax_options'] if res['tax_options']
-        end
-        [res['account_label'], options]
+    def search(word, default_word = nil, amount = nil)
+      res = super(word, default_word, main_key: 'account_label')
+      if res.is_a?(Array) && res[0].is_a?(Array)
+        filter_amount(res, amount)
       else
-        [res, nil]
+        res
       end
+    end
+
+    # Choose setting on Big or small condition.
+    #
+    def filter_amount(settings, amount = nil)
+      return settings[0] if amount.nil?
+
+      settings.each do |item|
+        return item unless item[1].keys.include?(:on_amount)
+
+        condition = item.dig(1, :on_amount)
+        case condition[0]
+        when '>'
+          return item if amount > BigDecimal(condition[1..])
+        when '<'
+          return item if amount < BigDecimal(condition[1..])
+        else
+          return item
+        end
+      end
+      nil
     end
 
     def self.latest_balance

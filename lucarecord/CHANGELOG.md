@@ -1,3 +1,7 @@
+## LucaRecord 0.2.23
+
+* Enhance Dictionary, supporting extensible options.
+
 ## LucaRecord 0.2.22
 
 * add `LucaSupport::View.nushell()`, render nushell table directly.

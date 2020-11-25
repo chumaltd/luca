@@ -4,8 +4,13 @@ require 'date'
 require 'json'
 require 'luca_book'
 require 'luca_support'
-#require 'luca_book/dict'
 require 'luca_record'
+
+begin
+  require "luca_book/import_#{LucaSupport::CONFIG['country']}"
+rescue LoadError => e
+  e.message
+end
 
 module LucaBook
   class Import
@@ -70,26 +75,29 @@ module LucaBook
     # convert single entry data
     #
     def parse_single(row)
-      value = row.dig(@config[:credit_value])&.empty? ? row[@config[:debit_value]] : row[@config[:credit_value]]
+      if (row.dig(@config[:credit_value]) || []).empty?
+        value = BigDecimal(row[@config[:debit_value]])
+        debit = true
+      else
+        value = BigDecimal(row[@config[:credit_value]])
+      end
+      default_label = debit ? @config.dig(:default_debit) : @config.dig(:default_credit)
+      code, options = search_code(row[@config[:label]], default_label, value)
+      counter_code = @code_map.dig(@config[:counter_label])
+      if respond_to? :tax_extension
+        data, data_c = tax_extension(code, counter_code, value, options) if options
+      end
+      data ||= [{ 'code' => code, 'value' => value }]
+      data_c ||= [{ 'code' => counter_code, 'value' => value }]
       {}.tap do |d|
         d['date'] = parse_date(row)
-        if row.dig(@config[:credit_value])&.empty?
-          d['debit'] = [
-            { 'code' => search_code(row[@config[:label]], @config.dig(:default_debit)) || DEBIT_DEFAULT }
-          ]
-          d['credit'] = [
-            { 'code' => @code_map.dig(@config[:counter_label]) }
-          ]
+        if debit
+          d['debit'] = data
+          d['credit'] = data_c
         else
-          d['debit'] = [
-            { 'code' => @code_map.dig(@config[:counter_label]) }
-          ]
-          d['credit'] = [
-            { 'code' => search_code(row[@config[:label]], @config.dig(:default_credit)) || CREDIT_DEFAULT }
-          ]
+          d['debit'] = data_c
+          d['credit'] = data
         end
-        d['debit'][0]['value'] = value
-        d['credit'][0]['value'] = value
         d['note'] = Array(@config[:note]).map{ |col| row[col] }.join(' ')
         d['x-editor'] = "LucaBook::Import/#{@dict_name}"
       end
@@ -113,8 +121,9 @@ module LucaBook
       end
     end
 
-    def search_code(label, default_label)
-      @code_map.dig(@dict.search(label, default_label).first)
+    def search_code(label, default_label, amount = nil)
+      label, options = @dict.search(label, default_label, amount)
+      [@code_map.dig(label), options]
     end
 
     def parse_date(row)

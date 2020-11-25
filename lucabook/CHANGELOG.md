@@ -1,5 +1,6 @@
-## LucaBook master
+## LucaBook 0.2.22
 
+* Import options. Tax extension for each countries.
 * Optimize starting balance calculation.
 
 ## LucaBook 0.2.21
