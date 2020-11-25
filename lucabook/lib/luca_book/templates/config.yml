@@ -1,0 +1,4 @@
+# Select base dictionary and extensions. country should be coded as the same as ccTLD domains  like 'us'.
+country:
+# Start month of financial years. Set integer in 1 - 12.
+fy_start: 

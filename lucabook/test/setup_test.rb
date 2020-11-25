@@ -10,7 +10,7 @@ class LucaBook::SetupTest < Minitest::Test
   end
 
   def teardown
-    FileUtils.rm_rf(['data', 'dict'])
+    FileUtils.rm_rf(['data', 'dict', 'config.yml'])
   end
 
   def test_that_it_create_resources
@@ -18,6 +18,7 @@ class LucaBook::SetupTest < Minitest::Test
     assert Dir.exist? 'data/journals'
     assert File.exist? 'data/balance/start.tsv'
     assert File.exist? 'dict/base.tsv'
+    assert File.exist? 'config.yml'
   end
 
   def test_that_it_accepts_specified_dir
