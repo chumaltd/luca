@@ -22,6 +22,52 @@ Or install it yourself as:
 
 TODO: Write usage instructions here
 
+## CSV import
+
+Journals can be generated from CSV like online banking statement. CSV loading is controlled by `dict/import-CONFIG.yaml`([sample](./test/import-bank1.yaml)). Command for import is as bellows:
+
+```
+$ luca-book journals import -c bank1 bank-statement.csv
+```
+
+This example will import bank-statement.csv with `-c` option for config YAML(dict/import-bank1.yaml).
+
+| Top level   | Second level  | Value                                                     | Description                        |
+|-------------|---------------|-----------------------------------------------------------|------------------------------------|
+| config      | label         | CSV column no.                                            | label is used for account search   |
+|             | counter_label | Account label(string)                                     | like "Saving Account" or bank name |
+|             | debit_value   | CSV column no.                                            |                                    |
+|             | credit_value  | CSV column no.                                            |                                    |
+|             | year          | CSV column no.                                            | year of transaction date.          |
+|             | month         | CSV column no.                                            | month of transaction date.         |
+|             | day           | CSV column no.                                            | day of transaction date.           |
+|             | note          | CSV column no. Multiple columns can be specified as Array | Human readable journal note.       |
+| definitions |               | "CSV label": "Accounting label"                           | Convert from CSV label to Accounting code. Accounting label need to be matched exactly as defined in dict/base.tsv. |
+
+CSV label is matched with n-gram, and converted to mostly like account. If no code matched, `10XX/50XX UNSETTLED_IMPORT` will be assigned.
+
+Example setting as bellows will convert CSV record with 'CandSCompany' into 'Account payable - trade'.
+
+```
+definitions:
+  CandSCompany: "Accounts payable - trade"
+```
+
+Advanced option can be available. Array of config with `on_amount` checks transaction amount, and the first is taken that matches specified criteria.
+
+```
+definitions:
+  CandSCompany:
+  - on_amount: ">1000.00"
+    account_label: "Accounts payable - trade"
+  - account_label: "Accounts payable - other"
+```
+
+
+## JSON import
+
+Journals can be generated from LucaDeal or LucaSalary via JSON import(`-j` option).
+
 
 ## Journal format
 
