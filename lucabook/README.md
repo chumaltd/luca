@@ -20,11 +20,53 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+LucaBook works on terminal shell.
+
+CLI subcommand `journals` show journal list. Integrated with Nushell, common reports show in nushell tables with `--nu` option.
+
+```bash
+$ luca-book journals list --nu
+```
+
+Default list shows the journals of this month. With `-n` option, multiple month can be specified.
+If you search for a specific month, args in `YYYY M` format is available. Or, multiple month list is also supported as bellows:
+
+```bash
+$ luca-book journals list --nu 2020 3
+$ luca-book journals list --nu 2020 3 2020 7
+```
+
+Journals of specific accounting code can be filtered with `-c` option. `-c` reports with account balance.
+
+```bash
+$ luca-book journals list --nu -c 113
+```
+
+Another report is `stats` that shows journal count by accaunt code. This is useful for checking completeness.
+
+```bash
+$ luca-book reports stats --nu
+```
+
+Stats for specific code is available with `-c` option. `-c` reports debit/credit amount with journal count.
+
+```bash
+$ luca-book reports stats --nu -c 113
+```
+
+### Report
+
+Balance sheet(BS) and Statement of income(PL) is provided by `reports` subcommand.
+
+```bash
+$ luca-book reports bs --nu
+$ luca-book reports pl --nu
+```
+
 
 ## CSV import
 
-Journals can be generated from CSV like online banking statement. CSV loading is controlled by `dict/import-CONFIG.yaml`([sample](./test/import-bank1.yaml)). Command for import is as bellows:
+Journals can be generated from CSV like online banking statement. CSV loading is controlled by `dict/import-CONFIG.yaml`([sample config](./test/import-bank1.yaml) and [sample CSV](./test/sample-bankstatement.csv)). Command for import is as bellows:
 
 ```
 $ luca-book journals import -c bank1 bank-statement.csv
