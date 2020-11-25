@@ -45,13 +45,13 @@ $ luca-book journals list --nu -c 113
 Another report is `stats` that shows journal count by accaunt code. This is useful for checking completeness.
 
 ```bash
-$ luca-book reports stats --nu
+$ luca-book journals stats --nu
 ```
 
 Stats for specific code is available with `-c` option. `-c` reports debit/credit amount with journal count.
 
 ```bash
-$ luca-book reports stats --nu -c 113
+$ luca-book journals stats --nu -c 113
 ```
 
 ### Report
