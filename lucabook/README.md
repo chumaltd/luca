@@ -113,7 +113,7 @@ Journals can be generated from LucaDeal or LucaSalary via JSON import(`-j` optio
 
 ## Account code
 
-Account code consists of 2 or more alphanumerical letters of like '1A3'. [Example dictionary](./templates/dict-en.tsv) is bundled with gem.
+Account code consists of 2 or more alphanumerical letters of like '1A3'. [Example dictionary](./lib/luca-book/templates/dict-en.tsv) is bundled with gem.
 
 ### BS accounts
 
