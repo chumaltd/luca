@@ -111,6 +111,49 @@ definitions:
 Journals can be generated from LucaDeal or LucaSalary via JSON import(`-j` option).
 
 
+## Account code
+
+Account code consists of 2 or more alphanumerical letters of like '1A3'. [Example dictionary](./templates/dict-en.tsv) is bundled with gem.
+
+### BS accounts
+
+Codes start from numeric letter are BS accounts.  
+Several codes are used for reporting accumulation.
+
+| Code | Sum target | Description                               |
+|------|------------|-------------------------------------------|
+|    1 | 1 - 4      | Grand total of Assets                     |
+|   10 | 1 - 2      | Current assets                            |
+|   30 | 3 - 4      | Non current assets                        |
+|    5 | 5 - 9      | Grand total of Liabilities and Net assets |
+|   50 | 5 - 6      | Current liabilities                       |
+|   70 | 7 - 8      | Non current liablities                    |
+|  8ZZ | 5 - 8      | Total liabilities                         |
+| 9142 |            | Net profit imported from code 'HA'        |
+|  9ZZ | 9          | Total net assets                          |
+
+### PL accounts
+
+Codes start from alphabet are PL accounts.  
+Several codes are used for reporting accumulation.
+
+| Code | Sum target | Description                         |
+|------|------------|-------------------------------------|
+| A0   | A          | Revenue                             |
+| B0   | B          | Cost of Sales                       |
+| BA   |            | Gross Profit                        |
+| C0   | C          | General and administrative expenses |
+| CA   |            |                                     |
+| D0   |            | Non operating income                |
+| E0   |            | Non operating expenses              |
+| EA   |            |                                     |
+| F0   | F          | Extraordinary income                |
+| G0   | G[0-9]     | Extraordinary loss                  |
+| GA   |            | Income before income taxes          |
+| H0   | H          | Income taxes                        |
+| HA   |            | Profit/Loss                         |
+
+
 ## Journal format
 
 Accounting requires full scan on journals. LucaBook journal format gathers code & amount matrix in the first part of file for efficiency. 
