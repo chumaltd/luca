@@ -14,19 +14,18 @@ module LucaDeal
 
     def initialize(date = nil)
       @date = issue_date(date)
-      @config = load_config('config.yml')
     end
 
     # calculate fee, based on invoices
     #
     def monthly_fee
-      LucaDeal::Contract.asof(@date.year, @date.month, @date.day) do |contract|
+      Contract.asof(@date.year, @date.month, @date.day) do |contract|
         next if contract.dig('terms', 'category') != 'sales_fee'
 
         @rate = { 'default' => BigDecimal(contract.dig('rate', 'default')) }
         @rate['initial'] = contract.dig('rate', 'initial') ? BigDecimal(contract.dig('rate', 'initial')) : @rate['default']
 
-        LucaDeal::Invoice.asof(@date.year, @date.month) do |invoice|
+        Invoice.asof(@date.year, @date.month) do |invoice|
           next if invoice.dig('sales_fee', 'id') != contract['id']
           next if duplicated_contract? invoice['contract_id']
 
@@ -47,7 +46,7 @@ module LucaDeal
 
     def get_customer(id)
       {}.tap do |res|
-        LucaDeal::Customer.find(id) do |dat|
+        Customer.find(id) do |dat|
           customer = parse_current(dat)
           res['id'] = customer['id']
           res['name'] = customer.dig('name')
@@ -73,9 +72,9 @@ module LucaDeal
     #
     def set_company
       {}.tap do |h|
-        h['name'] = @config.dig('company', 'name')
-        h['address'] = @config.dig('company', 'address')
-        h['address2'] = @config.dig('company', 'address2')
+        h['name'] = CONFIG.dig('company', 'name')
+        h['address'] = CONFIG.dig('company', 'address')
+        h['address2'] = CONFIG.dig('company', 'address2')
       end
     end
 
@@ -103,9 +102,9 @@ module LucaDeal
     # load Tax Rate from config.
     #
     def load_tax_rate(name)
-      return 0 if @config.dig('tax_rate', name).nil?
+      return 0 if CONFIG.dig('tax_rate', name).nil?
 
-      BigDecimal(take_current(@config['tax_rate'], name).to_s)
+      BigDecimal(take_current(CONFIG['tax_rate'], name).to_s)
     end
 
     def duplicated_contract?(id)

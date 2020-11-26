@@ -6,8 +6,8 @@ class LucaDeal::InvoiceCalcurationTest < Minitest::Test
   include LucaRecord::IO
 
   def setup
-    FileUtils.chdir(LucaSupport::Config::Pjdir)
-    LucaDeal::Setup.create_project(LucaSupport::Config::Pjdir)
+    FileUtils.chdir(LucaSupport::PJDIR)
+    LucaDeal::Setup.create_project(LucaSupport::PJDIR)
   end
 
   def teardown
@@ -18,7 +18,7 @@ class LucaDeal::InvoiceCalcurationTest < Minitest::Test
     generate_valid_contract('Test Corporation1')
     @invoice = LucaDeal::Invoice.new('2020-3-3')
     dat = { 'customer' => 'TestCompany', 'subtotal' => [{ 'rate' => 'default', 'items' => 9_999, 'tax' => 999 }] }
-    @invoice.invoice_vars(dat)
+    @invoice.send(:invoice_vars, dat)
 
     assert_equal 'TestCompany', @invoice.instance_variable_get(:@customer)
     assert_equal 10_998, @invoice.instance_variable_get(:@amount)
@@ -28,7 +28,7 @@ class LucaDeal::InvoiceCalcurationTest < Minitest::Test
               { 'rate' => 'default', 'items' => 9_999, 'tax' => 999 },
               { 'rate' => 'default', 'items' => 777_777_777_777_777, 'tax' => 70_000_000_000 }
             ] }
-    @invoice.invoice_vars(dat)
+    @invoice.send(:invoice_vars, dat)
 
     assert_equal 777_847_777_788_775, @invoice.instance_variable_get(:@amount)
   end

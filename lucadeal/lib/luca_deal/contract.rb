@@ -47,14 +47,14 @@ module LucaDeal
       contract = parse_current(self.class.find(id))
       if contract['products']
         contract['products'] = contract['products'].map do |product|
-          LucaDeal::Product.find(product['id'])
+          Product.find(product['id'])
         end
       end
-      YAML.dump(readable(contract)).tap{ |d| puts d }
+      readable(contract)
     end
 
     def generate!(customer_id, mode = 'subscription')
-      LucaDeal::Customer.find(customer_id) do |customer|
+      Customer.find(customer_id) do |customer|
         current_customer = parse_current(customer)
         if mode == 'sales_fee'
           obj = salesfee_template

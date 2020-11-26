@@ -36,7 +36,7 @@ module LucaSupport
 
     def search_template(file, dir = 'templates')
       # TODO: load config
-      [@pjdir, lib_path].each do |base|
+      [LucaSupport::PJDIR, lib_path].each do |base|
         path = (Pathname(base) / dir / file)
         return path.to_path if path.file?
       end

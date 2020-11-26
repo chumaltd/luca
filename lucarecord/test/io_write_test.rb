@@ -10,8 +10,8 @@ class LucaRecord::IoWriteTest < Minitest::Test
   include LucaRecord::IO
 
   def setup
-    FileUtils.chdir(LucaSupport::Config::Pjdir)
-    LucaDeal::Setup.create_project(LucaSupport::Config::Pjdir)
+    FileUtils.chdir(LucaSupport::PJDIR)
+    LucaDeal::Setup.create_project(LucaSupport::PJDIR)
   end
 
   def teardown

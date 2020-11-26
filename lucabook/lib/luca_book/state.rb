@@ -346,9 +346,9 @@ module LucaBook
     private
 
     def legal_items
-      return [] unless LucaSupport::Config::COUNTRY
+      return [] unless CONFIG['country']
 
-      case LucaSupport::Config::COUNTRY
+      case CONFIG['country']
       when 'jp'
         ['91', '911', '912', '913', '9131', '9132', '914', '9141', '9142', '915', '916', '92', '93']
       end

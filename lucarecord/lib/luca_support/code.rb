@@ -54,21 +54,24 @@ module LucaSupport
     def delimit_num(num, decimal: nil, delimiter: nil)
       return nil if num.nil?
 
-      decimal ||= LucaSupport::Config::DECIMAL_NUM
-      str = case num
-            when BigDecimal
-              if decimal == 0
-                num.floor.to_s.reverse.gsub!(/(\d{3})(?=\d)/, '\1 ').reverse!
-              else
-                fragments = num.floor(decimal).to_s('F').split('.')
-                fragments[0].reverse!.gsub!(/(\d{3})(?=\d)/, '\1 ').reverse!
-                fragments[1].gsub!(/(\d{3})(?=\d)/, '\1 ')
-                fragments.join('.')
-              end
-            else
-              num.to_s.reverse.gsub!(/(\d{3})(?=\d)/, '\1 ').reverse!
-            end
-      delimiter.nil? ? str : str.gsub!(/\s/, delimiter)
+      decimal ||= LucaSupport::CONFIG['decimal_num']
+      delimiter ||= LucaSupport::CONFIG['thousands_separator']
+      case num
+      when BigDecimal
+        if decimal == 0
+          num.floor.to_s.reverse.gsub!(/(\d{3})(?=\d)/, '\1 ').reverse!
+            .gsub!(/\s/, delimiter)
+        else
+          fragments = num.floor(decimal).to_s('F').split('.')
+          fragments[0].reverse!.gsub!(/(\d{3})(?=\d)/, '\1 ').reverse!
+            .gsub!(/\s/, delimiter)
+          fragments[1].gsub!(/(\d{3})(?=\d)/, '\1 ')
+          fragments.join(LucaSupport::CONFIG['decimal_separator'])
+        end
+      else
+        num.to_s.reverse.gsub!(/(\d{3})(?=\d)/, '\1 ').reverse!
+          .gsub!(/\s/, delimiter)
+      end
     end
 
     # encode directory name from year and month.
@@ -142,7 +145,7 @@ module LucaSupport
       end
     end
 
-    def readable(obj, len = LucaSupport::Config::DECIMAL_NUM)
+    def readable(obj, len = LucaSupport::CONFIG['decimal_num'])
       case obj
       when Array
         obj.map { |i| readable(i) }

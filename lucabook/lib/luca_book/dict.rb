@@ -85,7 +85,7 @@ module LucaBook
     end
 
     def self.latest_balance
-      dict_dir = Pathname(LucaSupport::Config::Pjdir) / 'data' / 'balance'
+      dict_dir = Pathname(LucaSupport::PJDIR) / 'data' / 'balance'
       # TODO: search latest balance dictionary
       load_tsv_dict(dict_dir / 'start.tsv')
     end

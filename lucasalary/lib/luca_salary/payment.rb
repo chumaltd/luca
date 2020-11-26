@@ -13,7 +13,7 @@ module LucaSalary
 
     def initialize(date = nil)
       @date = Date.parse(date)
-      @pjdir = Pathname(LucaSupport::Config::Pjdir)
+      @pjdir = Pathname(LucaSupport::PJDIR)
       @dict = LucaRecord::Dict.load_tsv_dict(@pjdir / 'dict' / 'code.tsv')
     end
 

@@ -15,8 +15,8 @@ require 'minitest/autorun'
 
 def deploy(filename, subdir = nil)
   if subdir
-    FileUtils.cp("#{__dir__}/#{filename}", Pathname(LucaSupport::Config::Pjdir) / subdir / filename)
+    FileUtils.cp("#{__dir__}/#{filename}", Pathname(LucaSupport::PJDIR) / subdir / filename)
   else
-    FileUtils.cp("#{__dir__}/#{filename}", Pathname(LucaSupport::Config::Pjdir) / filename)
+    FileUtils.cp("#{__dir__}/#{filename}", Pathname(LucaSupport::PJDIR) / filename)
   end
 end

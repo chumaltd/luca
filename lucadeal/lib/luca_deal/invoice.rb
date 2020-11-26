@@ -17,26 +17,34 @@ module LucaDeal
 
     def initialize(date = nil)
       @date = issue_date(date)
-      @pjdir = Pathname(LucaSupport::Config::Pjdir)
-      @config = load_config(@pjdir / 'config.yml')
     end
 
     def deliver_mail
-      attachment_type = @config.dig('invoice', 'attachment') || :html
+      attachment_type = CONFIG.dig('invoice', 'attachment') || :html
       self.class.asof(@date.year, @date.month) do |dat, path|
         next if has_status?(dat, 'mail_delivered')
 
         mail = compose_mail(dat, attachment: attachment_type.to_sym)
-        LucaSupport::Mail.new(mail, @pjdir).deliver
+        LucaSupport::Mail.new(mail, PJDIR).deliver
         self.class.add_status!(path, 'mail_delivered')
       end
     end
 
     def preview_mail(attachment_type = nil)
-      attachment_type ||= @config.dig('invoice', 'attachment') || :html
+      attachment_type ||= CONFIG.dig('invoice', 'attachment') || :html
       self.class.asof(@date.year, @date.month) do |dat, _path|
         mail = compose_mail(dat, mode: :preview, attachment: attachment_type.to_sym)
-        LucaSupport::Mail.new(mail, @pjdir).deliver
+        LucaSupport::Mail.new(mail, PJDIR).deliver
+      end
+    end
+
+    # Render HTML to console
+    #
+    def preview_stdout
+      self.class.asof(@date.year, @date.month) do |dat, _|
+        @company = set_company
+        invoice_vars(dat)
+        puts render_invoice
       end
     end
 
@@ -46,18 +54,25 @@ module LucaDeal
 
       mail = Mail.new
       mail.to = dat.dig('customer', 'to') if mode.nil?
-      mail.subject = @config.dig('invoice', 'mail_subject') || 'Your Invoice is available'
+      mail.subject = CONFIG.dig('invoice', 'mail_subject') || 'Your Invoice is available'
       if mode == :preview
-        mail.cc = @config.dig('mail', 'preview') || @config.dig('mail', 'from')
+        mail.cc = CONFIG.dig('mail', 'preview') || CONFIG.dig('mail', 'from')
         mail.subject = '[preview] ' + mail.subject
       end
       mail.text_part = Mail::Part.new(body: render_erb(search_template('invoice-mail.txt.erb')), charset: 'UTF-8')
-      if attachment == :html
-        mail.attachments[attachment_name(dat, attachment)] = render_erb(search_template('invoice.html.erb'))
-      elsif attachment == :pdf
-        mail.attachments[attachment_name(dat, attachment)] = erb2pdf(search_template('invoice.html.erb'))
-      end
+      mail.attachments[attachment_name(dat, attachment)] = render_invoice(attachment)
       mail
+    end
+
+    def render_invoice(file_type = :html)
+      case file_type
+      when :html
+        render_erb(search_template('invoice.html.erb'))
+      when :pdf
+        erb2pdf(search_template('invoice.html.erb'))
+      else
+        raise 'This filetype is not supported.'
+      end
     end
 
     # Output seriarized invoice data to stdout.
@@ -96,10 +111,9 @@ module LucaDeal
             stat['count'] = stat['records'].count
             stat['total'] = stat['records'].inject(0) { |sum, rec| sum + rec.dig('subtotal') }
             stat['tax'] = stat['records'].inject(0) { |sum, rec| sum + rec.dig('tax') }
-            collection << stat
+            collection << readable(stat)
           end
         end
-        puts YAML.dump(LucaSupport::Code.readable(collection))
       end
     end
 
@@ -111,10 +125,10 @@ module LucaDeal
           item['debit'] = []
           item['credit'] = []
           dat['subtotal'].map do |sub|
-            item['debit'] << { 'label' => '売掛金', 'value' => LucaSupport::Code.readable(sub['items']) }
-            item['debit'] << { 'label' => '売掛金', 'value' => LucaSupport::Code.readable(sub['tax']) }
-            item['credit'] << { 'label' => '売上高', 'value' => LucaSupport::Code.readable(sub['items']) }
-            item['credit'] << { 'label' => '売上高', 'value' => LucaSupport::Code.readable(sub['tax']) }
+            item['debit'] << { 'label' => '売掛金', 'value' => readable(sub['items']) }
+            item['debit'] << { 'label' => '売掛金', 'value' => readable(sub['tax']) }
+            item['credit'] << { 'label' => '売上高', 'value' => readable(sub['items']) }
+            item['credit'] << { 'label' => '売上高', 'value' => readable(sub['tax']) }
           end
           item['x-customer'] = dat['customer']['name'] if dat.dig('customer', 'name')
           item['x-editor'] = 'LucaDeal'
@@ -125,7 +139,7 @@ module LucaDeal
     end
 
     def monthly_invoice
-      LucaDeal::Contract.new(@date.to_s).active do |contract|
+      Contract.new(@date.to_s).active do |contract|
         next if contract.dig('terms', 'billing_cycle') != 'monthly'
         # TODO: provide another I/F for force re-issue if needed
         next if duplicated_contract? contract['id']
@@ -149,20 +163,9 @@ module LucaDeal
       end
     end
 
-    # set variables for ERB template
-    #
-    def invoice_vars(invoice_dat)
-      @customer = invoice_dat['customer']
-      @items = invoice_dat['items']
-      @subtotal = invoice_dat['subtotal']
-      @issue_date = invoice_dat['issue_date']
-      @due_date = invoice_dat['due_date']
-      @amount = @subtotal.inject(0) { |sum, i| sum + i['items'] + i['tax'] }
-    end
-
     def get_customer(id)
       {}.tap do |res|
-        LucaDeal::Customer.find(id) do |dat|
+        Customer.find(id) do |dat|
           customer = parse_current(dat)
           res['id'] = customer['id']
           res['name'] = customer.dig('name')
@@ -178,7 +181,7 @@ module LucaDeal
 
       [].tap do |res|
         products.each do |product|
-          LucaDeal::Product.find(product['id'])['items'].each do |item|
+          Product.find(product['id'])['items'].each do |item|
             item['product_id'] = product['id']
             item['qty'] ||= 1
             res << item
@@ -204,6 +207,17 @@ module LucaDeal
 
     private
 
+    # set variables for ERB template
+    #
+    def invoice_vars(invoice_dat)
+      @customer = invoice_dat['customer']
+      @items = readable(invoice_dat['items'])
+      @subtotal = readable(invoice_dat['subtotal'])
+      @issue_date = invoice_dat['issue_date']
+      @due_date = invoice_dat['due_date']
+      @amount = readable(invoice_dat['subtotal'].inject(0) { |sum, i| sum + i['items'] + i['tax'] })
+    end
+
     def lib_path
       __dir__
     end
@@ -212,9 +226,9 @@ module LucaDeal
     #
     def set_company
       {}.tap do |h|
-        h['name'] = @config.dig('company', 'name')
-        h['address'] = @config.dig('company', 'address')
-        h['address2'] = @config.dig('company', 'address2')
+        h['name'] = CONFIG.dig('company', 'name')
+        h['address'] = CONFIG.dig('company', 'address')
+        h['address2'] = CONFIG.dig('company', 'address2')
       end
     end
 
@@ -237,9 +251,9 @@ module LucaDeal
     # load Tax Rate from config.
     #
     def load_tax_rate(name)
-      return 0 if @config.dig('tax_rate', name).nil?
+      return 0 if CONFIG.dig('tax_rate', name).nil?
 
-      BigDecimal(take_current(@config['tax_rate'], name).to_s)
+      BigDecimal(take_current(CONFIG['tax_rate'], name).to_s)
     end
 
     def attachment_name(dat, type)

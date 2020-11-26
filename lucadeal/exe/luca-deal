@@ -5,8 +5,8 @@ require 'date'
 require 'optparse'
 require 'luca_deal'
 
-module LucaCmd
-  class Customer
+class LucaCmd
+  class Customer < LucaCmd
     def self.create(args = nil, params = {})
       if args
         id = LucaDeal::Customer.create(name: args[0])
@@ -28,7 +28,7 @@ module LucaCmd
         list = LucaDeal::Customer.id_completion(args[0])
         case list.length
         when 1
-          id = LucaDeal::Customer.new.describe(list.first)
+          render(LucaDeal::Customer.new.describe(list.first), params)
         else
           puts 'found multiple contract id. exit'
           list.each { |item| puts "  #{item[:id]}  #{item[:label]}" }
@@ -57,11 +57,11 @@ module LucaCmd
     end
 
     def self.list(args = nil, params = {})
-      LucaDeal::Customer.new.list_name
+      render(LucaDeal::Customer.new.list_name, params)
     end
   end
 
-  class Contract
+  class Contract < LucaCmd
     def self.create(args = nil, params = {})
       if args.empty?
         list = LucaDeal::Customer.id_completion('')
@@ -93,7 +93,7 @@ module LucaCmd
         list = LucaDeal::Contract.id_completion(args[0])
         case list.length
         when 1
-          id = LucaDeal::Contract.new.describe(list.first)
+          render(LucaDeal::Contract.new.describe(list.first), params)
         else
           puts 'found multiple contract id. exit'
           list.each { |item| puts "  #{item[:id]}  #{item[:label]}" }
@@ -122,7 +122,7 @@ module LucaCmd
     end
   end
 
-  class Invoice
+  class Invoice < LucaCmd
     def self.create(args = nil, params = {})
       date = "#{args[0]}-#{args[1]}-#{args[2] || '1'}" if !args.empty?
       case params['mode']
@@ -157,7 +157,11 @@ module LucaCmd
         date = "#{Date.today.year}-#{Date.today.month}-1"
         count = 3
       end
-      LucaDeal::Invoice.new(date).stats(count || 1)
+      if params[:html]
+        LucaDeal::Invoice.new(date).preview_stdout
+      else
+        render(LucaDeal::Invoice.new(date).stats(count || 1), params)
+      end
     end
 
     def self.mail(args = nil, params = {})
@@ -168,6 +172,17 @@ module LucaCmd
       else
         LucaDeal::Invoice.new(date).deliver_mail
       end
+    end
+  end
+
+  def self.render(dat, params)
+    case params[:output]
+    when 'json'
+      puts JSON.dump(dat)
+    when 'nu'
+      LucaSupport::View.nushell(YAML.dump(dat))
+    else
+      puts YAML.dump(dat)
     end
   end
 end
@@ -184,20 +199,28 @@ case cmd
 when /customers?/
   subcmd = ARGV.shift
   case subcmd
-  when 'list'
-    OptionParser.new do |opt|
-      opt.banner = 'Usage: luca-deal customers list [options]'
-      args = opt.parse(ARGV)
-      LucaCmd::Customer.list(args, params)
-    end
   when 'create'
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-deal customers create CustomerName'
       args = opt.parse(ARGV)
       LucaCmd::Customer.create(args, params)
     end
+  when 'list'
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca-deal customers list [options]'
+      opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
+      opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }
+      args = opt.parse(ARGV)
+      LucaCmd::Customer.list(args, params)
+    end
   when 'describe'
-    LucaCmd::Customer.describe(ARGV)
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca-deal customers describe [options] customer_id'
+      opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
+      opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }
+      args = opt.parse(ARGV)
+      LucaCmd::Customer.describe(args, params)
+    end
   when 'delete'
     LucaCmd::Customer.delete(ARGV)
   else
@@ -223,7 +246,13 @@ when /contracts?/
       LucaCmd::Contract.create(args, params)
     end
   when 'describe'
-    LucaCmd::Contract.describe(ARGV)
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca-deal contracts describe [options] customer_id'
+      opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
+      opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }
+      args = opt.parse(ARGV)
+      LucaCmd::Contract.describe(args, params)
+    end
   when 'delete'
     LucaCmd::Contract.delete(ARGV)
   else
@@ -252,6 +281,9 @@ when /invoices?/, 'i'
   when 'list'
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-deal invoices list [options] year month [date]'
+      opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
+      opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }
+      opt.on('--html', 'output html invoices') { |_v| params[:html] = 'monthly' }
       args = opt.parse(ARGV)
       LucaCmd::Invoice.list(args, params)
     end

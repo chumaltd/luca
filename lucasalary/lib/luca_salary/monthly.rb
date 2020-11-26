@@ -14,7 +14,7 @@ module LucaSalary
 
     def initialize(date = nil)
       @date = date.nil? ? Date.today : Date.parse(date)
-      @pjdir = Pathname(LucaSupport::Config::Pjdir)
+      @pjdir = Pathname(LucaSupport::PJDIR)
       @config = load_config(@pjdir + 'config.yml')
       @driver = set_driver
     end

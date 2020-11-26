@@ -14,13 +14,11 @@ module LucaSalary
 
     def initialize(date = nil)
       @date = date.nil? ? Date.today : Date.parse(date)
-      @pjdir = Pathname(LucaSupport::Config::Pjdir)
-      @config = load_config(@pjdir / 'config.yml')
       @dict = load_dict
     end
 
     def gen_aggregation!
-      LucaSalary::Profile.all do |profile|
+      Profile.all do |profile|
         id = profile.dig('id')
         payment = {}
         targetdir = @date.year.to_s + 'Z'
@@ -76,16 +74,12 @@ module LucaSalary
 
     private
 
-    def datadir
-      @pjdir / 'data'
-    end
-
     def load_dict
-      LucaRecord::Dict.load_tsv_dict(@pjdir / 'dict' / 'code.tsv')
+      LucaRecord::Dict.load_tsv_dict(PJDIR / 'dict' / 'code.tsv')
     end
 
     def set_driver
-      code = @config['countryCode']
+      code = CONFIG['country']
       if code
         require "luca_salary/#{code.downcase}"
         Kernel.const_get "LucaSalary::#{code.upcase}"

@@ -1,3 +1,8 @@
+## LucaDeal 0.2.20
+
+* CLI provides `--nu` option. Add JSON output.
+* `luca-deal invoices list --html`, rendering HTML to stdout.
+
 ## LucaDeal 0.2.19
 
 * CLI id completion on Customer delete, Contract create/delete

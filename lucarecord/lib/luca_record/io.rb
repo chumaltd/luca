@@ -243,7 +243,7 @@ module LucaRecord # :nodoc:
       end
 
       # test if having required dirs/files under exec path
-      def valid_project?(path = LucaSupport::Config::Pjdir)
+      def valid_project?(path = LucaSupport::PJDIR)
         project_dir = Pathname(path)
         FileTest.file?((project_dir + 'config.yml').to_s) and FileTest.directory?( (project_dir + 'data').to_s)
       end
@@ -362,7 +362,7 @@ module LucaRecord # :nodoc:
 
       # TODO: replace with data_dir method
       def abs_path(base_dir)
-        Pathname(LucaSupport::Config::Pjdir) / 'data' / base_dir
+        Pathname(LucaSupport::PJDIR) / 'data' / base_dir
       end
 
       # true when file doesn't have record on code

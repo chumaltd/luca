@@ -12,19 +12,17 @@ module LucaDeal
     @dirname = 'customers'
     @required = ['name']
 
-    def initialize(pjdir = nil)
+    def initialize
       @date = Date.today
-      @pjdir = pjdir || Dir.pwd
     end
 
     def list_name
-      list = self.class.all.map { |dat| parse_current(dat).sort.to_h }
-      YAML.dump(list).tap { |l| puts l }
+      self.class.all.map { |dat| parse_current(dat).sort.to_h }
     end
 
     def describe(id)
       customer = parse_current(self.class.find(id))
-      contracts = LucaDeal::Contract.all.select { |contract| contract['customer_id'] == customer['id'] }
+      contracts = Contract.all.select { |contract| contract['customer_id'] == customer['id'] }
       if !contracts.empty?
         customer['contracts'] = contracts.map do |c|
           {
@@ -34,7 +32,7 @@ module LucaDeal
           }
         end
       end
-      YAML.dump(readable(customer)).tap{ |d| puts d }
+      readable(customer)
     end
 
     def self.create(obj)

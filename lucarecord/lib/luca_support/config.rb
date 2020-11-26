@@ -8,19 +8,15 @@ require 'yaml'
 module LucaSupport
   PJDIR = ENV['LUCA_TEST_DIR'] || Dir.pwd.freeze
   CONFIG = begin
-             YAML.load_file(Pathname(PJDIR) / 'config.yml', **{})
+             {
+               'decimal_separator' => '.',
+               'thousands_separator' => ','
+             }.merge(YAML.load_file(Pathname(PJDIR) / 'config.yml'))
            rescue Errno::ENOENT
-             {}
+             {
+               'decimal_separator' => '.',
+               'thousands_separator' => ','
+             }
            end
-
-  module Config
-    # Project top directory.
-    Pjdir = ENV['LUCA_TEST_DIR'] || Dir.pwd.freeze
-    if File.exist?(Pathname(Pjdir) / 'config.yml')
-      # DECIMAL_NUM = YAML.load_file(Pathname(Pjdir) / 'config.yml', **{})['decimal_number']
-      COUNTRY = YAML.load_file(Pathname(Pjdir) / 'config.yml', **{})['country']
-      DECIMAL_NUM ||= 0 if COUNTRY == 'jp'
-    end
-    DECIMAL_NUM ||= 2
-  end
+  CONFIG['decimal_num'] ||= CONFIG['country'] == 'jp' ? 0 : 2
 end
