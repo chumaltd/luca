@@ -208,19 +208,22 @@ module LucaBook
 
         report['9142'] = (report['9142'] || BigDecimal('0')) + res['HA']
         res['9142'] = report['9142']
-        res['10'] = sum_matched(report, /^[123][0-9A-Z]{2,}/)
-        res['40'] = sum_matched(report, /^[4][0-9A-Z]{2,}/)
+        res['10'] = sum_matched(report, /^[12][0-9A-Z]{2,}/)
+        jp_4v = sum_matched(report, /^[4][V]{2,}/) # deferred assets for JP GAAP
+        res['30'] = sum_matched(report, /^[34][0-9A-Z]{2,}/) - jp_4v
+        res['4V'] = jp_4v if CONFIG['country'] == 'jp'
         res['50'] = sum_matched(report, /^[56][0-9A-Z]{2,}/)
         res['70'] = sum_matched(report, /^[78][0-9A-Z]{2,}/)
         res['91'] = sum_matched(report, /^91[0-9A-Z]{1,}/)
         res['8ZZ'] = res['50'] + res['70']
         res['9ZZ'] = sum_matched(report, /^[9][0-9A-Z]{2,}/)
 
-        res['1'] = res['10'] + res['40']
+        res['1'] = res['10'] + res['30']
         res['5'] = res['8ZZ'] + res['9ZZ']
         res['_d'] = report['_d']
 
         report.each do |k, v|
+          res[k] ||= sum_matched(report, /^#{k}[0-9A-Z]{1,}/) if k.length == 2
           res[k] = v if k.length == 3
         end
 
@@ -245,14 +248,16 @@ module LucaBook
 
     def set_balance
       pre_last = @start_date.prev_month
-      pre = if @start_date.month > LucaSupport::CONFIG['fy_start'].to_i
-              self.class.accumulate_term(pre_last.year, LucaSupport::CONFIG['fy_start'], pre_last.year, pre_last.month)
-            elsif @start_date.month < LucaSupport::CONFIG['fy_start'].to_i
-              self.class.accumulate_term(pre_last.year - 1, LucaSupport::CONFIG['fy_start'], pre_last.year, pre_last.month)
-            end
+      start_year = if @start_date.month > CONFIG['fy_start'].to_i
+                     pre_last.year
+                   else
+                     pre_last.year - 1
+                   end
+      pre = self.class.accumulate_term(start_year, CONFIG['fy_start'], pre_last.year, pre_last.month)
 
       base = Dict.latest_balance.each_with_object({}) do |(k, v), h|
         h[k] = BigDecimal(v[:balance].to_s) if v[:balance]
+        h[k] ||= BigDecimal('0') if k.length == 2
       end
       if pre
         idx = (pre.keys + base.keys).uniq
@@ -350,7 +355,7 @@ module LucaBook
 
       case CONFIG['country']
       when 'jp'
-        ['91', '911', '912', '913', '9131', '9132', '914', '9141', '9142', '915', '916', '92', '93']
+        ['31', '32', '33', '91', '911', '912', '913', '9131', '9132', '914', '9141', '9142', '915', '916', '92', '93']
       end
     end
   end

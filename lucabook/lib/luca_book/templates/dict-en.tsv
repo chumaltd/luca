@@ -20,36 +20,31 @@ code	label	xbrl_id	consumption_tax	income_tax
 183	立替金
 184	仮払金
 1D0	Deferred income tax
-40	Fixed Assets
-410	Tangible Assets
-411	Buildings	us-gaap:BuildingsAndImprovementsGross
-412	Equipment
-413	Machinery
-414	Vehicles
-415	Tools
-416	Land
-417	Construction in progress	us-gaap:ConstructionInProgressGross
-418	Ships
-420	Intangible Assets
-421	Software
-422	Goodwill	us-gaap:Goodwill
-423	Patents
-424	借地権
-425	商標権
-426	電話加入権
-430	Investments
-431	Investment securities
-432	Associated companies
-433	長期貸付金
-434	破産更正債権
-435	長期前払費用
-436	敷金保証金
-437	Deferred income tax
-440	繰延資産
-441	開業費
-442	創立費
-442	新株発行費
-443	社債発行費
+30	Fixed Assets
+31	Tangible Assets
+311	Buildings	us-gaap:BuildingsAndImprovementsGross
+312	Equipment
+313	Machinery
+314	Vehicles
+315	Tools
+316	Land
+317	Construction in progress	us-gaap:ConstructionInProgressGross
+318	Ships
+32	Intangible Assets
+321	Software
+322	Goodwill	us-gaap:Goodwill
+323	Patents
+324	借地権
+325	商標権
+326	電話加入権
+33	Investments
+331	Investment securities
+332	Associated companies
+333	長期貸付金
+334	破産更正債権
+335	長期前払費用
+336	敷金保証金
+337	Deferred income tax
 50	Current Liabilities
 50XX	UNSETTLED_IMPORT
 510	Notes payable	us-gaap:NotesPayable

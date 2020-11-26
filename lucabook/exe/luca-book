@@ -10,7 +10,8 @@ class LucaCmd
       if params['config']
         LucaBook::Import.new(args[0], params['config']).import_csv
       elsif params['json']
-        LucaBook::Import.import_json(STDIN.read)
+        str = args[0].nil? ? STDIN.read : File.read(args[0])
+        LucaBook::Import.import_json(str)
       else
         puts 'Usage: luca-book import -c import_config'
         exit 1
