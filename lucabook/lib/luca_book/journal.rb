@@ -93,10 +93,16 @@ module LucaBook
           when 3
             line.each_with_index { |amount, j| record[:credit][j][:amount] = BigDecimal(amount.to_s) }
           else
-            if body == false && line.empty?
-              record[:note] ||= []
-              body = true
-            else
+            case body
+            when false
+              if line.empty?
+                record[:note] ||= []
+                body = true
+              else
+                record[:headers] ||= {}
+                record[:headers][line[0]] = line[1]
+              end
+            when true
               record[:note] << line.join(' ') if body
             end
           end

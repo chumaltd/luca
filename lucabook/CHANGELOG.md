@@ -1,3 +1,7 @@
+## LucaBook master
+
+* initial implement `luca-book journals list -c --customer`, grouping with x-customer header
+
 ## LucaBook 0.2.22
 
 * Import options. Tax extension for each countries.

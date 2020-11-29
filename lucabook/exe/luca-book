@@ -21,7 +21,11 @@ class LucaCmd
     def self.list(args, params)
       args = gen_range(params[:n] || 1) if args.empty?
       if params['code']
-        render(LucaBook::List.term(*args, code: params['code']).list_on_code, params)
+        if params['headers']
+          render(LucaBook::ListByHeader.term(*args, code: params['code'], header: params['headers']).list_by_code, params)
+        else
+          render(LucaBook::List.term(*args, code: params['code']).list_by_code, params)
+        end
       else
         render(LucaBook::List.term(*args).list_journals, params)
       end
@@ -95,6 +99,7 @@ when /journals?/, 'j'
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-book journals list [options] [YYYY M]'
       opt.on('-c', '--code VAL', 'search with code') { |v| params['code'] = v }
+      opt.on('--customer', 'categorize by x-customer header') { |_v| params['headers'] = 'x-customer' }
       opt.on('-n VAL', 'report count') { |v| params[:n] = v.to_i }
       opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
       opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }

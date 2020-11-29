@@ -31,7 +31,7 @@ module LucaBook
       new data, Date.new(from_year.to_i, from_month.to_i, 1), code
     end
 
-    def list_on_code
+    def list_by_code
       calc_code
       convert_label
       @data = [code_header] + @data.map do |dat|
