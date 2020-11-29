@@ -1,6 +1,7 @@
-## LucaBook master
+## LucaBook 0.2.23
 
 * initial implement `luca-book journals list -c --customer`, grouping with x-customer header
+* implement `LucaBook::Journal.save()` for updating a record.
 
 ## LucaBook 0.2.22
 

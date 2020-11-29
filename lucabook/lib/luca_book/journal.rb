@@ -12,10 +12,36 @@ module LucaBook
 
     # create journal from hash
     #
-    def self.create(d)
+    def self.create(dat)
+      d = LucaSupport::Code.keys_stringify(dat)
       validate(d)
+      raise 'NoDateKey' unless d.key?('date')
+
       date = Date.parse(d['date'])
 
+      # TODO: need to sync filename & content. Limit code length for filename
+      # codes = (debit_code + credit_code).uniq
+      codes = nil
+
+      create_record(nil, date, codes) { |f| f.write journal2csv(d) }
+    end
+
+    # update journal with hash.
+    # If record not found with id, no record will be created.
+    #
+    def self.save(dat)
+      d = LucaSupport::Code.keys_stringify(dat)
+      raise 'record has no id.' if d['id'].nil?
+
+      validate(d)
+      parts = d['id'].split('/')
+      raise 'invalid ID' if parts.length != 2
+
+      codes = nil
+      open_records(@dirname, parts[0], parts[1], codes, 'w') { |f, _path| f.write journal2csv(d) }
+    end
+
+    def self.journal2csv(d)
       debit_amount = LucaSupport::Code.decimalize(serialize_on_key(d['debit'], 'value'))
       credit_amount = LucaSupport::Code.decimalize(serialize_on_key(d['credit'], 'value'))
       raise 'BalanceUnmatch' if debit_amount.inject(:+) != credit_amount.inject(:+)
@@ -23,16 +49,13 @@ module LucaBook
       debit_code = serialize_on_key(d['debit'], 'code')
       credit_code = serialize_on_key(d['credit'], 'code')
 
-      # TODO: need to sync filename & content. Limit code length for filename
-      # codes = (debit_code + credit_code).uniq
-      codes = nil
-      create_record!(date, codes) do |f|
+      csv = CSV.generate('', col_sep: "\t", headers: false) do |f|
         f << debit_code
         f << LucaSupport::Code.readable(debit_amount)
         f << credit_code
         f << LucaSupport::Code.readable(credit_amount)
         ['x-customer', 'x-editor'].each do |x_header|
-          f << [x_header, d[x_header]] if d.dig(x_header)
+          f << [x_header, d['headers'][x_header]] if d.dig('headers', x_header)
         end
         f << []
         f << [d.dig('note')]
@@ -46,15 +69,7 @@ module LucaBook
       change_codes(obj[:id], codes)
     end
 
-    # define new transaction ID & write data at once
-    def self.create_record!(date_obj, codes = nil)
-      create_record(nil, date_obj, codes) do |f|
-        f.write CSV.generate('', col_sep: "\t", headers: false) { |c| yield(c) }
-      end
-    end
-
     def self.validate(obj)
-      raise 'NoDateKey' unless obj.key?('date')
       raise 'NoDebitKey' unless obj.key?('debit')
       raise 'NoCreditKey' unless obj.key?('credit')
       debit_codes = serialize_on_key(obj['debit'], 'code').compact

@@ -117,6 +117,20 @@ module LucaSupport
       Digest::SHA1.hexdigest(SecureRandom.uuid)
     end
 
+    # Convert Hash keys to string recursively.
+    # Required for YAML compatibility.
+    #
+    def keys_stringify(dat)
+      case dat
+      when Array
+        dat.map { |d| keys_stringify(d) }
+      when Hash
+        dat.map { |k, v| [k.to_s, keys_stringify(v)] }.to_h
+      else
+        dat
+      end
+    end
+
     def match_score(a, b, n = 2)
       v_a = to_ngram(a, n)
       v_b = to_ngram(b, n)

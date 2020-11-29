@@ -1,7 +1,8 @@
-## LucaRecord master
+## LucaRecord 0.2.24
 
 * Digit delimiter for `delimit_num` can be customized through `thousands_separator` and `decimal_separator` in config.yml.
 * Const `CONFIG` and `PJDIR` is defined at `LucaRecord::Base`.
+* add `LucaSupport::Code.keys_stringify()`
 
 ## LucaRecord 0.2.23
 
