@@ -84,8 +84,9 @@ module LucaBook
       default_label = debit ? @config.dig(:default_debit) : @config.dig(:default_credit)
       code, options = search_code(row[@config[:label]], default_label, value)
       counter_code = @code_map.dig(@config[:counter_label])
-      if respond_to? :tax_extension
-        data, data_c = tax_extension(code, counter_code, value, options) if options
+      if options
+        x_customer = options[:'x-customer'] if options[:'x-customer']
+        data, data_c = tax_extension(code, counter_code, value, options) if respond_to? :tax_extension
       end
       data ||= [{ 'code' => code, 'value' => value }]
       data_c ||= [{ 'code' => counter_code, 'value' => value }]
@@ -99,7 +100,8 @@ module LucaBook
           d['credit'] = data
         end
         d['note'] = Array(@config[:note]).map{ |col| row[col] }.join(' ')
-        d['x-editor'] = "LucaBook::Import/#{@dict_name}"
+        d['headers'] = { 'x-editor' => "LucaBook::Import/#{@dict_name}" }
+        d['headers']['x-customer'] = x_customer if x_customer
       end
     end
 

@@ -29,6 +29,7 @@ class LucaBook::ImportTest < Minitest::Test
       assert_equal '1101', dat[:debit][0][:code]
       assert_equal 'D11', dat[:credit][0][:code]
     end
+    assert_equal 'LucaLand', LucaBook::Journal.find('9999L/F002')[:headers]['x-customer']
     assert_equal 2, File.read('data/journals/9999L/9001').match(/(98\.99)/).size
     assert_equal 0, Dir.glob('data/journals/9999L/*-*113*').length
   end

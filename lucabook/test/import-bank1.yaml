@@ -12,5 +12,7 @@ config:
 definitions:
   Interest: "Interest income"
   TotalCredit: "Accounts payable - other"
-  LucaLand: Rents
+  LucaLand:
+    account_label: Rents
+    x-customer: LucaLand
   CandSCompany: "Accounts payable - trade"
