@@ -44,6 +44,39 @@ module LucaSalary
       end
     end
 
+    def self.year_total(year)
+      Profile.all do |profile|
+        id = profile.dig('id')
+        payment = { 'profile_id' => id }
+        # payment = {}
+        (1..12).each do |month|
+          search(year, month, nil, id).each do |origin|
+            # TODO: to be updated null check
+            if origin == {}
+              month
+            else
+              origin.select { |k, _v| /^[1-4][0-9A-Fa-f]{,3}$/.match(k) }.each do |k, v|
+                payment[k] = payment[k] ? payment[k] + v : v
+              end
+              nil
+            end
+          end
+        end
+        payment = local_convert(payment)
+        create(payment, date: Date.new(year, 12, 31), codes: [id], basedir: 'payments/total')
+      end
+    end
+
+    def self.local_convert(payment)
+      return payment if CONFIG['country'].nil?
+
+      require "luca_salary/#{CONFIG['country'].downcase}"
+      klass = Kernel.const_get("LucaSalary::#{CONFIG['country'].capitalize}")
+      klass.year_total(payment)
+    rescue
+      return payment
+    end
+
     # Export json for LucaBook.
     # Accrual_date can be change with `payment_term` on config.yml. Default value is 0.
     # `payment_term: 1` means payment on the next month of calculation target.

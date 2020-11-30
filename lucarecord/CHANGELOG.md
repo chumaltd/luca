@@ -1,3 +1,7 @@
+## LucaRecord master
+
+* Implement `dir_digest()` for data validation.
+
 ## LucaRecord 0.2.24
 
 * Digit delimiter for `delimit_num` can be customized through `thousands_separator` and `decimal_separator` in config.yml.

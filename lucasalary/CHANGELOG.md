@@ -1,3 +1,7 @@
+## LucaSalary 0.1.20
+
+* Implement `year_total`
+
 ## LucaSalary 0.1.19
 
 * Support `payment_term` on config.yml for accounting export.

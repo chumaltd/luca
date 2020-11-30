@@ -17,29 +17,6 @@ module LucaSalary
       @dict = load_dict
     end
 
-    def gen_aggregation!
-      Profile.all do |profile|
-        id = profile.dig('id')
-        payment = {}
-        targetdir = @date.year.to_s + 'Z'
-        past_data = LucaRecord::Base.find(id, "payments/#{targetdir}")
-        (1..12).map do |month|
-          origin_dir = @date.year.to_s + [nil, 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'][month]
-          origin = LucaRecord::Base.find(id, "payments/#{origin_dir}")
-          # TODO: to be updated null check
-          if origin == {}
-            month
-          else
-            origin.select { |k, _v| /^[1-4][0-9A-Fa-f]{,3}$/.match(k) }.each do |k, v|
-              payment[k] = payment[k] ? payment[k] + v : v
-            end
-            nil
-          end
-        end
-        self.class.create(past_data.merge!(payment), "payments/#{targetdir}")
-      end
-    end
-
     def select_code(dat, code)
       dat.filter { |k, _v| /^#{code}[0-9A-Fa-f]{,3}$/.match(k.to_s) }
     end
@@ -75,14 +52,14 @@ module LucaSalary
     private
 
     def load_dict
-      LucaRecord::Dict.load_tsv_dict(PJDIR / 'dict' / 'code.tsv')
+      LucaRecord::Dict.load_tsv_dict(Pathname(PJDIR) / 'dict' / 'code.tsv')
     end
 
     def set_driver
       code = CONFIG['country']
       if code
         require "luca_salary/#{code.downcase}"
-        Kernel.const_get "LucaSalary::#{code.upcase}"
+        Kernel.const_get "LucaSalary::#{code.capitalise}"
       else
         nil
       end

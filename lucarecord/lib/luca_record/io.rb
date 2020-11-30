@@ -252,6 +252,17 @@ module LucaRecord # :nodoc:
         LucaSupport::Code.encode_txid(new_record_no(basedir, date_obj))
       end
 
+      # Calculate md5sum under specific month directory.
+      #
+      def dir_digest(year, month, basedir = @dirname)
+        subdir = year.to_s + LucaSupport::Code.encode_month(month)
+        digest = String.new
+        open_records(basedir, subdir).each do |f, path|
+          digest = update_digest(digest, f.read, path[1])
+        end
+        digest
+      end
+
       private
 
       # define new transaction ID & write data at once
@@ -419,6 +430,14 @@ module LucaRecord # :nodoc:
       else
         {}
       end
+    end
+
+    # Calculate md5sum with original digest, file content and filename(optional).
+    #
+    def update_digest(digest, str, filename = nil)
+      str = filename.nil? ? str : filename + str
+      content = Digest::MD5.new.update(str).hexdigest
+      Digest::MD5.new.update(digest + content).hexdigest
     end
   end
 end
