@@ -7,7 +7,7 @@ Built on Ruby, its primary target is terminal environment for Linux, Android [Te
 
 * [LucaBook](lucabook/README.md): Accounting
 * [LucaDeal](lucadeal/README.md): Sales contract management
-* LucaSalary: Salary calculation
+* [LucaSalary](lucasalary/README.md): Salary calculation
 
 
 ## Framework
