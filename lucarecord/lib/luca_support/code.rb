@@ -59,18 +59,18 @@ module LucaSupport
       case num
       when BigDecimal
         if decimal == 0
-          num.floor.to_s.reverse.gsub!(/(\d{3})(?=\d)/, '\1 ').reverse!
-            .gsub!(/\s/, delimiter)
+          num.floor.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\1 ').reverse!
+            .gsub(/\s/, delimiter)
         else
           fragments = num.floor(decimal).to_s('F').split('.')
-          fragments[0].reverse!.gsub!(/(\d{3})(?=\d)/, '\1 ').reverse!
+          fragments[0].reverse!.gsub(/(\d{3})(?=\d)/, '\1 ').reverse!
             .gsub!(/\s/, delimiter)
-          fragments[1].gsub!(/(\d{3})(?=\d)/, '\1 ')
+          fragments[1].gsub(/(\d{3})(?=\d)/, '\1 ')
           fragments.join(LucaSupport::CONFIG['decimal_separator'])
         end
       else
-        num.to_s.reverse.gsub!(/(\d{3})(?=\d)/, '\1 ').reverse!
-          .gsub!(/\s/, delimiter)
+        num.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\1 ').reverse!
+          .gsub(/\s/, delimiter)
       end
     end
 

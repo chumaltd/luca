@@ -1,3 +1,7 @@
+## LucaDeal master
+
+* single invoice creation with contract id fragment.
+
 ## LucaDeal 0.2.20
 
 * CLI provides `--nu` option. Add JSON output.

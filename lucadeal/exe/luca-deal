@@ -124,12 +124,27 @@ class LucaCmd
 
   class Invoice < LucaCmd
     def self.create(args = nil, params = {})
-      date = "#{args[0]}-#{args[1]}-#{args[2] || '1'}" if !args.empty?
       case params['mode']
       when 'monthly'
+        date = "#{args[0]}-#{args[1]}-#{args[2] || '1'}" if !args.empty?
         LucaDeal::Invoice.new(date).monthly_invoice
       else
-        puts 'not implemented mode'
+        date = "#{args[1]}-#{args[2]}-#{args[3] || '1'}" if !args.empty?
+        list = LucaDeal::Contract.id_completion(args[0] || '', label: 'customer_name')
+        if args.length != 3
+          puts 'requires contract id & year month. exit'
+          list.each { |item| puts "  #{item[:id]}  #{item[:label]}" }
+          exit 1
+        else
+          case list.length
+          when 1
+            id = LucaDeal::Invoice.new(date).single_invoice(list.first)
+          else
+            puts 'found multiple contract id. exit'
+            list.each { |item| puts "  #{item[:id]}  #{item[:label]}" }
+            exit 1
+          end
+        end
       end
     end
 
@@ -271,7 +286,7 @@ when /invoices?/, 'i'
   case subcmd
   when 'create'
     OptionParser.new do |opt|
-      opt.banner = 'Usage: luca-deal invoices create [options] year month [date]'
+      opt.banner = 'Usage: luca-deal invoices create [options] --monthly|contract_id year month [date]'
       opt.on('--monthly', 'generate monthly data') { |_v| params['mode'] = 'monthly' }
       args = opt.parse(ARGV)
       LucaCmd::Invoice.create(args, params)

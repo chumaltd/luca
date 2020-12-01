@@ -19,23 +19,22 @@ module LucaDeal
       @date = issue_date(date)
     end
 
-    def deliver_mail
+    def deliver_mail(attachment_type = nil, mode: nil)
       attachment_type = CONFIG.dig('invoice', 'attachment') || :html
-      self.class.asof(@date.year, @date.month) do |dat, path|
+      invoices = self.class.asof(@date.year, @date.month)
+      raise "No invoice for #{@date.year}/#{@date.month}" if invoices.count.zero?
+
+      invoices.each do |dat, path|
         next if has_status?(dat, 'mail_delivered')
 
-        mail = compose_mail(dat, attachment: attachment_type.to_sym)
+        mail = compose_mail(dat, mode: mode, attachment: attachment_type.to_sym)
         LucaSupport::Mail.new(mail, PJDIR).deliver
         self.class.add_status!(path, 'mail_delivered')
       end
     end
 
     def preview_mail(attachment_type = nil)
-      attachment_type ||= CONFIG.dig('invoice', 'attachment') || :html
-      self.class.asof(@date.year, @date.month) do |dat, _path|
-        mail = compose_mail(dat, mode: :preview, attachment: attachment_type.to_sym)
-        LucaSupport::Mail.new(mail, PJDIR).deliver
-      end
+      deliver_mail(attachment_type, mode: :preview)
     end
 
     # Render HTML to console
@@ -136,6 +135,29 @@ module LucaDeal
         end
         puts JSON.dump(res)
       end
+    end
+
+    # TODO: refacter merging with monthly invoice
+    #
+    def single_invoice(contract_id)
+      contract = Contract.find(contract_id)
+      raise "Invoice already exists for #{contract_id}. exit" if duplicated_contract? contract['id']
+
+      invoice = {}
+      invoice['contract_id'] = contract['id']
+      invoice['customer'] = get_customer(contract.dig('customer_id'))
+      invoice['due_date'] = due_date(@date)
+      invoice['issue_date'] = @date
+      invoice['sales_fee'] = contract['sales_fee'] if contract.dig('sales_fee')
+      invoice['items'] = get_products(contract['products'])
+                           .concat(contract['items']&.map { |i| i['qty'] ||= 1; i } || [])
+                           .compact
+      invoice['items'].reject! do |item|
+        item.dig('type') == 'initial' && subsequent_month?(contract.dig('terms', 'effective'))
+      end
+      invoice['subtotal'] = subtotal(invoice['items'])
+                              .map { |k, v| v.tap { |dat| dat['rate'] = k } }
+      gen_invoice!(invoice)
     end
 
     def monthly_invoice
