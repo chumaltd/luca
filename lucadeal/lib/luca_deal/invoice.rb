@@ -257,7 +257,8 @@ module LucaDeal
     end
 
     def attachment_name(dat, type)
-      "invoice-#{dat.dig('id')[0, 7]}.#{type}"
+      id = %r{/}.match(dat['id']) ? dat['id'].gsub('/', '') : dat['id'][0, 7]
+      "invoice-#{id}.#{type}"
     end
 
     def duplicated_contract?(id)
