@@ -1,0 +1,52 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body { size: A4 }
+        </style>
+    </head>
+    <body>
+        <div style="text-align: right">Issue date: <%= @issue_date %></div>
+        <h1 style="display: block; margin: auto; text-align: center">Invoice</h1>
+        <section><%= @customer["name"] %></section>
+        <section>Total amount: <%= delimit_num(@amount) %></section>
+
+        <table style="width: 100%">
+            <thead>
+                <th>#</th>
+                <th>Item</th>
+                <th>qty</th>
+                <th>Amount</th>
+            </thead>
+            <tbody>
+                <% @items.each.with_index(1) do |item, i| %>
+                    <tr class="item">
+                        <td class="unit"><%= i %></td>
+                        <td><%= item["name"] %></td>
+                        <td class="unit"><%= item["qty"] %></td>
+                        <td class="price"><%= delimit_num( item["price"] * item["qty"] ) %></td>
+                    </tr>
+                <% end %>
+                <% @subtotal.each.with_index(1) do |sub, i| %>
+                    <tr>
+                        <td class="price" colspan="3">Subtotal</td>
+                        <td class="price"><%= delimit_num( sub['items'] ) %></td>
+                    </tr>
+                    <tr>
+                        <td class="price" colspan="3">Tax</td>
+                        <td class="price"><%= delimit_num( sub['tax'] ) %></td>
+                    </tr>
+                    <tr>
+                        <td class="price" colspan="3">Total</td>
+                        <td class="price"><%= delimit_num( sub['items'] + sub['tax'] ) %></td>
+                    </tr>
+                <% end %>
+        </table>
+
+        <section>
+        <div><%= @company["name"] %></div>
+        <div><%= @company["address"] %></div>
+        <div><%= @company["address2"] %></div>
+        </section>
+    </body>
+</html>

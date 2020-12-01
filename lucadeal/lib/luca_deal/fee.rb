@@ -124,10 +124,10 @@ module LucaDeal
     def fee_vars(fee_dat)
       @customer = fee_dat['customer']
       @items = readable(fee_dat['items'])
-      @subtotal = readable(fee_dat['subtotal'])
+      @sales_fee = readable(fee_dat['sales_fee'])
       @issue_date = fee_dat['issue_date']
       @due_date = fee_dat['due_date']
-      @amount = readable(fee_dat['subtotal'].inject(0) { |sum, i| sum + i['fee'] + i['tax'] })
+      @amount = readable(fee_dat['sales_fee'].inject(0) { |sum, (_k, v)| sum + v })
     end
 
     def lib_path
