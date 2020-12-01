@@ -61,6 +61,12 @@ Monthly invoices are generated with `invoice create --monthly` sub command. Targ
 $ luca-deal invoice create --monthly [yyyy m]
 ```
 
+Or, any invoice can be created with contract ID. Contract ID is just unique fragment of uuid, listed with `luca-deal invoice create` with no args.
+
+```
+$ luca-deal invoice create 1d3 yyyy m
+```
+
 Invoice conditions are defined by contracts.
 
 
