@@ -70,6 +70,21 @@ $ luca-deal invoice create 1d3 yyyy m
 Invoice conditions are defined by contracts.
 
 
+### Send Invoice
+
+Invoice is implemented with HTML & ERB. Copy [default template](lib/luca_deal/templates/invoice.html.erb) to `templates/` in the data directory, and customize.  
+If you want to send invoices in PDF, you need to install `wkhtmltopdf command separately. Send mail command is as bellows:`
+
+```
+$ luca-deal invoice mail yyyy m
+```
+
+
+### Sales Fee
+
+You can also manage revenue share program with Fee object. Setup proper contract structure.
+
+
 ## Data Structure
 
 Records are stored in YAML format. On historical records, see [LucaRecord](../lucarecord/README.md#historical-field).
