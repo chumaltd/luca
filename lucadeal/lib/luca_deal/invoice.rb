@@ -137,27 +137,11 @@ module LucaDeal
       end
     end
 
-    # TODO: refacter merging with monthly invoice
-    #
     def single_invoice(contract_id)
       contract = Contract.find(contract_id)
       raise "Invoice already exists for #{contract_id}. exit" if duplicated_contract? contract['id']
 
-      invoice = {}
-      invoice['contract_id'] = contract['id']
-      invoice['customer'] = get_customer(contract.dig('customer_id'))
-      invoice['due_date'] = due_date(@date)
-      invoice['issue_date'] = @date
-      invoice['sales_fee'] = contract['sales_fee'] if contract.dig('sales_fee')
-      invoice['items'] = get_products(contract['products'])
-                           .concat(contract['items']&.map { |i| i['qty'] ||= 1; i } || [])
-                           .compact
-      invoice['items'].reject! do |item|
-        item.dig('type') == 'initial' && subsequent_month?(contract.dig('terms', 'effective'))
-      end
-      invoice['subtotal'] = subtotal(invoice['items'])
-                              .map { |k, v| v.tap { |dat| dat['rate'] = k } }
-      gen_invoice!(invoice)
+      gen_invoice!(invoice_object(contract))
     end
 
     def monthly_invoice
@@ -166,8 +150,12 @@ module LucaDeal
         # TODO: provide another I/F for force re-issue if needed
         next if duplicated_contract? contract['id']
 
-        invoice = {}
-        invoice['id'] = issue_random_id
+        gen_invoice!(invoice_object(contract))
+      end
+    end
+
+    def invoice_object(contract)
+      {}.tap do |invoice|
         invoice['contract_id'] = contract['id']
         invoice['customer'] = get_customer(contract.dig('customer_id'))
         invoice['due_date'] = due_date(@date)
@@ -180,8 +168,7 @@ module LucaDeal
           item.dig('type') == 'initial' && subsequent_month?(contract.dig('terms', 'effective'))
         end
         invoice['subtotal'] = subtotal(invoice['items'])
-                              .map { |k, v| v.tap { |dat| dat['rate'] = k } }
-        gen_invoice!(invoice)
+                                .map { |k, v| v.tap { |dat| dat['rate'] = k } }
       end
     end
 
@@ -224,7 +211,8 @@ module LucaDeal
 
     # TODO: support due_date variation
     def due_date(date)
-      Date.new(date.year, date.month + 1, -1)
+      next_month = date.next_month
+      Date.new(next_month.year, next_month.month, -1)
     end
 
     private

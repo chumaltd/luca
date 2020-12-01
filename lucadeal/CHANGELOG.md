@@ -1,5 +1,6 @@
 ## LucaDeal master
 
+* Implement `luca-deal fee` subcommands.
 * single invoice creation with contract id fragment.
 
 ## LucaDeal 0.2.20

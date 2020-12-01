@@ -190,6 +190,51 @@ class LucaCmd
     end
   end
 
+  class Fee < LucaCmd
+    def self.create(args = nil, params = {})
+      case params['mode']
+      when 'monthly'
+        date = "#{args[0]}-#{args[1]}-#{args[2] || '1'}" if !args.empty?
+        LucaDeal::Fee.new(date).monthly_fee
+      else
+        puts "not implemented yet"
+        exit 1
+      end
+    end
+
+    def self.delete(args = nil, params = {})
+      if args
+        id = LucaDeal::Fee.delete(args[0])
+      else
+        puts 'requires contract id. exit'
+        exit 1
+      end
+    end
+
+    def self.list(args = nil, params = {})
+      date = "#{args[0]}-#{args[1]}-#{args[2] || '1'}" if !args.empty?
+      if args.empty?
+        date = "#{Date.today.year}-#{Date.today.month}-1"
+        count = 3
+      end
+      if params[:html]
+        LucaDeal::Fee.new(date).preview_stdout
+      else
+        render(LucaDeal::Fee.new(date).stats(count || 1), params)
+      end
+    end
+
+    def self.mail(args = nil, params = {})
+      date = "#{args[0]}-#{args[1]}-#{args[2] || '1'}" if !args.empty?
+      case params['mode']
+      when 'preview'
+        LucaDeal::Fee.new(date).preview_mail
+      else
+        LucaDeal::Fee.new(date).deliver_mail
+      end
+    end
+  end
+
   def self.render(dat, params)
     case params[:output]
     when 'json'
@@ -325,6 +370,44 @@ when 'new'
     opt.banner = 'Usage: luca-deal new DIR'
     args = opt.parse(ARGV)
     new_pj(args, params)
+  end
+when /fee/
+  subcmd = ARGV.shift
+  case subcmd
+  when 'create'
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca-deal fee create [options] year month [date]'
+      opt.on('--monthly', 'generate monthly data') { |_v| params['mode'] = 'monthly' }
+      args = opt.parse(ARGV)
+      LucaCmd::Fee.create(args, params)
+    end
+  when 'delete'
+    LucaCmd::Fee.delete(ARGV)
+  when 'list'
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca-deal fee list [options] year month [date]'
+      opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
+      opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }
+      opt.on('--html', 'output html invoices') { |_v| params[:html] = 'monthly' }
+      args = opt.parse(ARGV)
+      LucaCmd::Fee.list(args, params)
+    end
+  when 'mail'
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca-deal fee mail [options] year month [date]'
+      opt.on('--preview', 'send to preview user') { |_v| params['mode'] = 'preview' }
+      args = opt.parse(ARGV)
+      LucaCmd::Fee.mail(args, params)
+    end
+  else
+    puts 'Proper subcommand needed.'
+    puts
+    puts 'Usage: luca-deal fee subcommand [--help|options]'
+    puts '  create'
+    puts '  delete'
+    puts '  list'
+    puts '  mail: send mail with report'
+    exit 1
   end
 else
   puts 'Proper subcommand needed.'
