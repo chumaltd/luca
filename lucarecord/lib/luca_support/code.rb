@@ -63,7 +63,7 @@ module LucaSupport
             .gsub(/\s/, delimiter)
         else
           fragments = num.floor(decimal).to_s('F').split('.')
-          fragments[0].reverse!.gsub(/(\d{3})(?=\d)/, '\1 ').reverse!
+          fragments[0].reverse.gsub(/(\d{3})(?=\d)/, '\1 ').reverse!
             .gsub!(/\s/, delimiter)
           fragments[1].gsub(/(\d{3})(?=\d)/, '\1 ')
           fragments.join(LucaSupport::CONFIG['decimal_separator'])

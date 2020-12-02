@@ -350,12 +350,14 @@ module LucaRecord # :nodoc:
       # If specific decode is needed, override this method in each class.
       #
       def load_data(io, path = nil)
-        case @record_type
-        when 'raw'
-          # TODO: raw may be unneeded in favor of override
-          io
-        when 'json'
-        # TODO: implement JSON parse
+        if @record_type
+          case @record_type
+          when 'raw'
+            # TODO: raw may be unneeded in favor of override
+            io
+          when 'json'
+            # TODO: implement JSON parse
+          end
         else
           LucaSupport::Code.decimalize(YAML.load(io.read)).tap { |obj| validate_keys(obj) }
         end
