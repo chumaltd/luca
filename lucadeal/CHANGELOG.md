@@ -1,3 +1,7 @@
+## LucaDeal 0.2.25
+
+* Breaking change: export key 'value' -> 'amount'
+
 ## LucaDeal 0.2.21
 
 * Implement `luca-deal fee` subcommands.

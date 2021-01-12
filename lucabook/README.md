@@ -78,8 +78,8 @@ This example will import bank-statement.csv with `-c` option for config YAML(dic
 |-------------|---------------|-----------------------------------------------------------|------------------------------------|
 | config      | label         | CSV column no.                                            | label is used for account search   |
 |             | counter_label | Account label(string)                                     | like "Saving Account" or bank name |
-|             | debit_value   | CSV column no.                                            |                                    |
-|             | credit_value  | CSV column no.                                            |                                    |
+|             | debit_amount | CSV column no.                                            |                                    |
+|             | credit_amount | CSV column no.                                            |                                    |
 |             | year          | CSV column no.                                            | year of transaction date.          |
 |             | month         | CSV column no.                                            | month of transaction date.         |
 |             | day           | CSV column no.                                            | day of transaction date.           |

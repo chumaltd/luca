@@ -124,10 +124,10 @@ module LucaDeal
           item['debit'] = []
           item['credit'] = []
           dat['subtotal'].map do |sub|
-            item['debit'] << { 'label' => '売掛金', 'value' => readable(sub['items']) }
-            item['debit'] << { 'label' => '売掛金', 'value' => readable(sub['tax']) }
-            item['credit'] << { 'label' => '売上高', 'value' => readable(sub['items']) }
-            item['credit'] << { 'label' => '売上高', 'value' => readable(sub['tax']) }
+            item['debit'] << { 'label' => '売掛金', 'amount' => readable(sub['items']) }
+            item['debit'] << { 'label' => '売掛金', 'amount' => readable(sub['tax']) }
+            item['credit'] << { 'label' => '売上高', 'amount' => readable(sub['items']) }
+            item['credit'] << { 'label' => '売上高', 'amount' => readable(sub['tax']) }
           end
           item['x-customer'] = dat['customer']['name'] if dat.dig('customer', 'name')
           item['x-editor'] = 'LucaDeal'

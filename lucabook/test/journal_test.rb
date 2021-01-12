@@ -18,10 +18,10 @@ class LucaBook::JournalTest < Minitest::Test
     journal = {
       date: '9999-12-9',
       debit: [
-        { code: 'C1E', value: BigDecimal('98.76') }
+        { code: 'C1E', amount: BigDecimal('98.76') }
       ],
       credit: [
-        { code: '113', value: BigDecimal('98.76') }
+        { code: '113', amount: BigDecimal('98.76') }
       ],
       note: 'test journal'
     }
@@ -36,10 +36,10 @@ class LucaBook::JournalTest < Minitest::Test
     journal = {
       id: '9999L/9001',
       debit: [
-        { code: 'C1E', value: BigDecimal('198.76') }
+        { code: 'C1E', amount: BigDecimal('198.76') }
       ],
       credit: [
-        { code: '113', value: BigDecimal('198.76') }
+        { code: '113', amount: BigDecimal('198.76') }
       ],
       note: 'test journal'
     }
@@ -57,10 +57,10 @@ class LucaBook::JournalTest < Minitest::Test
     journal = {
       date: '9999-12-9',
       debit: [
-        { code: 'C1E', value: BigDecimal('98.76') }
+        { code: 'C1E', amount: BigDecimal('98.76') }
       ],
       credit: [
-        { code: '113', value: BigDecimal('98.76') }
+        { code: '113', amount: BigDecimal('98.76') }
       ],
       headers: { 'x-customer' => 'Test Co.' },
       note: 'test journal'
@@ -68,10 +68,10 @@ class LucaBook::JournalTest < Minitest::Test
     LucaBook::Journal.create(journal)
     journal = {
       debit: [
-        { code: 'C1E', value: BigDecimal('198.76') }
+        { code: 'C1E', amount: BigDecimal('198.76') }
       ],
       credit: [
-        { code: '113', value: BigDecimal('198.76') }
+        { code: '113', amount: BigDecimal('198.76') }
       ],
       note: 'test journal'
     }
@@ -92,10 +92,10 @@ class LucaBook::JournalTest < Minitest::Test
     journal_no_header = {
       date: '9999-12-9',
       debit: [
-        { code: 'C1E', value: BigDecimal('98.76') }
+        { code: 'C1E', amount: BigDecimal('98.76') }
       ],
       credit: [
-        { code: '113', value: BigDecimal('98.76') }
+        { code: '113', amount: BigDecimal('98.76') }
       ],
       note: 'test journal'
     }
@@ -105,10 +105,10 @@ class LucaBook::JournalTest < Minitest::Test
     journal_with_header = {
       date: '9999-12-9',
       debit: [
-        { code: 'C1E', value: BigDecimal('98.76') }
+        { code: 'C1E', amount: BigDecimal('98.76') }
       ],
       credit: [
-        { code: '113', value: BigDecimal('98.76') }
+        { code: '113', amount: BigDecimal('98.76') }
       ],
       headers: { 'x-customer' => 'Test Co.' },
       note: 'test journal'
@@ -122,10 +122,10 @@ class LucaBook::JournalTest < Minitest::Test
     journal = {
       date: '9999-12-9',
       debit: [
-        { code: 'C1E', value: BigDecimal('98.76') }
+        { code: 'C1E', amount: BigDecimal('98.76') }
       ],
       credit: [
-        { code: '113', value: BigDecimal('98.76') }
+        { code: '113', amount: BigDecimal('98.76') }
       ],
       headers: { 'x-customer' => 'Test Co.' },
       note: 'test journal'

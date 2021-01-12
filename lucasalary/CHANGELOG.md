@@ -1,6 +1,7 @@
 ## LucaSalary 0.1.20
 
 * Implement `year_total`
+* Breaking change: export key 'value' -> 'amount'
 
 ## LucaSalary 0.1.19
 
