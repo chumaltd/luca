@@ -19,7 +19,7 @@ class LucaRecord::IoWriteTest < Minitest::Test
   end
 
   def test_that_it_create_and_update_uuid_record
-    id = SampleRecord.create('name' => 'SampleProduct1', 'initial' => { 'name' => 'Initial fee', 'price' => 50_000 })
+    id = SampleRecord.create({'name' => 'SampleProduct1', 'initial' => { 'name' => 'Initial fee', 'price' => 50_000 }})
     assert_equal 1, Dir.glob('data/samples/*/*').length
     assert_equal 1, SampleRecord.all.count
     load_data = SampleRecord.find(id)
@@ -62,7 +62,7 @@ class LucaRecord::IoWriteTest < Minitest::Test
   end
 
   def test_that_it_delete_record
-    id = SampleRecord.create('name' => 'SampleProduct1', 'initial' => { 'name' => 'Initial fee', 'price' => 50000 })
+    id = SampleRecord.create({'name' => 'SampleProduct1', 'initial' => { 'name' => 'Initial fee', 'price' => 50000 }})
     assert_equal 1, Dir.glob('data/samples/*/*').length
     SampleRecord.delete(id)
     assert_equal 0, Dir.glob('data/samples/*/*').length

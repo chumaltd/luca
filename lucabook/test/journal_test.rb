@@ -87,4 +87,51 @@ class LucaBook::JournalTest < Minitest::Test
       assert_equal 'Test Co.', dat[:headers]['x-customer']
     end
   end
+
+  def test_that_it_adds_valid_header
+    journal_no_header = {
+      date: '9999-12-9',
+      debit: [
+        { code: 'C1E', value: BigDecimal('98.76') }
+      ],
+      credit: [
+        { code: '113', value: BigDecimal('98.76') }
+      ],
+      note: 'test journal'
+    }
+    mod_journal = LucaBook::Journal.add_header(journal_no_header, 'x-tax', 'some_tax_identifier')
+    assert_equal 'some_tax_identifier', mod_journal[:headers]['x-tax']
+
+    journal_with_header = {
+      date: '9999-12-9',
+      debit: [
+        { code: 'C1E', value: BigDecimal('98.76') }
+      ],
+      credit: [
+        { code: '113', value: BigDecimal('98.76') }
+      ],
+      headers: { 'x-customer' => 'Test Co.' },
+      note: 'test journal'
+    }
+    mod_journal = LucaBook::Journal.add_header(journal_with_header, 'x-tax', 'some_tax_identifier')
+    assert_equal 'some_tax_identifier', mod_journal[:headers]['x-tax']
+    assert_equal 'Test Co.', mod_journal[:headers]['x-customer']
+  end
+
+  def test_that_it_blocks_invalid_header
+    journal = {
+      date: '9999-12-9',
+      debit: [
+        { code: 'C1E', value: BigDecimal('98.76') }
+      ],
+      credit: [
+        { code: '113', value: BigDecimal('98.76') }
+      ],
+      headers: { 'x-customer' => 'Test Co.' },
+      note: 'test journal'
+    }
+    mod_journal = LucaBook::Journal.add_header(journal, 'x-invalid', 'some_invalid_header')
+    assert_nil mod_journal[:headers]['x-invalid']
+    assert_equal 'Test Co.', mod_journal[:headers]['x-customer']
+  end
 end

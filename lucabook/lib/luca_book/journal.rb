@@ -15,6 +15,7 @@ module LucaBook #:nodoc:
   #     For tracking tax related transaction.
   #
   class Journal < LucaRecord::Base
+    ACCEPTED_HEADERS = ['x-customer', 'x-editor', 'x-tax']
     @dirname = 'journals'
 
     # create journal from hash
@@ -58,16 +59,28 @@ module LucaBook #:nodoc:
       debit_code = serialize_on_key(d['debit'], 'code')
       credit_code = serialize_on_key(d['credit'], 'code')
 
-      csv = CSV.generate('', col_sep: "\t", headers: false) do |f|
+      csv = CSV.generate(String.new, col_sep: "\t", headers: false) do |f|
         f << debit_code
         f << LucaSupport::Code.readable(debit_amount)
         f << credit_code
         f << LucaSupport::Code.readable(credit_amount)
-        ['x-customer', 'x-editor', 'x-tax'].each do |x_header|
+        ACCEPTED_HEADERS.each do |x_header|
           f << [x_header, d['headers'][x_header]] if d.dig('headers', x_header)
         end
         f << []
         f << [d.dig('note')]
+      end
+    end
+
+    # Set accepted header with key/value
+    #
+    def self.add_header(journal_hash, key, val)
+      return journal_hash if val.nil?
+      return journal_hash unless ACCEPTED_HEADERS.include?(key)
+
+      journal_hash.tap do |o|
+        o[:headers] = {} unless o.dig(:headers)
+        o[:headers][key] = val
       end
     end
 
