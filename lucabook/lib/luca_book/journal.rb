@@ -72,7 +72,7 @@ module LucaBook #:nodoc:
       end
     end
 
-    # Set accepted header with key/value
+    # Set accepted header with key/value, update record if exists.
     #
     def self.add_header(journal_hash, key, val)
       return journal_hash if val.nil?
@@ -81,7 +81,7 @@ module LucaBook #:nodoc:
       journal_hash.tap do |o|
         o[:headers] = {} unless o.dig(:headers)
         o[:headers][key] = val
-        save o
+        save o if o[:id]
       end
     end
 
