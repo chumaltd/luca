@@ -49,7 +49,7 @@ class LucaBookConsole
           print "  " if h[:code].length > 3
         end
         puts cnsl_label(h[:label], h[:code])
-        h[:value].each_slice(6) do |v|
+        h[:amount].each_slice(6) do |v|
           puts "#{cnsl_fmt("", 14)} #{v.map{|v| cnsl_fmt(v, 14)}.join}"
         end
       end
@@ -72,13 +72,13 @@ class LucaBookConsole
     end
     convert_collection(report).each do |h|
       if /^[A-Z]/.match(h[:code])
-        total = [h[:value].inject(:+)] + Array.new(h[:value].length)
+        total = [h[:amount].inject(:+)] + Array.new(h[:amount].length)
         if /[^0]$/.match(h[:code])
           print "  "
           print "  " if h[:code].length > 3
         end
         puts cnsl_label(h[:label], h[:code])
-        h[:value].each_slice(6).with_index(0) do |v, i|
+        h[:amount].each_slice(6).with_index(0) do |v, i|
           puts "#{cnsl_fmt(total[i], 14)} #{v.map{|v| cnsl_fmt(v, 14)}.join}"
         end
       end
@@ -98,7 +98,7 @@ class LucaBookConsole
         end
       end
     }.sort.map do |k,v|
-      {code: k, label: @report.dict.dig(k, :label), value: v}
+      {code: k, label: @report.dict.dig(k, :label), amount: v}
     end
   end
 

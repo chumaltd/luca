@@ -52,8 +52,8 @@ module LucaBook #:nodoc:
     # Convert journal object to TSV format.
     #
     def self.journal2csv(d)
-      debit_amount = LucaSupport::Code.decimalize(serialize_on_key(d['debit'], 'value'))
-      credit_amount = LucaSupport::Code.decimalize(serialize_on_key(d['credit'], 'value'))
+      debit_amount = LucaSupport::Code.decimalize(serialize_on_key(d['debit'], 'amount'))
+      credit_amount = LucaSupport::Code.decimalize(serialize_on_key(d['credit'], 'amount'))
       raise 'BalanceUnmatch' if debit_amount.inject(:+) != credit_amount.inject(:+)
 
       debit_code = serialize_on_key(d['debit'], 'code')
@@ -81,6 +81,7 @@ module LucaBook #:nodoc:
       journal_hash.tap do |o|
         o[:headers] = {} unless o.dig(:headers)
         o[:headers][key] = val
+        save o
       end
     end
 
@@ -95,15 +96,15 @@ module LucaBook #:nodoc:
       raise 'NoDebitKey' unless obj.key?('debit')
       raise 'NoCreditKey' unless obj.key?('credit')
       debit_codes = serialize_on_key(obj['debit'], 'code').compact
-      debit_values = serialize_on_key(obj['debit'], 'value').compact
+      debit_amount = serialize_on_key(obj['debit'], 'amount').compact
       raise 'NoDebitCode' if debit_codes.empty?
-      raise 'NoDebitValue' if debit_values.empty?
-      raise 'UnmatchDebit' if debit_codes.length != debit_values.length
+      raise 'NoDebitAmount' if debit_amount.empty?
+      raise 'UnmatchDebit' if debit_codes.length != debit_amount.length
       credit_codes = serialize_on_key(obj['credit'], 'code').compact
-      credit_values = serialize_on_key(obj['credit'], 'value').compact
+      credit_amount = serialize_on_key(obj['credit'], 'amount').compact
       raise 'NoCreditCode' if credit_codes.empty?
-      raise 'NoCreditValue' if credit_values.empty?
-      raise 'UnmatchCredit' if credit_codes.length != credit_values.length
+      raise 'NoCreditAmount' if credit_amount.empty?
+      raise 'UnmatchCredit' if credit_codes.length != credit_amount.length
     end
 
     # collect values on specified key

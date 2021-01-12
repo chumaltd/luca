@@ -7,11 +7,12 @@ require 'luca_record'
 require 'luca_record/dict'
 require 'luca_book'
 
-# Journal List on specified term
-#
-module LucaBook
+module LucaBook #:nodoc:
+  # Journal List on specified term
+  #
   class List < LucaBook::Journal
     @dirname = 'journals'
+    attr_reader :data
 
     def initialize(data, start_date, code = nil)
       @data = data
@@ -29,6 +30,16 @@ module LucaBook
         end
       end
       new data, Date.new(from_year.to_i, from_month.to_i, 1), code
+    end
+
+    def self.add_header(from_year, from_month, to_year = from_year, to_month = from_month, code: nil, header_key: nil, header_val: nil)
+      return nil if code.nil?
+      return nil unless Journal::ACCEPTED_HEADERS.include?(header_key)
+
+      term(from_year, from_month, to_year, to_month, code: code)
+        .data.each do |journal|
+        Journal.add_header(journal, header_key, header_val)
+      end
     end
 
     def list_by_code

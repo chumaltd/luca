@@ -35,13 +35,13 @@ module LucaBook
     #       "debit" : [
     #         {
     #           "label": "savings accounts",
-    #           "value": 20000
+    #           "amount": 20000
     #         }
     #       ],
     #       "credit" : [
     #         {
     #           "label": "trade notes receivable",
-    #           "value": 20000
+    #           "amount": 20000
     #         }
     #       ],
     #       "note": "settlement for the last month trade"
@@ -75,21 +75,21 @@ module LucaBook
     # convert single entry data
     #
     def parse_single(row)
-      if (row.dig(@config[:credit_value]) || []).empty?
-        value = BigDecimal(row[@config[:debit_value]])
+      if (row.dig(@config[:credit_amount]) || []).empty?
+        amount = BigDecimal(row[@config[:debit_amount]])
         debit = true
       else
-        value = BigDecimal(row[@config[:credit_value]])
+        amount = BigDecimal(row[@config[:credit_amount]])
       end
       default_label = debit ? @config.dig(:default_debit) : @config.dig(:default_credit)
-      code, options = search_code(row[@config[:label]], default_label, value)
+      code, options = search_code(row[@config[:label]], default_label, amount)
       counter_code = @code_map.dig(@config[:counter_label])
       if options
         x_customer = options[:'x-customer'] if options[:'x-customer']
-        data, data_c = tax_extension(code, counter_code, value, options) if respond_to? :tax_extension
+        data, data_c = tax_extension(code, counter_code, amount, options) if respond_to? :tax_extension
       end
-      data ||= [{ 'code' => code, 'value' => value }]
-      data_c ||= [{ 'code' => counter_code, 'value' => value }]
+      data ||= [{ 'code' => code, 'amount' => amount }]
+      data_c ||= [{ 'code' => counter_code, 'amount' => amount }]
       {}.tap do |d|
         d['date'] = parse_date(row)
         if debit
@@ -112,11 +112,11 @@ module LucaBook
         d['date'] = parse_date(row)
         d['debit'] = {
           'code' => search_code(row[@config[:label]], @config.dig(:default_debit)) || DEBIT_DEFAULT,
-          'value' => row.dig(@config[:debit_value])
+          'amount' => row.dig(@config[:debit_amount])
         }
         d['credit'] = {
           'code' => search_code(row[@config[:label]], @config.dig(:default_credit)) || CREDIT_DEFAULT,
-          'value' => row.dig(@config[:credit_value])
+          'amount' => row.dig(@config[:credit_amount])
         }
         d['note'] = Array(@config[:note]).map{ |col| row[col] }.join(' ')
         d['x-editor'] = "LucaBook::Import/#{@dict_name}"

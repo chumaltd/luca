@@ -15,10 +15,10 @@ module LucaBook
     #   must be specified with label
     # :debit_label
     #   for double entry data
-    # * debit_value
+    # * debit_amount
     # :credit_label
     #   for double entry data
-    # * credit_value
+    # * credit_amount
     # :note
     #   can be the same column as another label
     #
@@ -41,8 +41,8 @@ module LucaBook
           end
         end
         config[:type] ||= 'invalid'
-        config[:debit_value] = @config['debit_value'].to_i if @config.dig('debit_value')
-        config[:credit_value] = @config['credit_value'].to_i if @config.dig('credit_value')
+        config[:debit_amount] = @config['debit_amount'].to_i if @config.dig('debit_amount')
+        config[:credit_amount] = @config['credit_amount'].to_i if @config.dig('credit_amount')
         config[:note] = @config['note'] if @config.dig('note')
         config[:encoding] = @config['encoding'] if @config.dig('encoding')
 

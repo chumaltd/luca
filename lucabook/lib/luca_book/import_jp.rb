@@ -31,17 +31,17 @@ module LucaBook
             amount1 = amount
             amount1 -= consumption_amount if consumption_idx == 0
             amount1 += gensen_amount if gensen_idx == 1
-            res1 << { 'code' => code1, 'value' => amount1 }
-            res1 << { 'code' => consumption_code, 'value' => consumption_amount } if consumption_idx == 0
-            res1 << { 'code' => gensen_code, 'value' => gensen_amount } if gensen_idx == 0
+            res1 << { 'code' => code1, 'amount' => amount1 }
+            res1 << { 'code' => consumption_code, 'amount' => consumption_amount } if consumption_idx == 0
+            res1 << { 'code' => gensen_code, 'amount' => gensen_amount } if gensen_idx == 0
           end
           res << [].tap do |res2|
             amount2 = amount
             amount2 -= consumption_amount if consumption_idx == 1
             amount2 += gensen_amount if gensen_idx == 0
-            res2 << { 'code' => code2, 'value' => amount2 }
-            res2 << { 'code' => consumption_code, 'value' => consumption_amount } if consumption_idx == 1
-            res2 << { 'code' => gensen_code, 'value' => gensen_amount } if gensen_idx == 1
+            res2 << { 'code' => code2, 'amount' => amount2 }
+            res2 << { 'code' => consumption_code, 'amount' => consumption_amount } if consumption_idx == 1
+            res2 << { 'code' => gensen_code, 'amount' => gensen_amount } if gensen_idx == 1
           end
         end
       elsif options[:tax_options].include?('jp-gensen')
@@ -51,15 +51,15 @@ module LucaBook
           res << [].tap do |res1|
             amount1 = amount
             amount1 += gensen_amount if gensen_idx == 1
-            res1 << { 'code' => code, 'value' => amount1 }
-            res1 << { 'code' => gensen_code, 'value' => gensen_amount } if gensen_idx == 0
+            res1 << { 'code' => code, 'amount' => amount1 }
+            res1 << { 'code' => gensen_code, 'amount' => gensen_amount } if gensen_idx == 0
           end
           res << [].tap do |res2|
             amount2 = amount
             amount2 += gensen_amount if gensen_idx == 0
             mount2 ||= amount
-            res2 << { 'code' => code2, 'value' => amount2 }
-            res2 << { 'code' => gensen_code, 'value' => gensen_amount } if gensen_idx == 1
+            res2 << { 'code' => code2, 'amount' => amount2 }
+            res2 << { 'code' => gensen_code, 'amount' => gensen_amount } if gensen_idx == 1
           end
         end
       elsif options[:tax_options].include?('jp-consumption')
@@ -68,14 +68,14 @@ module LucaBook
         res << [].tap do |res1|
           amount1 = amount
           amount1 -= consumption_amount if consumption_idx == 0
-          res1 << { 'code' => code1, 'value' => amount1 }
-          res1 << { 'code' => consumption_code, 'value' => consumption_amount } if consumption_idx == 0
+          res1 << { 'code' => code1, 'amount' => amount1 }
+          res1 << { 'code' => consumption_code, 'amount' => consumption_amount } if consumption_idx == 0
         end
         res << [].tap do |res2|
           amount2 = amount
           amount2 -= consumption_amount if consumption_idx == 1
-          res2 << { 'code' => code2, 'value' => amount2 }
-          res2 << { 'code' => consumption_code, 'value' => consumption_amount } if consumption_idx == 1
+          res2 << { 'code' => code2, 'amount' => amount2 }
+          res2 << { 'code' => consumption_code, 'amount' => consumption_amount } if consumption_idx == 1
         end
       end
     end

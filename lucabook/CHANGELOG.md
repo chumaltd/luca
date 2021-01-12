@@ -1,6 +1,8 @@
-## LucaBook master
+## LucaBook 0.2.24
 
 * add import option, 'x-customer' in YAML settings.
+* Add CLI `journals set -c CODE --header x-header --val header-val` for annotation
+* Breaking change: import key 'value' -> 'amount'
 
 ## LucaBook 0.2.23
 
