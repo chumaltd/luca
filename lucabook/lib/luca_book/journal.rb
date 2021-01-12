@@ -1,12 +1,19 @@
-#
-# manipulate files based on transaction date
-#
+# frozen_string_literal: true
 
 require 'csv'
 require 'date'
 require 'luca_record'
 
-module LucaBook
+module LucaBook #:nodoc:
+  # Journal has several annotations on headers:
+  #
+  # x-customer::
+  #     Identifying customer.
+  # x-editor::
+  #     Application name editing the journal.
+  # x-tax::
+  #     For tracking tax related transaction.
+  #
   class Journal < LucaRecord::Base
     @dirname = 'journals'
 
@@ -41,6 +48,8 @@ module LucaBook
       open_records(@dirname, parts[0], parts[1], codes, 'w') { |f, _path| f.write journal2csv(d) }
     end
 
+    # Convert journal object to TSV format.
+    #
     def self.journal2csv(d)
       debit_amount = LucaSupport::Code.decimalize(serialize_on_key(d['debit'], 'value'))
       credit_amount = LucaSupport::Code.decimalize(serialize_on_key(d['credit'], 'value'))
@@ -54,7 +63,7 @@ module LucaBook
         f << LucaSupport::Code.readable(debit_amount)
         f << credit_code
         f << LucaSupport::Code.readable(credit_amount)
-        ['x-customer', 'x-editor'].each do |x_header|
+        ['x-customer', 'x-editor', 'x-tax'].each do |x_header|
           f << [x_header, d['headers'][x_header]] if d.dig('headers', x_header)
         end
         f << []
@@ -90,7 +99,21 @@ module LucaBook
       array_of_hash.map { |h| h[key] }
     end
 
-    # override de-serializing journal format
+    # override de-serializing journal format. Sample format is:
+    #
+    #   {
+    #     id: '2021A/V001',
+    #     headers: {
+    #       'x-customer' => 'Some Customer Co.'
+    #     },
+    #     debit: [
+    #       { code: 'A12', amount: 1000 }
+    #     ],
+    #     credit: [
+    #       { code: '311', amount: 1000 }
+    #     ],
+    #     note: 'note for each journal'
+    #   }
     #
     def self.load_data(io, path)
       {}.tap do |record|

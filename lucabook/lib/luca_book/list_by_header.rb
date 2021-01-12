@@ -7,9 +7,9 @@ require 'luca_record'
 require 'luca_record/dict'
 require 'luca_book'
 
-# Journal List on specified term
-#
-module LucaBook
+module LucaBook #:nodoc:
+  # Journal List on specified term
+  #
   class ListByHeader < LucaBook::Journal
     @dirname = 'journals'
 
