@@ -62,17 +62,18 @@ module LucaSalary
             end
           end
         end
-        payment = local_convert(payment)
-        create(payment, date: Date.new(year, 12, 31), codes: [id], basedir: 'payments/total')
+        date = Date.new(year, 12, 31)
+        payment = local_convert(payment, date)
+        create(payment, date: date, codes: [id], basedir: 'payments/total')
       end
     end
 
-    def self.local_convert(payment)
+    def self.local_convert(payment, date)
       return payment if CONFIG['country'].nil?
 
       require "luca_salary/#{CONFIG['country'].downcase}"
       klass = Kernel.const_get("LucaSalary::#{CONFIG['country'].capitalize}")
-      klass.year_total(payment)
+      klass.year_total(payment, date)
     rescue
       return payment
     end

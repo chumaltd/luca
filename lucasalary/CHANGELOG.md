@@ -1,3 +1,7 @@
+## LucaSalary master
+
+* Fix: call localcode with calculation date
+
 ## LucaSalary 0.1.20
 
 * Implement `year_total`
