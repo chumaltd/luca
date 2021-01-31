@@ -120,7 +120,7 @@ module LucaDeal
     #
     def stats_email
       {}.tap do |res|
-        stats(2).each.with_index(1) do |stat, i|
+        stats(3).each.with_index(1) do |stat, i|
           stat['records'].each do |record|
             res[record['customer']] ||= {}
             res[record['customer']]['customer_name'] ||= record['customer']

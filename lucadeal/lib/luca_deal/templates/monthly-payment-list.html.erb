@@ -5,6 +5,8 @@
         <style>
          td { text-align: right; line-height: 2em; min-width: 6em }
          thead th, thead td { text-align: center }
+         thead { border-bottom: solid 1px #aaa }
+         tr#total { border-top: solid 1px #aaa }
          tr.sub { font-size: .8em; color: #aaa }
          .past { color: #777 }
         </style>
@@ -17,14 +19,16 @@
                 <tr>
                     <th>#</th>
                     <th>Customer</th>
-                    <th>Amount</th><th>Tax</th>
-                    <th class="past">Amount</th><th class="past">Tax</th>
+                    <th>This month</th>
+                    <th>Last Month</th>
+                    <th>2 Month ago</th>
                 </tr>
                 <tr class="sub">
                     <th></th>
                     <th></th>
-                    <th>This month</th><th>This month</th>
-                    <th>Last Month</th><th>Last Month</th>
+                    <th>Amount / Tax</th>
+                    <th class="past">Amount / Tax</th>
+                    <th class="past">Amount / Tax</th>
                 </tr>
             </thead>
             <tbody>
@@ -32,15 +36,17 @@
                     <tr>
                         <th><%= i %></th>
                         <td><%= invoice["customer_name"] %></td>
-                        <td><%= delimit_num(invoice["amount1"]) %></td><td><%= delimit_num(invoice["tax1"]) %></td>
-                        <td class="past"><%= delimit_num(invoice["amount2"]) %></td><td class="past"><%= delimit_num(invoice["tax2"]) %></td>
+                        <td><%= delimit_num(invoice["amount1"]) %><br /><%= delimit_num(invoice["tax1"]) %></td>
+                        <td class="past"><%= delimit_num(invoice["amount2"]) %><br /><%= delimit_num(invoice["tax2"]) %></td>
+                        <td class="past"><%= delimit_num(invoice["amount3"]) %><br /><%= delimit_num(invoice["tax3"]) %></td>
                     </tr>
                 <% end %>
-                <tr>
+                <tr id="total">
                     <td></td>
                     <td>Total (<%= @total_count %> records)</td>
-                    <td><%= delimit_num(@total_amount) %></td><td><%= delimit_num(@total_tax) %></td>
-                    <td></td><td></td>
+                    <td><%= delimit_num(@total_amount) %><br /><%= delimit_num(@total_tax) %></td>
+                    <td></td>
+                    <td></td>
                 </tr>
             </tbody>
         </table>
