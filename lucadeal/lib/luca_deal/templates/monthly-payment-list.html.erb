@@ -1,0 +1,40 @@
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <style>
+         td { text-align: right; line-height: 2em; min-width: 7em }
+         thead th, thead td { text-align: center }
+         tr.sub { font-size: .8em; color: #aaa }
+        </style>
+    </head>
+    <body>
+        <div style="margin: 1em 0">Issue date: <%= @issue_date %></div>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Customer</th>
+                    <th>Amount</th><th>Tax</th>
+                    <th>Amount</th><th>Tax</th>
+                </tr>
+                <tr class="sub">
+                    <th></th>
+                    <th></th>
+                    <th>This month</th><th>This month</th>
+                    <th>Last Month</th><th>Last Month</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% @invoices.each.with_index(1) do |invoice, i| %>
+                    <tr>
+                        <td><%= i %></td>
+                        <td><%= invoice["customer_name"] %></td>
+                        <td><%= invoice["amount1"] %></td><td><%= invoice["tax1"] %></td>
+                        <td><%= invoice["amount2"] %></td><td><%= invoice["tax2"] %></td>
+                    </tr>
+                <% end %>
+            </tbody>
+        </table>
+    </body>
+</html>

@@ -1,4 +1,8 @@
-## LucaDeal 0.2.25
+## LucaDeal 0.2.23
+
+* implement `luca-deal invoices list --mail`: payment list via HTML mail
+
+## LucaDeal 0.2.22
 
 * Breaking change: export key 'value' -> 'amount'
 

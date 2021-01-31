@@ -116,6 +116,29 @@ module LucaDeal
       end
     end
 
+    # send payment list to preview address or from address.
+    #
+    def stats_email
+      {}.tap do |res|
+        stats(2).each.with_index(1) do |stat, i|
+          @issue_date = stat['issue_date'] if i == 1
+          stat['records'].each do |record|
+            res[record['customer']] ||= {}
+            res[record['customer']]['customer_name'] ||= record['customer']
+            res[record['customer']]["amount#{i}"] ||= record['subtotal']
+            res[record['customer']]["tax#{i}"] ||= record['tax']
+          end
+        end
+        @invoices = res.values
+      end
+
+      mail = Mail.new
+      mail.to = CONFIG.dig('mail', 'preview') || CONFIG.dig('mail', 'from')
+      mail.subject = 'Check monthly payment list'
+      mail.html_part = Mail::Part.new(body: render_erb(search_template('monthly-payment-list.html.erb')), content_type: 'text/html; charset=UTF-8')
+      LucaSupport::Mail.new(mail, PJDIR).deliver
+    end
+
     def export_json
       [].tap do |res|
         self.class.asof(@date.year, @date.month) do |dat|

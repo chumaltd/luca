@@ -34,6 +34,10 @@ module LucaSupport
       out
     end
 
+    # Search existing file and return path under:
+    # 1. 'templates/' in Project directory that data resides
+    # 2. 'templates/' in Library directory that calls LucaSupport::View#search_template
+    #
     def search_template(file, dir = 'templates')
       # TODO: load config
       [LucaSupport::PJDIR, lib_path].each do |base|
