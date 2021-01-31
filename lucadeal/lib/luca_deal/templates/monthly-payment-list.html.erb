@@ -6,6 +6,7 @@
          td { text-align: right; line-height: 2em; min-width: 6em }
          thead th, thead td { text-align: center }
          tr.sub { font-size: .8em; color: #aaa }
+         .past { color: #777 }
         </style>
     </head>
     <body>
@@ -17,7 +18,7 @@
                     <th>#</th>
                     <th>Customer</th>
                     <th>Amount</th><th>Tax</th>
-                    <th>Amount</th><th>Tax</th>
+                    <th class="past">Amount</th><th class="past">Tax</th>
                 </tr>
                 <tr class="sub">
                     <th></th>
@@ -29,16 +30,16 @@
             <tbody>
                 <% @invoices.each.with_index(1) do |invoice, i| %>
                     <tr>
-                        <td><%= i %></td>
+                        <th><%= i %></th>
                         <td><%= invoice["customer_name"] %></td>
-                        <td><%= invoice["amount1"] %></td><td><%= invoice["tax1"] %></td>
-                        <td><%= invoice["amount2"] %></td><td><%= invoice["tax2"] %></td>
+                        <td><%= delimit_num(invoice["amount1"]) %></td><td><%= delimit_num(invoice["tax1"]) %></td>
+                        <td class="past"><%= delimit_num(invoice["amount2"]) %></td><td class="past"><%= delimit_num(invoice["tax2"]) %></td>
                     </tr>
                 <% end %>
                 <tr>
                     <td></td>
                     <td>Total (<%= @total_count %> records)</td>
-                    <td><%= @total_amount %></td><td><%= @total_tax %></td>
+                    <td><%= delimit_num(@total_amount) %></td><td><%= delimit_num(@total_tax) %></td>
                     <td></td><td></td>
                 </tr>
             </tbody>
