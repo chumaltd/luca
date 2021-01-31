@@ -51,12 +51,12 @@
                     <% @bs.each.with_index(1) do |row, i| %>
                         <tr>
                             <td><%= row['debit_label'] %></td>
-                            <td><%= row['debit_balance'] %></td>
-                            <td><%= row['debit_diff'] %></td>
+                            <td><%= delimit_num(row['debit_balance']) %></td>
+                            <td><%= delimit_num(row['debit_diff']) %></td>
 
                             <td><%= row['credit_label'] %></td>
-                            <td><%= row['credit_balance'] %></td>
-                            <td><%= row['credit_diff'] %></td>
+                            <td><%= delimit_num(row['credit_balance']) %></td>
+                            <td><%= delimit_num(row['credit_diff']) %></td>
                         </tr>
                     <% end %>
                 </tbody>

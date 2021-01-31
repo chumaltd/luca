@@ -103,6 +103,7 @@ module LucaBook
       @count
     end
 
+    # TODO: pl/bs may not be immutable
     def report_mail(level = 3)
       @company = CONFIG.dig('company', 'name')
       {}.tap do |res|
