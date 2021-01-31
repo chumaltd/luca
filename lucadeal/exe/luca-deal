@@ -128,6 +128,9 @@ class LucaCmd
       when 'monthly'
         date = "#{args[0]}-#{args[1]}-#{args[2] || '1'}" if !args.empty?
         LucaDeal::Invoice.new(date).monthly_invoice
+        if params[:mail]
+          LucaDeal::Invoice.new(date).stats_email
+        end
       else
         date = "#{args[1]}-#{args[2]}-#{args[3] || '1'}" if !args.empty?
         list = LucaDeal::Contract.id_completion(args[0] || '', label: 'customer_name')
@@ -335,6 +338,7 @@ when /invoices?/, 'i'
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-deal invoices create [options] --monthly|contract_id year month [date]'
       opt.on('--monthly', 'generate monthly data') { |_v| params['mode'] = 'monthly' }
+      opt.on('--mail', 'send payment list by email. Only works with --monthly') { |_v| params[:mail] = true }
       args = opt.parse(ARGV)
       LucaCmd::Invoice.create(args, params)
     end

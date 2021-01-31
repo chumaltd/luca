@@ -3,12 +3,13 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <style>
-         td { text-align: right; line-height: 2em; min-width: 7em }
+         td { text-align: right; line-height: 2em; min-width: 6em }
          thead th, thead td { text-align: center }
          tr.sub { font-size: .8em; color: #aaa }
         </style>
     </head>
     <body>
+        <div style="margin: 1em 0"><%= @company %></div>
         <div style="margin: 1em 0">Issue date: <%= @issue_date %></div>
         <table>
             <thead>
@@ -34,6 +35,12 @@
                         <td><%= invoice["amount2"] %></td><td><%= invoice["tax2"] %></td>
                     </tr>
                 <% end %>
+                <tr>
+                    <td></td>
+                    <td>Total (<%= @total_count %> records)</td>
+                    <td><%= @total_amount %></td><td><%= @total_tax %></td>
+                    <td></td><td></td>
+                </tr>
             </tbody>
         </table>
     </body>

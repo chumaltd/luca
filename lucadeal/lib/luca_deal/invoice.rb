@@ -121,16 +121,22 @@ module LucaDeal
     def stats_email
       {}.tap do |res|
         stats(2).each.with_index(1) do |stat, i|
-          @issue_date = stat['issue_date'] if i == 1
           stat['records'].each do |record|
             res[record['customer']] ||= {}
             res[record['customer']]['customer_name'] ||= record['customer']
             res[record['customer']]["amount#{i}"] ||= record['subtotal']
             res[record['customer']]["tax#{i}"] ||= record['tax']
           end
+          if i == 1
+            @issue_date = stat['issue_date']
+            @total_amount = stat['total']
+            @total_tax = stat['tax']
+            @total_count = stat['count']
+          end
         end
         @invoices = res.values
       end
+      @company = CONFIG.dig('company', 'name')
 
       mail = Mail.new
       mail.to = CONFIG.dig('mail', 'preview') || CONFIG.dig('mail', 'from')

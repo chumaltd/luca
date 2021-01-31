@@ -1,3 +1,7 @@
+## LucaDeal master
+
+* add `luca-deal invoices create --monthly --mail`, send payment list after monthly invoice creation.
+
 ## LucaDeal 0.2.23
 
 * implement `luca-deal invoices list --mail`: payment list via HTML mail
