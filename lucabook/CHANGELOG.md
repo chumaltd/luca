@@ -1,3 +1,7 @@
+## LucaBook master
+
+* implement `luca-book report mail`
+
 ## LucaBook 0.2.24
 
 * add import option, 'x-customer' in YAML settings.

@@ -63,6 +63,12 @@ class LucaCmd
       args = gen_range(params[:n]) if args.empty?
       render(LucaBook::State.range(*args).pl(level), params)
     end
+
+    def self.report_mail(args, params)
+      level = params[:level] || 3
+      args = gen_range(params[:n] || 12) if args.empty?
+      render(LucaBook::State.range(*args).report_mail(level), params)
+    end
   end
 
   def self.gen_range(count)
@@ -174,6 +180,14 @@ when /reports?/, 'r'
       opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }
       args = opt.parse!(ARGV)
       LucaCmd::Report.profitloss(args, params)
+    end
+  when 'mail'
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca-book reports mail [options] [YYYY M YYYY M]'
+      opt.on('-l', '--level VAL', 'account level') { |v| params[:level] = v.to_i }
+      opt.on('-n VAL', 'report count') { |v| params[:n] = v.to_i }
+      args = opt.parse!(ARGV)
+      LucaCmd::Report.report_mail(args, params)
     end
   else
     puts 'Proper subcommand needed.'

@@ -1,0 +1,41 @@
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <style>
+         td { text-align: right; line-height: 2em; min-width: 6em }
+         thead th, thead td { text-align: center }
+         thead { border-bottom: solid 1px #aaa }
+         tr#total { border-top: solid 1px #aaa }
+         tr.sub { font-size: .8em; color: #aaa }
+         .past { color: #777 }
+        </style>
+    </head>
+    <body>
+        <div style="margin: 1em 0"><%= @company %></div>
+
+        <h2>Income Statment</h2>
+        <div style="overflow-x: scroll">
+        <table>
+            <thead>
+                <tr>
+                    <th></th>
+                    <% @months.each do |d| %>
+                        <th><%= d %></th>
+                    <% end %>
+                </tr>
+            </thead>
+            <tbody>
+                <% @pl.each.with_index(1) do |(key, val), i| %>
+                    <tr>
+                        <td><%= key %></td>
+                        <% val.each do |v| %>
+                            <td><%= delimit_num(v) %></td>
+                        <% end %>
+                    </tr>
+                <% end %>
+            </tbody>
+        </table>
+        </div>
+    </body>
+</html>

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'csv'
+require 'mail'
 require 'pathname'
 require 'date'
 require 'luca_support'
@@ -100,6 +101,26 @@ module LucaBook
       keys.map! { |k| k[0, level] }.uniq.select! { |k| k.length <= level } if level
       @count.prepend({}.tap { |header| keys.each { |k| header[k] = @dict.dig(k, :label) }})
       @count
+    end
+
+    def report_mail(level = 3)
+      @company = CONFIG.dig('company', 'name')
+      {}.tap do |res|
+        pl(level).reverse.each do |month|
+          month.each do |k, v|
+            res[k] ||= []
+            res[k] << v
+          end
+        end
+        @months = res['_d']
+        @pl = res.select{ |k,v| k != '_d' }
+      end
+
+      mail = Mail.new
+      mail.to = CONFIG.dig('mail', 'preview') || CONFIG.dig('mail', 'from')
+      mail.subject = 'Financial Report available'
+      mail.html_part = Mail::Part.new(body: render_erb(search_template('monthly-report.html.erb')), content_type: 'text/html; charset=UTF-8')
+      LucaSupport::Mail.new(mail, PJDIR).deliver
     end
 
     def bs(level = 3, legal: false)
@@ -357,6 +378,10 @@ module LucaBook
       when 'jp'
         ['31', '32', '33', '91', '911', '912', '913', '9131', '9132', '914', '9141', '9142', '915', '916', '92', '93']
       end
+    end
+
+    def lib_path
+      __dir__
     end
   end
 end
