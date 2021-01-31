@@ -37,5 +37,31 @@
             </tbody>
         </table>
         </div>
+
+        <h2>Balance Sheet</h2>
+        <div style="overflow-x: scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Account</th><th>Balance</th><th>Change</th>
+                        <th>Account</th><th>Balance</th><th>Change</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% @bs.each.with_index(1) do |row, i| %>
+                        <tr>
+                            <td><%= row['debit_label'] %></td>
+                            <td><%= row['debit_balance'] %></td>
+                            <td><%= row['debit_diff'] %></td>
+
+                            <td><%= row['credit_label'] %></td>
+                            <td><%= row['credit_balance'] %></td>
+                            <td><%= row['credit_diff'] %></td>
+                        </tr>
+                    <% end %>
+                </tbody>
+            </table>
+            </div>
+
     </body>
 </html>

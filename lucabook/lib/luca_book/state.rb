@@ -115,6 +115,7 @@ module LucaBook
         @months = res['_d']
         @pl = res.select{ |k,v| k != '_d' }
       end
+      @bs = bs
 
       mail = Mail.new
       mail.to = CONFIG.dig('mail', 'preview') || CONFIG.dig('mail', 'from')
