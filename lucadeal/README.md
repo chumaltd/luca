@@ -135,7 +135,7 @@ Fields for subscription customers are as bellows:
 | Top level | Second level  |          | historical | Description                                                                                          |
 |-----------|---------------|----------|------------|------------------------------------------------------------------------------------------------------|
 | terms     |               |          |            |                                                                                                      |
-|           | billing_cycle | optional |            | If 'monthly', invoices are generated on each month.                                                  |
+|           | billing_cycle | optional |            | If 'monthly', invoices are generated on each month. If 'other_payments', no_invoices are generated on each month. `no_invoices` are mostly same as invoices, but not sending email. |
 |           | category      | optional |            | Default: 'subscription'                                                                              |
 | products  |               |          |            | Array of products.                                                                                   |
 |           | id            |          |            | reference for Product                                                            |
@@ -154,6 +154,7 @@ Fields for sales fee are as bellows:
 |-----------|--------------|----------|------------|-------------------------------------------------------------------------------------|
 | terms     |              |          |            |                                                                                     |
 |           | category     |          |            | If 'sales_fee', contract is treated as selling commission. |
+|           | limit |          |            | If set, fees are calculated as mas as `limit` months. |
 | rate      |              | optional |            |                                                                                     |
 |           | default      |          |            | sales fee rate.                                                                     |
 |           | initial      |          |            | sales fee rate for items of type=initial.                                           |

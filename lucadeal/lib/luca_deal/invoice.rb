@@ -173,9 +173,9 @@ module LucaDeal
       gen_invoice!(invoice_object(contract))
     end
 
-    def monthly_invoice
+    def monthly_invoice(target = 'monthly')
       Contract.new(@date.to_s).active do |contract|
-        next if contract.dig('terms', 'billing_cycle') != 'monthly'
+        next if contract.dig('terms', 'billing_cycle') != target
         # TODO: provide another I/F for force re-issue if needed
         next if duplicated_contract? contract['id']
 

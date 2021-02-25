@@ -1,6 +1,9 @@
-## LucaDeal master
+## LucaDeal 0.2.24
 
 * add `luca-deal invoices create --monthly --mail`, send payment list after monthly invoice creation.
+* add 'other_payments' tracking with no invoices.
+* can have limit on fee calculation.
+* initial implment of `luca-deal fee list`
 
 ## LucaDeal 0.2.23
 

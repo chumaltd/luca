@@ -12,7 +12,7 @@ module LucaDeal
         FileUtils.cp("#{__dir__}/templates/config.yml", 'config.yml') unless File.exist?('config.yml')
         Dir.mkdir('data') unless Dir.exist?('data')
         Dir.chdir('data') do
-          %w[contracts customers invoices].each do |subdir|
+          %w[contracts customers invoices no_invoices].each do |subdir|
             Dir.mkdir(subdir) unless Dir.exist?(subdir)
           end
         end

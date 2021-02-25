@@ -25,23 +25,28 @@ module LucaDeal
 
         @rate = { 'default' => BigDecimal(contract.dig('rate', 'default')) }
         @rate['initial'] = contract.dig('rate', 'initial') ? BigDecimal(contract.dig('rate', 'initial')) : @rate['default']
+        limit = contract.dig('terms', 'limit')
 
         fee = { 'contract_id' => contract['id'], 'items' => [] }
         fee['customer'] = get_customer(contract['customer_id'])
         fee['issue_date'] = @date
         Invoice.asof(@date.year, @date.month) do |invoice|
           next if invoice.dig('sales_fee', 'id') != contract['id']
+          next if exceed_limit?(invoice, limit)
 
           invoice['items'].each do |item|
             rate = item['type'] == 'initial' ? @rate['initial'] : @rate['default']
-            fee['items'] << {
-              'invoice_id' => invoice['id'],
-              'customer_name' => invoice.dig('customer', 'name'),
-              'name' => item['name'],
-              'price' => item['price'],
-              'qty' => item['qty'],
-              'fee' => item['price'] * item['qty'] * rate
-            }
+            fee['items'] << fee_record(invoice, item, rate)
+          end
+          fee['sales_fee'] = subtotal(fee['items'])
+        end
+        NoInvoice.asof(@date.year, @date.month) do |no_invoice|
+          next if no_invoice.dig('sales_fee', 'id') != contract['id']
+          next if exceed_limit?(invoice, limit)
+
+          no_invoice['items'].each do |item|
+            rate = item['type'] == 'initial' ? @rate['initial'] : @rate['default']
+            fee['items'] << fee_record(no_invoice, item, rate)
           end
           fee['sales_fee'] = subtotal(fee['items'])
         end
@@ -91,6 +96,47 @@ module LucaDeal
       mail.text_part = Mail::Part.new(body: render_erb(search_template('fee-report-mail.txt.erb')), charset: 'UTF-8')
       mail.attachments[attachment_name(dat, attachment)] = render_report(attachment)
       mail
+    end
+
+    # Output seriarized fee data to stdout.
+    # Returns previous N months on multiple count
+    #
+    # === Example YAML output
+    #   ---
+    #   - records:
+    #     - customer: Example Co.
+    #       subtotal: 100000
+    #       tax: 10000
+    #       due: 2020-10-31
+    #       issue_date: '2020-09-30'
+    #     count: 1
+    #     total: 100000
+    #     tax: 10000
+    #
+    def stats(count = 1)
+      [].tap do |collection|
+        scan_date = @date.next_month
+        count.times do
+          scan_date = scan_date.prev_month
+          {}.tap do |stat|
+            stat['records'] = self.class.asof(scan_date.year, scan_date.month).map do |fee|
+              {
+                'customer' => fee.dig('customer', 'name'),
+                'client' => fee['items'].map{ |item| item.dig('customer_name') }.join(' / '),
+                'subtotal' => fee.dig('sales_fee', 'fee'),
+                'tax' => fee.dig('sales_fee', 'tax'),
+                'due' => fee.dig('due_date'),
+                'mail' => fee.dig('status')&.select { |a| a.keys.include?('mail_delivered') }&.first
+              }
+            end
+            stat['issue_date'] = scan_date.to_s
+            stat['count'] = stat['records'].count
+            stat['total'] = stat['records'].inject(0) { |sum, rec| sum + rec.dig('subtotal') }
+            stat['tax'] = stat['records'].inject(0) { |sum, rec| sum + rec.dig('tax') }
+            collection << readable(stat)
+          end
+        end
+      end
     end
 
     def render_report(file_type = :html)
@@ -174,11 +220,32 @@ module LucaDeal
       BigDecimal(take_current(CONFIG['tax_rate'], name).to_s)
     end
 
+    # Fees are unique contract_id in each month
+    # If update needed, remove the target fee file.
+    #
     def duplicated_contract?(id)
       self.class.asof(@date.year, @date.month, @date.day) do |_f, path|
         return true if path.include?(id)
       end
       false
+    end
+
+    def fee_record(invoice, item, rate)
+      {
+        'invoice_id' => invoice['id'],
+        'customer_name' => invoice.dig('customer', 'name'),
+        'name' => item['name'],
+        'price' => item['price'],
+        'qty' => item['qty'],
+        'fee' => item['price'] * item['qty'] * rate
+      }
+    end
+
+    def exceed_limit?(invoice, limit)
+      return false if limit.nil?
+
+      contract_start = Contract.find(invoice['contract_id']).dig('terms', 'effective')
+      contract_start.next_month(limit).prev_day < @date
     end
   end
 end
