@@ -27,7 +27,15 @@ module LucaDeal
         @rate['initial'] = contract.dig('rate', 'initial') ? BigDecimal(contract.dig('rate', 'initial')) : @rate['default']
         limit = contract.dig('terms', 'limit')
 
-        fee = { 'contract_id' => contract['id'], 'items' => [] }
+        fee = {
+          'contract_id' => contract['id'],
+          'items' => [],
+          'sales_fee' => {
+            'fee' => 0,
+            'tax' => 0,
+            'deduction' => 0
+          }
+        }
         fee['customer'] = get_customer(contract['customer_id'])
         fee['issue_date'] = @date
         Invoice.asof(@date.year, @date.month) do |invoice|
@@ -38,7 +46,7 @@ module LucaDeal
             rate = item['type'] == 'initial' ? @rate['initial'] : @rate['default']
             fee['items'] << fee_record(invoice, item, rate)
           end
-          fee['sales_fee'] = subtotal(fee['items'])
+          subtotal(fee['items']).each{ |k, v| fee['sales_fee'][k] += v }
         end
         NoInvoice.asof(@date.year, @date.month) do |no_invoice|
           next if no_invoice.dig('sales_fee', 'id') != contract['id']
@@ -48,8 +56,10 @@ module LucaDeal
             rate = item['type'] == 'initial' ? @rate['initial'] : @rate['default']
             fee['items'] << fee_record(no_invoice, item, rate)
           end
-          fee['sales_fee'] = subtotal(fee['items'])
+          subtotal(fee['items']).each{ |k, v| fee['sales_fee'][k] += v }
         end
+        deduction_rate = contract.dig('rate', 'deduction')
+        fee['sales_fee']['deduction'] = -1 * (fee['sales_fee']['fee'] * deduction_rate).floor if deduction_rate
         self.class.create(fee, date: @date, codes: Array(contract['id']))
       end
     end

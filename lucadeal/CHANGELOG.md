@@ -1,3 +1,7 @@
+## LucaDeal master
+
+* implement deduction rate for fee calculation.
+
 ## LucaDeal 0.2.24
 
 * add `luca-deal invoices create --monthly --mail`, send payment list after monthly invoice creation.

@@ -158,6 +158,7 @@ Fields for sales fee are as bellows:
 | rate      |              | optional |            |                                                                                     |
 |           | default      |          |            | sales fee rate.                                                                     |
 |           | initial      |          |            | sales fee rate for items of type=initial.                                           |
+|           | deduction |          |            | deduction rate(if any) multiplied by fee    |
 
 
 ### Invoice
