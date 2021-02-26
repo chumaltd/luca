@@ -155,6 +155,7 @@ Fields for sales fee are as bellows:
 | terms     |              |          |            |                                                                                     |
 |           | category     |          |            | If 'sales_fee', contract is treated as selling commission. |
 |           | limit |          |            | If set, fees are calculated as mas as `limit` months. |
+|           | deduction_label |          |            | Label for deduction. Used on export |
 | rate      |              | optional |            |                                                                                     |
 |           | default      |          |            | sales fee rate.                                                                     |
 |           | initial      |          |            | sales fee rate for items of type=initial.                                           |
