@@ -1,6 +1,8 @@
 ## LucaDeal master
 
 * implement deduction rate for fee calculation.
+* implement `luca-deal fee export`
+* refine export label for luca-book compatibility
 
 ## LucaDeal 0.2.24
 

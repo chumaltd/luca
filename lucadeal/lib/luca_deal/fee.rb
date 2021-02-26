@@ -1,6 +1,7 @@
 require 'luca_deal/version'
 
 require 'mail'
+require 'json'
 require 'yaml'
 require 'pathname'
 require 'bigdecimal'
@@ -33,7 +34,8 @@ module LucaDeal
           'sales_fee' => {
             'fee' => 0,
             'tax' => 0,
-            'deduction' => 0
+            'deduction' => 0,
+            'deduction_label' => contract.dig('terms', 'deduction_label')
           }
         }
         fee['customer'] = get_customer(contract['customer_id'])
@@ -149,6 +151,35 @@ module LucaDeal
       end
     end
 
+    def export_json
+      labels = export_labels
+      [].tap do |res|
+        self.class.asof(@date.year, @date.month) do |dat|
+          item = {}
+          item['date'] = dat['issue_date']
+          item['debit'] = []
+          item['credit'] = []
+          sub = dat['sales_fee']
+          if readable(sub['fee']) != 0
+            item['debit'] << { 'label' => labels[:debit][:fee], 'amount' => readable(sub['fee']) }
+            item['credit'] << { 'label' => labels[:credit][:fee], 'amount' => readable(sub['fee']) }
+          end
+          if readable(sub['tax']) != 0
+            item['debit'] << { 'label' => labels[:debit][:tax], 'amount' => readable(sub['tax']) }
+            item['credit'] << { 'label' => labels[:credit][:tax], 'amount' => readable(sub['tax']) }
+          end
+          if readable(sub['deduction']) != 0
+            item['debit'] << { 'label' => labels[:debit][:deduction], 'amount' => readable(sub['deduction'] * -1) }
+            item['credit'] << { 'label' => sub['deduction_label'] || labels[:credit][:deduction], 'amount' => readable(sub['deduction'] * -1) }
+          end
+          item['x-customer'] = dat['customer']['name'] if dat.dig('customer', 'name')
+          item['x-editor'] = 'LucaDeal'
+          res << item
+        end
+        puts JSON.dump(res)
+      end
+    end
+
     def render_report(file_type = :html)
       case file_type
       when :html
@@ -188,6 +219,23 @@ module LucaDeal
 
     def lib_path
       __dir__
+    end
+
+    # TODO: load labels from CONFIG before country defaults
+    #
+    def export_labels
+      case CONFIG['country']
+      when 'jp'
+        {
+          debit: { fee: '支払手数料', tax: '支払手数料', deduction: '未払費用' },
+          credit: { fee: '未払費用', tax: '未払費用', deduction: '雑収入' }
+        }
+      else
+        {
+          debit: { fee: 'Fees and commisions', tax: 'Fees and commisions', deduction: 'Accounts payable - other' },
+          credit: { fee: 'Accounts payable - other', tax: 'Accounts payable - other', deduction: 'Miscellaneous income' }
+        }
+      end
     end
 
     # load user company profile from config.

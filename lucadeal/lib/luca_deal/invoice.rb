@@ -146,6 +146,7 @@ module LucaDeal
     end
 
     def export_json
+      labels = export_labels
       [].tap do |res|
         self.class.asof(@date.year, @date.month) do |dat|
           item = {}
@@ -153,10 +154,14 @@ module LucaDeal
           item['debit'] = []
           item['credit'] = []
           dat['subtotal'].map do |sub|
-            item['debit'] << { 'label' => '売掛金', 'amount' => readable(sub['items']) }
-            item['debit'] << { 'label' => '売掛金', 'amount' => readable(sub['tax']) }
-            item['credit'] << { 'label' => '売上高', 'amount' => readable(sub['items']) }
-            item['credit'] << { 'label' => '売上高', 'amount' => readable(sub['tax']) }
+            if readable(sub['items']) != 0
+              item['debit'] << { 'label' => labels[:debit][:items], 'amount' => readable(sub['items']) }
+              item['credit'] << { 'label' => labels[:credit][:items], 'amount' => readable(sub['items']) }
+            end
+            if readable(sub['tax']) != 0
+              item['debit'] << { 'label' => labels[:debit][:tax], 'amount' => readable(sub['tax']) }
+              item['credit'] << { 'label' => labels[:credit][:tax], 'amount' => readable(sub['tax']) }
+            end
           end
           item['x-customer'] = dat['customer']['name'] if dat.dig('customer', 'name')
           item['x-editor'] = 'LucaDeal'
@@ -259,6 +264,23 @@ module LucaDeal
 
     def lib_path
       __dir__
+    end
+
+    # TODO: load labels from CONFIG before country defaults
+    #
+    def export_labels
+      case CONFIG['country']
+      when 'jp'
+        {
+          debit: { items: '売掛金', tax: '売掛金' },
+          credit: { items: '売上高', tax: '売上高' }
+        }
+      else
+        {
+          debit: { items: 'Accounts receivable - trade', tax: 'Accounts receivable - trade' },
+          credit: { items: 'Amount of Sales', tax: 'Amount of Sales' }
+        }
+      end
     end
 
     # load user company profile from config.

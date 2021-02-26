@@ -217,6 +217,15 @@ class LucaCmd
       end
     end
 
+    def self.export(args = nil, _params = nil)
+      if args
+        args << 28 if args.length == 2 # specify safe last day
+        LucaDeal::Fee.new(args.join('-')).export_json
+      else
+        LucaDeal::Fee.new.export_json
+      end
+    end
+
     def self.list(args = nil, params = {})
       date = "#{args[0]}-#{args[1]}-#{args[2] || '1'}" if !args.empty?
       if args.empty?
@@ -391,6 +400,8 @@ when /fee/
     end
   when 'delete'
     LucaCmd::Fee.delete(ARGV)
+  when 'export'
+    LucaCmd::Fee.export(ARGV)
   when 'list'
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-deal fee list [options] year month [date]'
