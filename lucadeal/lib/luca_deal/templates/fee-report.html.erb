@@ -40,8 +40,12 @@
                         <td class="price"><%= delimit_num( @sales_fee['tax'] ) %></td>
                     </tr>
                     <tr>
+                        <td class="price" colspan="3">Deduction</td>
+                        <td class="price"><%= delimit_num( @sales_fee['deduction'] ) %></td>
+                    </tr>
+                    <tr>
                         <td class="price" colspan="3">Total</td>
-                        <td class="price"><%= delimit_num( @sales_fee['fee'] + @sales_fee['tax'] ) %></td>
+                        <td class="price"><%= delimit_num(@sales_fee['fee'] + @sales_fee['tax'] + @sales_fee['deduction']) %></td>
                     </tr>
         </table>
 
