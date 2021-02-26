@@ -211,6 +211,11 @@ module LucaDeal
       end
     end
 
+    def attachment_name(dat, type)
+      id = %r{/}.match(dat['id']) ? dat['id'].gsub('/', '') : dat['id'][0, 7]
+      "feereport-#{id}.#{type}"
+    end
+
     def issue_date(date)
       base =  date.nil? ? Date.today : Date.parse(date)
       Date.new(base.year, base.month, -1)
