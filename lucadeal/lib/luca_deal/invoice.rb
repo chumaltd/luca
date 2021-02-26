@@ -29,7 +29,7 @@ module LucaDeal
 
         mail = compose_mail(dat, mode: mode, attachment: attachment_type.to_sym)
         LucaSupport::Mail.new(mail, PJDIR).deliver
-        self.class.add_status!(path, 'mail_delivered')
+        self.class.add_status!(path, 'mail_delivered') if mode.nil?
       end
     end
 
