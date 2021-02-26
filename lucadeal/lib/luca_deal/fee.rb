@@ -98,7 +98,7 @@ module LucaDeal
 
       mail = Mail.new
       mail.to = dat.dig('customer', 'to') if mode.nil?
-      mail.subject = CONFIG.dig('invoice', 'mail_subject') || 'Your Report is available'
+      mail.subject = CONFIG.dig('fee', 'mail_subject') || 'Your Report is available'
       if mode == :preview
         mail.cc = CONFIG.dig('mail', 'preview') || CONFIG.dig('mail', 'from')
         mail.subject = '[preview] ' + mail.subject
