@@ -16,11 +16,12 @@ module LucaTerm
       @index = 0
       @active = 0  # active line in window
       @visible = set_visible
+      @dict = LucaRecord::Dict.load('base.tsv')
       main_loop
     end
 
     def self.journals(window, *args)
-      new(window, LucaBook::List.term(*args).list_journals)
+      new(window, LucaSupport::Code.readable(LucaBook::List.term(*args).data))
     end
 
     def main_loop
@@ -61,19 +62,21 @@ module LucaTerm
     end
 
     def show_detail(record)
-      debit_length = Array(record["debit_code"]).length
-      credit_length = Array(record["credit_code"]).length
+      debit_length = Array(record[:debit]).length
+      credit_length = Array(record[:credit]).length
+      date, txid = LucaSupport::Code.decode_id(record[:id]) if record[:id]
       loop do
         window.setpos(0, 0)
+        window << "#{date}  "
+        window << record[:note]
+        clrtoeol; window << "\n"
         [debit_length, credit_length].max.times do |i|
-          { 'id' => '' }.tap do |dat|
+          { id: nil, debit: [], credit: [] }.tap do |dat|
             if i < debit_length
-              dat['debit_code'] = Array(record["debit_code"])[i]
-              dat['debit_amount'] = Array(record["debit_amount"])[i]
+              dat[:debit] << Array(record[:debit])[i]
             end
             if i < credit_length
-              dat['credit_code'] = Array(record["credit_code"])[i]
-              dat['credit_amount'] = Array(record["credit_amount"])[i]
+              dat[:credit] << Array(record[:credit])[i]
             end
             window << draw_line(dat)
           end
@@ -94,19 +97,35 @@ module LucaTerm
     private
 
     def draw_line(dat)
-      debit_code = dat['debit_code'].is_a?(Array) ? dat['debit_code'][0] : dat['debit_code']
-      debit_amount = dat['debit_amount'].is_a?(Array) ? dat['debit_amount'][0] : dat['debit_amount']
-      credit_code = dat['credit_code'].is_a?(Array) ? dat['credit_code'][0] : dat['credit_code']
-      credit_amount = dat['credit_amount'].is_a?(Array) ? dat['credit_amount'][0] : dat['credit_amount']
-      lines = [Array(dat['debit_code']).length, Array(dat['credit_code']).length].max
-      sprintf("%s |%s| %s %s | %s %s",
-              dat['id'],
+      date, txid = LucaSupport::Code.decode_id(dat[:id]) if dat[:id]
+      debit_code = Array(dat[:debit]).dig(0, :code)
+      debit_amount = Array(dat[:debit]).dig(0, :amount) || ''
+      credit_code = Array(dat[:credit]).dig(0, :code)
+      credit_amount = Array(dat[:credit]).dig(0, :amount) || ''
+      lines = [Array(dat[:debit]).length, Array(dat[:credit]).length].max
+      sprintf("%s %s |%s| %s %s | %s %s",
+              date&.mb_rjust(10, ' ') || '',
+              txid || '',
               lines > 1 ? lines.to_s : ' ',
-              (debit_code||'').mb_ljust(24, ' '),
-              (debit_amount||'').to_s.mb_rjust(10, ' '),
-              (credit_code||'').mb_ljust(24, ' '),
-              (credit_amount||'').to_s.mb_rjust(10, ' ')
+              fmt_code(debit_code),
+              debit_amount.to_s.mb_rjust(10, ' '),
+              fmt_code(credit_code),
+              credit_amount.to_s.mb_rjust(10, ' ')
              )
+    end
+
+    def fmt_code(code)
+      width = (window.maxx / 3) < 30 ? 12 : 17
+      return ''.mb_ljust(width, ' ') if code.nil?
+
+      label = @dict.dig(code, :label)&.mb_truncate(12, omission: '')
+      if width == 12
+        label&.mb_ljust(width, ' ') || ''
+      else
+        sprintf("%s %s",
+                code&.mb_ljust(4, ' ') || '',
+                label&.mb_ljust(12, ' ') || '')
+      end
     end
 
     def set_visible

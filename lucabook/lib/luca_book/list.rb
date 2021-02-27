@@ -70,7 +70,7 @@ module LucaBook #:nodoc:
           res['no'] = txid
           res['id'] = dat[:id]
           res['debit_code'] = dat[:debit].length == 1 ? dat[:debit][0][:code] : dat[:debit].map { |d| d[:code] }
-          res['debit_amount'] =  dat[:debit].inject(0) { |sum, d| sum + d[:amount] }
+          res['debit_amount'] = dat[:debit].inject(0) { |sum, d| sum + d[:amount] }
           res['credit_code'] = dat[:credit].length == 1 ? dat[:credit][0][:code] : dat[:credit].map { |d| d[:code] }
           res['credit_amount'] = dat[:credit].inject(0) { |sum, d| sum + d[:amount] }
           res['note'] = dat[:note]
