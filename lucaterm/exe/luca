@@ -1,0 +1,19 @@
+#!/usr/bin/ruby
+# frozen_string_literal: true
+
+require 'curses'
+require 'luca_term'
+
+include Curses
+
+init_screen
+curs_set(0)
+noecho
+
+begin
+  window = Curses::Window.new(0, 0, 0, 0)
+  LucaTerm::Book.journals(window, *ARGV)
+ensure
+  close_screen
+  puts "exit.."
+end
