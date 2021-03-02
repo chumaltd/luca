@@ -15,7 +15,7 @@ module LucaTerm
       @data = data
       @index = 0
       @active = 0  # active line in window
-      @visible = set_visible
+      @visible = set_visible(@data)
       @dict = LucaRecord::Dict.load('base.tsv')
       main_loop
     end
@@ -41,15 +41,11 @@ module LucaTerm
         when KEY_DOWN, 'j', KEY_CTRL_N
           next if @index >= @data.length - 1
 
-          @index += 1
-          @active = @active >= window.maxy - 1 ? window.maxy - 1 : @active + 1
-          @visible = set_visible
+          cursor_down @data
         when KEY_UP, 'k', KEY_CTRL_P
           next if @index <= 0
 
-          @index -= 1
-          @active = @active <= 0 ? 0 : @active - 1
-          @visible = set_visible
+          cursor_up @data
         when KEY_ENTER, KEY_CTRL_J
           show_detail(@data[@index])
         when 'q'
@@ -125,8 +121,96 @@ module LucaTerm
             @d_v = debit_length - 1 if @d_v > debit_length - 1
             @d_h = 0
           end
-        when 'q', KEY_CTRL_J
+        when KEY_CTRL_J
+          position = [0,1].include?(@d_h) ? :debit : :credit
+          if [0, 2].include? @d_h
+            new_code = code_selection
+            next if new_code.nil?
+
+            record[position][@d_v][:code] = new_code
+          else
+            new_amount = edit_amount(record[position][@d_v][:amount])
+            next if new_amount.nil?
+
+            record[position][@d_v][:amount] = new_amount
+          end
+        when 's', KEY_CTRL_S
+          LucaBook::Journal.save record
           break
+        when 'q'
+          break
+        end
+      end
+    end
+
+    def edit_amount(current)
+      sub = window.subwin(4, 30, (window.maxy-4)/2, (window.maxx - 30)/2)
+      sub.box(?|, ?-)
+      sub.setpos(1, 3)
+      sub << "Current: #{current&.to_s}"
+      clrtoeol
+      sub.setpos(2, 3)
+      sub << "> "
+      loop do
+        sub.refresh
+        echo
+        scmd = sub.getstr
+        noecho
+        sub.close
+        begin
+          return nil if scmd.length == 0
+          # TODO: guard from not number
+          return scmd.to_i
+        rescue
+          return nil
+        end
+      end
+    end
+
+    def code_selection
+      list = @dict.map{ |code, entry| { code: code, label: entry[:label] } }
+      visible_dup = @visible
+      index_dup = @index
+      active_dup = @active
+      @index = 0
+      @active = 0
+      @visible = nil
+      @visible = set_visible(list)
+      loop do
+        window.setpos(0,0)
+        @visible.each.with_index(0) do |entry, i|
+          line = format("%s %s", entry[:code], entry[:label])
+          if i == @active
+            window.attron(A_REVERSE) { window << line }
+          else
+            window << line
+          end
+          clrtoeol
+          window << "\n"
+        end
+        window.refresh
+
+        cmd = window.getch
+        case cmd
+        when KEY_DOWN, 'j', KEY_CTRL_N
+          next if @index >= list.length - 1
+
+          cursor_down list
+        when KEY_UP, 'k', KEY_CTRL_P
+          next if @index <= 0
+
+          cursor_up list
+        when KEY_CTRL_J
+          code = list[@index][:code]
+          @visible = visible_dup
+          @index = index_dup
+          @active = active_dup
+          return code
+        when 'q'
+          @visible = visible_dup
+          @index = index_dup
+          @active = active_dup
+          return nil
         end
       end
     end
@@ -190,16 +274,28 @@ module LucaTerm
       amount.to_s.mb_rjust(10, ' ')
     end
 
-    def set_visible
-      return @data if @data.nil? || @data.length <= window.maxy
+    def cursor_up(data)
+      @index -= 1
+      @active = @active <= 0 ? 0 : @active - 1
+      @visible = set_visible(data)
+    end
+
+    def cursor_down(data)
+      @index += 1
+      @active = @active >= window.maxy - 1 ? window.maxy - 1 : @active + 1
+      @visible = set_visible(data)
+    end
+
+    def set_visible(data)
+      return data if data.nil? || data.length <= window.maxy
 
       if @visible.nil?
-        @data.slice(0, window.maxy)
+        data.slice(0, window.maxy)
       else
         if @active == (window.maxy - 1)
-          @data.slice(@index - window.maxy + 1, window.maxy)
+          data.slice(@index - window.maxy + 1, window.maxy)
         elsif @active == 0
-          @data.slice(@index, window.maxy)
+          data.slice(@index, window.maxy)
         else
           @visible
         end
