@@ -28,11 +28,8 @@ module LucaTerm
       loop do
         window.setpos(0,0)
         @visible.each.with_index(0) do |dat, i|
-          if i == @active
-            window.attron(A_REVERSE) { window << draw_line(dat) }
-          else
-            window << draw_line(dat)
-          end
+          cursor = i == @active ? :full : nil
+          draw_line(dat, cursor)
           clrtoeol
           window << "\n"
         end
@@ -62,6 +59,8 @@ module LucaTerm
     end
 
     def show_detail(record)
+      @d_v = 0
+      @d_h = 0
       debit_length = Array(record[:debit]).length
       credit_length = Array(record[:credit]).length
       date, txid = LucaSupport::Code.decode_id(record[:id]) if record[:id]
@@ -78,7 +77,8 @@ module LucaTerm
             if i < credit_length
               dat[:credit] << Array(record[:credit])[i]
             end
-            window << draw_line(dat)
+            cursor = @d_v == i ? @d_h : nil
+            draw_line(dat, cursor)
           end
           clrtoeol
           window << "\n"
@@ -86,8 +86,45 @@ module LucaTerm
         (window.maxy - window.cury).times { window.deleteln() }
         window.refresh
 
-        cmd = window.getch.to_s
+        window.keypad(true)
+        cmd = window.getch
         case cmd
+        when KEY_DOWN, 'j', KEY_CTRL_N
+          case @d_h
+          when 0, 1
+            @d_v = @d_v >= debit_length - 1 ? 0 : @d_v + 1
+          else  #2,3
+            @d_v = @d_v >= credit_length - 1 ? 0 : @d_v + 1
+          end
+        when KEY_UP, 'k', KEY_CTRL_P
+          case @d_h
+          when 0, 1
+            @d_v = @d_v == 0 ? debit_length - 1 : @d_v - 1
+          else  #2,3
+            @d_v = @d_v == 0 ? credit_length - 1 : @d_v - 1
+          end
+        when KEY_LEFT, 'h', KEY_CTRL_B
+          case @d_h
+          when 1, 3
+            @d_h -= 1
+          when 2
+            @d_v = debit_length - 1 if @d_v > debit_length - 1
+            @d_h -= 1
+          else # 0
+            @d_v = credit_length - 1 if @d_v > credit_length - 1
+            @d_h = 3
+          end
+        when KEY_RIGHT, 'l', KEY_CTRL_F
+          case @d_h
+          when 0, 2
+            @d_h += 1
+          when 1
+            @d_v = credit_length - 1 if @d_v > credit_length - 1
+            @d_h += 1
+          else # 3
+            @d_v = debit_length - 1 if @d_v > debit_length - 1
+            @d_h = 0
+          end
         when 'q', KEY_CTRL_J
           break
         end
@@ -96,36 +133,61 @@ module LucaTerm
 
     private
 
-    def draw_line(dat)
+    def draw_line(dat, cursor = nil)
       date, txid = LucaSupport::Code.decode_id(dat[:id]) if dat[:id]
-      debit_code = Array(dat[:debit]).dig(0, :code)
-      debit_amount = Array(dat[:debit]).dig(0, :amount) || ''
-      credit_code = Array(dat[:credit]).dig(0, :code)
-      credit_amount = Array(dat[:credit]).dig(0, :amount) || ''
+      debit_cd = fmt_code(dat[:debit])
+      debit_amount = fmt_amount(dat[:debit])
+      credit_cd = fmt_code(dat[:credit])
+      credit_amount = fmt_amount(dat[:credit])
       lines = [Array(dat[:debit]).length, Array(dat[:credit]).length].max
-      sprintf("%s %s |%s| %s %s | %s %s",
-              date&.mb_rjust(10, ' ') || '',
-              txid || '',
-              lines > 1 ? lines.to_s : ' ',
-              fmt_code(debit_code),
-              debit_amount.to_s.mb_rjust(10, ' '),
-              fmt_code(credit_code),
-              credit_amount.to_s.mb_rjust(10, ' ')
-             )
+      window << sprintf("%s %s |%s| ",
+                        date&.mb_rjust(10, ' ') || '',
+                        txid || '',
+                        lines > 1 ? lines.to_s : ' ',
+                       )
+      case cursor
+      when 0
+        window.attron(A_REVERSE) { window << debit_cd }
+        window << sprintf(" %s | %s %s", debit_amount, credit_cd, credit_amount)
+      when 1
+        window << sprintf("%s ", debit_cd)
+        window.attron(A_REVERSE) { window << debit_amount }
+        window << sprintf(" | %s %s", credit_cd, credit_amount)
+      when 2
+        window << sprintf("%s %s | ", debit_cd, debit_amount)
+        window.attron(A_REVERSE) { window << credit_cd }
+        window << sprintf(" %s", credit_amount)
+      when 3
+        window << sprintf("%s %s | %s ", debit_cd, debit_amount, credit_cd)
+        window.attron(A_REVERSE) { window << credit_amount }
+      else
+        rest = sprintf("%s %s | %s %s", debit_cd, debit_amount, credit_cd, credit_amount)
+        if cursor == :full
+          window.attron(A_REVERSE) { window << rest }
+        else
+          window << rest
+        end
+      end
     end
 
-    def fmt_code(code)
+    def fmt_code(record)
+      cd = Array(record).dig(0, :code)
       width = (window.maxx / 3) < 30 ? 12 : 17
-      return ''.mb_ljust(width, ' ') if code.nil?
+      return ''.mb_ljust(width, ' ') if cd.nil?
 
-      label = @dict.dig(code, :label)&.mb_truncate(12, omission: '')
+      label = @dict.dig(cd, :label)&.mb_truncate(12, omission: '')
       if width == 12
         label&.mb_ljust(width, ' ') || ''
       else
         sprintf("%s %s",
-                code&.mb_ljust(4, ' ') || '',
+                cd&.mb_ljust(4, ' ') || '',
                 label&.mb_ljust(12, ' ') || '')
       end
+    end
+
+    def fmt_amount(record)
+      amount = Array(record).dig(0, :amount) || ''
+      amount.to_s.mb_rjust(10, ' ')
     end
 
     def set_visible
