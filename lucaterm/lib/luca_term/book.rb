@@ -121,10 +121,21 @@ module LucaTerm
             @d_v = debit_length - 1 if @d_v > debit_length - 1
             @d_h = 0
           end
+        when 'n'
+          position = [0,1].include?(@d_h) ? :debit : :credit
+          new_code = select_code
+          next if new_code.nil?
+
+          new_amount = edit_amount
+          next if new_amount.nil?
+
+          record[position] << { code: new_code, amount: new_amount }
+          debit_length = Array(record[:debit]).length
+          credit_length = Array(record[:credit]).length
         when KEY_CTRL_J
           position = [0,1].include?(@d_h) ? :debit : :credit
           if [0, 2].include? @d_h
-            new_code = code_selection
+            new_code = select_code
             next if new_code.nil?
 
             record[position][@d_v][:code] = new_code
@@ -143,7 +154,7 @@ module LucaTerm
       end
     end
 
-    def edit_amount(current)
+    def edit_amount(current = nil)
       sub = window.subwin(4, 30, (window.maxy-4)/2, (window.maxx - 30)/2)
       sub.box(?|, ?-)
       sub.setpos(1, 3)
@@ -167,7 +178,7 @@ module LucaTerm
       end
     end
 
-    def code_selection
+    def select_code
       list = @dict.map{ |code, entry| { code: code, label: entry[:label] } }
       visible_dup = @visible
       index_dup = @index
