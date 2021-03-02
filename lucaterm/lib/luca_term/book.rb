@@ -29,10 +29,11 @@ module LucaTerm
         window.setpos(0,0)
         @visible.each.with_index(0) do |dat, i|
           cursor = i == @active ? :full : nil
-          draw_line(dat, cursor)
+          draw_line(dat, cursor, true)
           clrtoeol
           window << "\n"
         end
+        (window.maxy - window.cury).times { window.deleteln() }
         window.refresh
 
         window.keypad(true)
@@ -46,6 +47,14 @@ module LucaTerm
           next if @index <= 0
 
           cursor_up @data
+        when 'G'
+          cursor_last @data
+        when 'm'
+          ym = edit_dialog('Change month: yyyy m')&.split(/[\/\s]/)
+          @data = LucaSupport::Code.readable(LucaBook::List.term(*ym).data)
+          @index = 0
+          @active = 0
+          @visible = set_visible(@data)
         when KEY_ENTER, KEY_CTRL_J
           show_detail(@data[@index])
         when 'q'
@@ -155,26 +164,32 @@ module LucaTerm
     end
 
     def edit_amount(current = nil)
+      begin
+        scmd = edit_dialog "Current: #{current&.to_s}"
+        return nil if scmd.length == 0
+        # TODO: guard from not number
+        return scmd.to_i
+      rescue
+        return nil
+      end
+    end
+
+    def edit_dialog(message = '')
       sub = window.subwin(4, 30, (window.maxy-4)/2, (window.maxx - 30)/2)
       sub.box(?|, ?-)
       sub.setpos(1, 3)
-      sub << "Current: #{current&.to_s}"
+      sub << message
       clrtoeol
       sub.setpos(2, 3)
       sub << "> "
+      clrtoeol
+      sub.refresh
       loop do
-        sub.refresh
         echo
         scmd = sub.getstr
         noecho
         sub.close
-        begin
-          return nil if scmd.length == 0
-          # TODO: guard from not number
-          return scmd.to_i
-        rescue
-          return nil
-        end
+        return scmd
       end
     end
 
@@ -193,12 +208,15 @@ module LucaTerm
           line = format("%s %s", entry[:code], entry[:label])
           if i == @active
             window.attron(A_REVERSE) { window << line }
+          elsif @visible[i][:code].length <= 2
+            window.attron(A_UNDERLINE) { window << line }
           else
             window << line
           end
           clrtoeol
           window << "\n"
         end
+        (window.maxy - window.cury).times { window.deleteln() }
         window.refresh
 
         cmd = window.getch
@@ -207,10 +225,16 @@ module LucaTerm
           next if @index >= list.length - 1
 
           cursor_down list
+        when KEY_NPAGE
+          cursor_pagedown list
         when KEY_UP, 'k', KEY_CTRL_P
           next if @index <= 0
 
           cursor_up list
+        when KEY_PPAGE
+          cursor_pageup list
+        when 'G'
+          cursor_last list
         when KEY_CTRL_J
           code = list[@index][:code]
           @visible = visible_dup
@@ -228,7 +252,7 @@ module LucaTerm
 
     private
 
-    def draw_line(dat, cursor = nil)
+    def draw_line(dat, cursor = nil, note = false)
       date, txid = LucaSupport::Code.decode_id(dat[:id]) if dat[:id]
       debit_cd = fmt_code(dat[:debit])
       debit_amount = fmt_amount(dat[:debit])
@@ -256,7 +280,10 @@ module LucaTerm
         window << sprintf("%s %s | %s ", debit_cd, debit_amount, credit_cd)
         window.attron(A_REVERSE) { window << credit_amount }
       else
-        rest = sprintf("%s %s | %s %s", debit_cd, debit_amount, credit_cd, credit_amount)
+        rest = format("%s %s | %s %s", debit_cd, debit_amount, credit_cd, credit_amount)
+        if note && window.maxx > 80
+          rest += " | #{dat[:note].mb_truncate(window.maxx - 80)}"
+        end
         if cursor == :full
           window.attron(A_REVERSE) { window << rest }
         else
@@ -291,9 +318,33 @@ module LucaTerm
       @visible = set_visible(data)
     end
 
+    def cursor_pageup(data)
+      n_idx = @index - window.maxy
+      return if n_idx <= 0
+
+      @index = n_idx
+      @active = 0
+      @visible = set_visible(data)
+    end
+
     def cursor_down(data)
       @index += 1
       @active = @active >= window.maxy - 1 ? window.maxy - 1 : @active + 1
+      @visible = set_visible(data)
+    end
+
+    def cursor_pagedown(data)
+      n_idx = @index + window.maxy
+      return if n_idx >= data.length - 1
+
+      @index = n_idx
+      @active = 0
+      @visible = set_visible(data)
+    end
+
+    def cursor_last(data)
+      @index = data.length - 1
+      @active = window.maxy - 1
       @visible = set_visible(data)
     end
 

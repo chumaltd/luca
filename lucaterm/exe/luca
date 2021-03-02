@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 # frozen_string_literal: true
 
+require 'optparse'
 require 'curses'
 require 'luca_term'
 
@@ -10,10 +11,21 @@ init_screen
 curs_set(0)
 noecho
 
-begin
-  window = Curses::Window.new(0, 0, 0, 0)
-  LucaTerm::Book.journals(window, *ARGV)
-ensure
-  close_screen
-  puts "exit.."
+class LucaCmd
+  def self.book(args, params = {})
+    begin
+      window = Curses::Window.new(0, 0, 0, 0)
+      LucaTerm::Book.journals(window, *ARGV)
+    ensure
+      close_screen
+    end
+  end
+end
+
+cmd = ARGV.shift
+params = {}
+
+case cmd
+when /book/, 'b'
+  LucaCmd.book(cmd, params)
 end
