@@ -50,7 +50,7 @@ code	label	xbrl_id	consumption_tax	income_tax
 333	長期貸付金	jpfr-t-cte:LongTermLoansReceivable		
 334	破産更正債権	jpfr-t-cte:ClaimsProvableInBankruptcyClaimsProvableInRehabilitationAndOther		
 335	長期前払費用	jpfr-etax-t-cte:OtherLongTermPrepaidExpenses		
-336	敷金保証金			
+336	敷金保証金	jpfr-t-cte:GuaranteeDepositsIOA		
 337	繰延税金資産	jpfr-t-cte:DeferredTaxAssetsCA		
 4V	繰延資産	jpfr-t-cte:DeferredAssets		
 4V1	開業費	jpfr-t-cte:BusinessCommencementExpensesDA		
@@ -67,7 +67,7 @@ code	label	xbrl_id	consumption_tax	income_tax
 513	コマーシャルペーパー			
 514	未払金	jpfr-t-cte:AccountsPayableOther		
 515	未払法人税等	jpfr-t-cte:IncomeTaxesPayable		
-516	未払消費税等			
+516	未払消費税等	jpfr-t-cte:AccruedConsumptionTaxes		
 517	未払費用	jpfr-t-cte:AccruedExpenses		
 518	前受金	jpfr-t-cte:AdvancesReceived		
 519	預り金	jpfr-t-cte:DepositsReceived		
@@ -87,7 +87,7 @@ code	label	xbrl_id	consumption_tax	income_tax
 9132	その他資本剰余金	jpfr-t-cte:OtherCapitalSurplus		
 914	利益剰余金	jpfr-t-cte:RetainedEarnings		
 9141	利益準備金	jpfr-t-cte:LegalRetainedEarnings		
-9142	その他利益剰余金			
+9142	その他利益剰余金	jpfr-t-cte:OtherRetainedEarnings		
 915	自己株式	jpfr-t-cte:TreasuryStock		
 916	自己株式申込証拠金	jpfr-t-cte:TreasurySubscriptionRightsToShares		
 92	評価換算差額等	jpfr-t-cte:ValuationAndTranslationAdjustments		
@@ -98,7 +98,7 @@ code	label	xbrl_id	consumption_tax	income_tax
 9ZZ	純資産合計	jpfr-t-cte:NetAssets		
 A0	売上	jpfr-t-cte:NetSales		
 A11	売上高	jpfr-t-cte:NetSales		
-B0	売上原価			
+B0	売上原価	jpfr-t-cte:CostOfSales		
 B11	仕入	jpfr-t-cte:CostOfPurchasedGoods		
 B12	材料費			
 B13	当期製品製造原価			
@@ -111,7 +111,7 @@ C12	給料手当	jpfr-t-cte:SalariesSGA
 C13	賞与	jpfr-t-cte:BonusesSGA		
 C14	賃金	jpfr-t-cte:WagesSGA		
 C15	退職金	jpfr-etax-t-cte:PensionExpense		
-C16	法定福利費			
+C16	法定福利費	jpfr-t-cte:LegalWelfareExpensesSGA		
 C17	旅費交通費	jpfr-t-cte:TravelingExpensesSGA		
 C18	通信費	jpfr-t-cte:CommunicationExpensesSGA		
 C19	修繕費	jpfr-t-cte:RepairExpensesSGA		
@@ -119,7 +119,7 @@ C1A	広告宣伝費	jpfr-t-cte:AdvertisingExpensesSGA
 C1B	接待交際費	jpfr-t-cte:EntertainmentExpensesSGA		
 C1C	荷造運賃	jpfr-t-cte:HaulageExpensesSGA		
 C1D	福利厚生費	jpfr-t-cte:WelfareExpensesSGA		
-C1E	地代家賃	jpfr-t-cte:RentExpensesOnRealEstatesSGA		
+C1E	地代家賃	jpfr-t-cte:RentsSGA		
 C1F	水道光熱費	jpfr-t-cte:HeatingAndLightingExpensesSGA		
 C1G	消耗品費	jpfr-t-cte:SuppliesExpensesSGA		
 C1H	保険料	jpfr-t-cte:InsuranceExpensesSGA		
@@ -127,13 +127,13 @@ C1I	租税公課	jpfr-t-cte:TaxesAndDuesSGA
 C1J	賃借料	jpfr-etax-t-cte:LeaseExpense		
 C1K	新聞図書費	jpfr-etax-t-cte:PapersSubscriptionLibraryCost		
 C1L	貸倒損失	jpfr-t-cte:AllowanceSGA		
-C1M	諸会費			
-C1N	支払手数料			
-C1O	外注費			
+C1M	諸会費	jpfr-t-cte:MembershipFeeSGA		
+C1N	支払手数料	jpfr-t-cte:CommissionFeeSGA		
+C1O	外注費	jpfr-t-cte:SubcontractExpensesSGA		
 C1P	減価償却費	jpfr-t-cte:DepreciationSGA		
-C1Q	雑費	jpfr-etax-t-cte:AdministrativeMiscellaneousExpense		
+C1Q	雑費	jpfr-t-cte:MiscellaneousExpensesSGA		
 C1R	貸倒引当金繰入			
-C1S	支払報酬			
+C1S	支払報酬	jpfr-t-cte:CompensationsSGA		
 C1T	研修費	jpfr-etax-t-cte:RecruitmentEducationExpense		
 C1U	採用費			
 C1V	業務委託費			
@@ -145,7 +145,7 @@ D12	受取配当金	jpfr-t-cte:DividendsIncomeNOI
 D13	有価証券売却益			
 D14	有価証券利息	jpfr-t-cte:InterestOnSecuritiesNOI		
 D15	為替差益			
-D16	雑収入			
+D16	雑収入	jpfr-t-cte:MiscellaneousIncomeNOI		
 E0	営業外費用	jpfr-t-cte:NonOperatingExpenses		
 E11	支払利息	jpfr-t-cte:InterestExpensesNOE		
 E12	手形売却損			
