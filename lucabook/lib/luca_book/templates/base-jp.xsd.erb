@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:e-tax-pks-<%= @issue_date %>="http://xbrlsoft.e-tax.nta.go.jp/XSD/e-tax-pks-<%= @issue_date %>" targetNamespace="http://xbrlsoft.e-tax.nta.go.jp/XSD/e-tax-pks-<%= @issue_date %>" elementFormDefault="qualified">
+    <xsd:import namespace="http://www.xbrl.org/2003/instance" schemaLocation="http://www.xbrl.org/2003/xbrl-instance-2003-12-31.xsd" />
+    <xsd:import namespace="http://xml.e-tax.nta.go.jp/jp/fr/etax/o/di/2013-03-25" schemaLocation="http://xml.e-tax.nta.go.jp/jp/fr/etax/o/di/2013-03-25/jpfr-etax-di-2013-03-25.xsd" />
+    <xsd:import namespace="http://xml.e-tax.nta.go.jp/jp/fr/etax/r/pks/an/2013-03-25" schemaLocation="http://xml.e-tax.nta.go.jp/jp/fr/etax/r/pks/an/2013-03-25/jpfr-etax-pks-an-2013-03-25.xsd" />
+    <xsd:annotation>
+        <xsd:appinfo>
+            <link:linkbaseRef xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://xml.e-tax.nta.go.jp/jp/fr/etax/r/cai/an/2013-03-25/jpfr-etax-cai-an-2013-03-25-presentation-1-BS-13-Inventories-2-OneLine.xml" xlink:role="http://www.xbrl.org/2003/role/presentationLinkbaseRef" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase"/>
+            <link:linkbaseRef xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://xml.e-tax.nta.go.jp/jp/fr/etax/r/cai/an/2013-03-25/jpfr-etax-cai-an-2013-03-25-presentation-2-PL-01-Sales-1-Net.xml" xlink:role="http://www.xbrl.org/2003/role/presentationLinkbaseRef" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase"/>
+            <link:linkbaseRef xlink:type="simple" xlink:href="http://xml.e-tax.nta.go.jp/jp/fr/etax/r/cai/an/2013-03-25/jpfr-etax-cai-an-2013-03-25-presentation-2-PL-04-SGA-1-ByAccount.xml" xlink:role="http://www.xbrl.org/2003/role/presentationLinkbaseRef" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" />
+        </xsd:appinfo>
+    </xsd:annotation>
+</xsd:schema>

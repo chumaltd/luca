@@ -51,6 +51,13 @@ class LucaCmd
   end
 
   class Report < LucaCmd
+    def self.xbrl(args, params)
+      level = params[:level] || 3
+      legal = params[:legal] || false
+      args = gen_range(params[:n] || 1) if args.empty?
+      LucaBook::State.range(*args).render_xbrl(params[:output])
+    end
+
     def self.balancesheet(args, params)
       level = params[:level] || 3
       legal = params[:legal] || false
@@ -161,6 +168,13 @@ when 'new'
 when /reports?/, 'r'
   subcmd = ARGV.shift
   case subcmd
+  when 'xbrl'
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca-book reports bs [options] [YYYY M]'
+      opt.on('-o', '--output VAL', 'output filename') { |v| params[:output] = v }
+      args = opt.parse!(ARGV)
+      LucaCmd::Report.xbrl(args, params)
+    end
   when 'bs'
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-book reports bs [options] [YYYY M]'

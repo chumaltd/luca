@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'cgi/escape'
 require 'csv'
 require 'mail'
 require 'pathname'
@@ -18,11 +19,12 @@ module LucaBook
 
     attr_reader :statement
 
-    def initialize(data, count = nil, date: nil)
+    def initialize(data, count = nil, start_d: nil, end_d: nil)
       @data = data
       @count = count
       @dict = LucaRecord::Dict.load('base.tsv')
-      @start_date = date
+      @start_date = start_d
+      @end_date = end_d
       @start_balance = set_balance
     end
 
@@ -40,7 +42,10 @@ module LucaBook
           date = Date.new(date.next_month.year, date.next_month.month, -1)
         end
       end
-      new(reports, counts, date: Date.new(from_year.to_i, from_month.to_i, -1))
+      new(reports, counts,
+          start_d: Date.new(from_year.to_i, from_month.to_i, 1),
+          end_d: Date.new(to_year.to_i, to_month.to_i, -1)
+         )
     end
 
     def self.by_code(code, from_year, from_month, to_year = from_year, to_month = from_month)
@@ -126,10 +131,8 @@ module LucaBook
     end
 
     def bs(level = 3, legal: false)
-      @start_balance.keys.each { |k| @data.first[k] ||= 0 }
-      @data.map! { |data| data.select { |k, _v| k.length <= level } }
-      @data.map! { |data| code_sum(data).merge(data) } if legal
-      base = accumulate_balance(@data)
+      set_bs(level, legal: legal)
+      base = accumulate_balance(@bs)
       rows = [base[:debit].length, base[:credit].length].max
       @statement = [].tap do |a|
         rows.times do |i|
@@ -147,12 +150,7 @@ module LucaBook
       readable(@statement)
     end
 
-    def accumulate_balance(monthly_diffs)
-      data = monthly_diffs.each_with_object({}) do |month, h|
-        month.each do |k, v|
-          h[k] = h[k].nil? ? v : h[k] + v
-        end
-      end
+    def accumulate_balance(data)
       { debit: [], credit: [] }.tap do |res|
         data.sort.to_h.each do |k, v|
           case k
@@ -166,28 +164,13 @@ module LucaBook
     end
 
     def pl(level = 2)
-      term_keys = @data.inject([]) { |a, data| a + data.keys }
-                    .compact.select { |k| /^[A-H_].+/.match(k) }
-      fy = @start_balance.select { |k, _v| /^[A-H].+/.match(k) }
-      keys = (term_keys + fy.keys).uniq.sort
-      keys.select! { |k| k.length <= level }
+      set_pl(level)
       @statement = @data.map do |data|
         {}.tap do |h|
-          keys.each { |k| h[k] = data[k] || BigDecimal('0') }
+          @pl.keys.each { |k| h[k] = data[k] || BigDecimal('0') }
         end
       end
-      term = @statement.each_with_object({}) do |item, h|
-        item.each do |k, v|
-          h[k] = h[k].nil? ? v : h[k] + v if /^[^_]/.match(k)
-        end
-      end
-      fy = {}.tap do |h|
-        keys.each do |k|
-          h[k] = BigDecimal(fy[k] || '0') + BigDecimal(term[k] || '0')
-        end
-      end
-      @statement << term.tap { |h| h['_d'] = 'Period Total' }
-      @statement << fy.tap { |h| h['_d'] = 'FY Total' }
+      @statement << @pl
       readable(code2label)
     end
 
@@ -371,7 +354,61 @@ module LucaBook
       [diff, count]
     end
 
+    def render_xbrl(filename = nil)
+      set_bs(2, legal: true)
+      set_pl(3)
+      country_suffix = CONFIG['country'] || 'en'
+      @company = CGI.escapeHTML(CONFIG.dig('company', 'name'))
+      @balance_sheet_selected = 'true'
+      @pl_selected = 'true'
+      @capital_change_selected = 'true'
+      @issue_date = Date.today
+      @xbrl_entries = @bs.map{ |k, v| xbrl_line(k, v) }.compact.join("\n")
+      @xbrl_entries += @pl.map{ |k, v| xbrl_line(k, v) }.compact.join("\n")
+      @filename = filename || @issue_date.to_s
+
+      File.open("#{@filename}.xbrl", 'w') { |f| f.write render_erb(search_template("base-#{country_suffix}.xbrl.erb")) }
+      File.open("#{@filename}.xsd", 'w') { |f| f.write render_erb(search_template("base-#{country_suffix}.xsd.erb")) }
+    end
+
+    def xbrl_line(code, amount)
+      return nil if /^_/.match(code)
+
+      context = /^[0-9]/.match(code) ? 'CurrentYearNonConsolidatedInstant' : 'CurrentYearNonConsolidatedDuration'
+      tag = @dict.dig(code, :xbrl_id)
+      #raise "xrrl_id not found: #{code}" if tag.nil?
+      return nil if tag.nil?
+
+      "<#{tag} decimals=\"0\" unitRef=\"JPY\" contextRef=\"#{context}\">#{readable(amount)}</#{tag}>"
+    end
+
     private
+
+    def set_bs(level = 3, legal: false)
+      @start_balance.keys.each { |k| @data.first[k] ||= 0 }
+      list = @data.map { |data| data.select { |k, _v| k.length <= level } }
+      list.map! { |data| code_sum(data).merge(data) } if legal
+      @bs = list.each_with_object({}) do |month, h|
+        month.each do |k, v|
+          next if /^_/.match(k)
+
+          h[k] = (h[k] || BigDecimal('0')) + v
+        end
+      end
+    end
+
+    def set_pl(level = 2)
+      keys = @data.inject([]) { |a, data| a + data.keys }
+               .compact.select { |k| /^[A-H_].+/.match(k) }
+               .uniq.sort
+      keys.select! { |k| k.length <= level }
+      @pl = @data.each_with_object({}) do |item, h|
+        keys.each do |k|
+          h[k] = (h[k] || BigDecimal('0')) + (item[k] || BigDecimal('0')) if /^[^_]/.match(k)
+        end
+        h['_d'] = 'Period Total'
+      end
+    end
 
     def legal_items
       return [] unless CONFIG['country']
