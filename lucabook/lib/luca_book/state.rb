@@ -17,7 +17,7 @@ module LucaBook
     @dirname = 'journals'
     @record_type = 'raw'
 
-    attr_reader :statement
+    attr_reader :statement, :pl_data, :bs_data
 
     def initialize(data, count = nil, start_d: nil, end_d: nil)
       @data = data
@@ -132,7 +132,7 @@ module LucaBook
 
     def bs(level = 3, legal: false)
       set_bs(level, legal: legal)
-      base = accumulate_balance(@bs)
+      base = accumulate_balance(@bs_data)
       rows = [base[:debit].length, base[:credit].length].max
       @statement = [].tap do |a|
         rows.times do |i|
@@ -167,10 +167,10 @@ module LucaBook
       set_pl(level)
       @statement = @data.map do |data|
         {}.tap do |h|
-          @pl.keys.each { |k| h[k] = data[k] || BigDecimal('0') }
+          @pl_data.keys.each { |k| h[k] = data[k] || BigDecimal('0') }
         end
       end
-      @statement << @pl
+      @statement << @pl_data
       readable(code2label)
     end
 
@@ -363,8 +363,8 @@ module LucaBook
       @pl_selected = 'true'
       @capital_change_selected = 'true'
       @issue_date = Date.today
-      @xbrl_entries = @bs.map{ |k, v| xbrl_line(k, v) }.compact.join("\n")
-      @xbrl_entries += @pl.map{ |k, v| xbrl_line(k, v) }.compact.join("\n")
+      @xbrl_entries = @bs_data.map{ |k, v| xbrl_line(k, v) }.compact.join("\n")
+      @xbrl_entries += @pl_data.map{ |k, v| xbrl_line(k, v) }.compact.join("\n")
       @filename = filename || @issue_date.to_s
 
       File.open("#{@filename}.xbrl", 'w') { |f| f.write render_erb(search_template("base-#{country_suffix}.xbrl.erb")) }
@@ -388,7 +388,7 @@ module LucaBook
       @start_balance.keys.each { |k| @data.first[k] ||= 0 }
       list = @data.map { |data| data.select { |k, _v| k.length <= level } }
       list.map! { |data| code_sum(data).merge(data) } if legal
-      @bs = list.each_with_object({}) do |month, h|
+      @bs_data = list.each_with_object({}) do |month, h|
         month.each do |k, v|
           next if /^_/.match(k)
 
@@ -402,7 +402,7 @@ module LucaBook
                .compact.select { |k| /^[A-H_].+/.match(k) }
                .uniq.sort
       keys.select! { |k| k.length <= level }
-      @pl = @data.each_with_object({}) do |item, h|
+      @pl_data = @data.each_with_object({}) do |item, h|
         keys.each do |k|
           h[k] = (h[k] || BigDecimal('0')) + (item[k] || BigDecimal('0')) if /^[^_]/.match(k)
         end
