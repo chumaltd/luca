@@ -16,6 +16,7 @@ code	label	xbrl_id	consumption_tax	income_tax
 140	短期貸付金	jpfr-t-cte:ShortTermLoansReceivable		
 150	未収入金	jpfr-t-cte:AccruedIncome		
 1501	未収消費税等	jpfr-etax-t-cte:SuspenseAccountPaymentConsumptionTaxes		
+1502	未収法人税			
 160	棚卸資産			
 161	商品	jpfr-t-cte:Merchandise		
 162	製品	jpfr-t-cte:FinishedGoods		
@@ -30,7 +31,6 @@ code	label	xbrl_id	consumption_tax	income_tax
 185	仮払税金			
 1851	仮払法人税			
 1852	仮払法人税(地方)			
-1853	仮払地方法人税			
 1854	仮払地方税特別法人事業税			
 1855	仮払地方税所得割			
 1856	仮払地方税収入割			
@@ -38,6 +38,8 @@ code	label	xbrl_id	consumption_tax	income_tax
 1858	仮払地方税付加価値割			
 1859	仮払地方税法人税割			
 185A	仮払地方税均等割			
+185B	仮払消費税
+185C	仮払地方消費税
 30	固定資産	jpfr-t-cte:NoncurrentAssets		
 31	有形固定資産	jpfr-t-cte:PropertyPlantAndEquipment		
 311	建物	jpfr-t-cte:Buildings		
@@ -78,6 +80,10 @@ code	label	xbrl_id	consumption_tax	income_tax
 513	コマーシャルペーパー			
 514	未払金	jpfr-t-cte:AccountsPayableOther		
 515	未払法人税等	jpfr-t-cte:IncomeTaxesPayable		
+5151	未払法人税			
+5152	未払地方事業税			
+5153	未払都道府県民税			
+5154	未払市民税			
 516	未払消費税等	jpfr-t-cte:AccruedConsumptionTaxes		
 517	未払費用	jpfr-t-cte:AccruedExpenses		
 518	前受金	jpfr-t-cte:AdvancesReceived		
@@ -135,6 +141,7 @@ C1F	水道光熱費	jpfr-t-cte:HeatingAndLightingExpensesSGA
 C1G	消耗品費	jpfr-t-cte:SuppliesExpensesSGA		
 C1H	保険料	jpfr-t-cte:InsuranceExpensesSGA		
 C1I	租税公課	jpfr-t-cte:TaxesAndDuesSGA		
+C1I1	消費税			
 C1J	賃借料	jpfr-etax-t-cte:LeaseExpense		
 C1K	新聞図書費	jpfr-etax-t-cte:PapersSubscriptionLibraryCost		
 C1L	貸倒損失	jpfr-t-cte:AllowanceSGA		
