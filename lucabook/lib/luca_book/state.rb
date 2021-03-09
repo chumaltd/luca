@@ -138,11 +138,11 @@ module LucaBook
         rows.times do |i|
           {}.tap do |res|
             res['debit_label'] = base[:debit][i] ? @dict.dig(base[:debit][i].keys[0], :label) : ''
-            res['debit_balance'] = base[:debit][i] ? (@start_balance.dig(base[:debit][i].keys[0]) || 0) + base[:debit][i].values[0] : ''
-            res['debit_diff'] = base[:debit][i] ? base[:debit][i].values[0] : ''
+            #res['debit_balance'] = base[:debit][i] ? (@start_balance.dig(base[:debit][i].keys[0]) || 0) + base[:debit][i].values[0] : ''
+            res['debit_balance'] = base[:debit][i] ? base[:debit][i].values[0] : ''
             res['credit_label'] = base[:credit][i] ? @dict.dig(base[:credit][i].keys[0], :label) : ''
-            res['credit_balance'] = base[:credit][i] ? (@start_balance.dig(base[:credit][i].keys[0]) || 0) + base[:credit][i].values[0] : ''
-            res['credit_diff'] = base[:credit][i] ? base[:credit][i].values[0] : ''
+            #res['credit_balance'] = base[:credit][i] ? (@start_balance.dig(base[:credit][i].keys[0]) || 0) + base[:credit][i].values[0] : ''
+            res['credit_balance'] = base[:credit][i] ? base[:credit][i].values[0] : ''
             a << res
           end
         end
@@ -355,7 +355,7 @@ module LucaBook
     end
 
     def render_xbrl(filename = nil)
-      set_bs(2, legal: true)
+      set_bs(3, legal: true)
       set_pl(3)
       country_suffix = CONFIG['country'] || 'en'
       @company = CGI.escapeHTML(CONFIG.dig('company', 'name'))
@@ -363,7 +363,9 @@ module LucaBook
       @pl_selected = 'true'
       @capital_change_selected = 'true'
       @issue_date = Date.today
-      @xbrl_entries = @bs_data.map{ |k, v| xbrl_line(k, v) }.compact.join("\n")
+
+      prior_bs = @start_balance.filter { |k, _v| /^[9]/.match(k) }
+      @xbrl_entries = @bs_data.map{ |k, v| xbrl_line(k, v, prior_bs[k]) }.compact.join("\n")
       @xbrl_entries += @pl_data.map{ |k, v| xbrl_line(k, v) }.compact.join("\n")
       @filename = filename || @issue_date.to_s
 
@@ -371,21 +373,28 @@ module LucaBook
       File.open("#{@filename}.xsd", 'w') { |f| f.write render_erb(search_template("base-#{country_suffix}.xsd.erb")) }
     end
 
-    def xbrl_line(code, amount)
+    def xbrl_line(code, amount, prior_amount = nil)
       return nil if /^_/.match(code)
 
       context = /^[0-9]/.match(code) ? 'CurrentYearNonConsolidatedInstant' : 'CurrentYearNonConsolidatedDuration'
       tag = @dict.dig(code, :xbrl_id)
-      #raise "xrrl_id not found: #{code}" if tag.nil?
+      #raise "xbrl_id not found: #{code}" if tag.nil?
       return nil if tag.nil?
+      return nil if readable(amount).zero? && prior_amount.nil?
 
-      "<#{tag} decimals=\"0\" unitRef=\"JPY\" contextRef=\"#{context}\">#{readable(amount)}</#{tag}>"
+      prior = prior_amount.nil? ? '' : "<#{tag} decimals=\"0\" unitRef=\"JPY\" contextRef=\"Prior1YearNonConsolidatedInstant\">#{readable(prior_amount)}</#{tag}>\n"
+      current = "<#{tag} decimals=\"0\" unitRef=\"JPY\" contextRef=\"#{context}\">#{readable(amount)}</#{tag}>"
+
+      prior + current
     end
 
     private
 
     def set_bs(level = 3, legal: false)
-      @start_balance.keys.each { |k| @data.first[k] ||= 0 }
+      @start_balance.each do |k, v|
+        next if /^_/.match(k)
+        @data.first[k] = (v || 0) + (@data.first[k] || 0)
+      end
       list = @data.map { |data| data.select { |k, _v| k.length <= level } }
       list.map! { |data| code_sum(data).merge(data) } if legal
       @bs_data = list.each_with_object({}) do |month, h|

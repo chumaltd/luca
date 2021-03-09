@@ -104,11 +104,12 @@ code	label	xbrl_id	consumption_tax	income_tax
 913	資本剰余金	jpfr-t-cte:LegalCapitalSurplus		
 9131	資本準備金	jpfr-t-cte:LegalCapitalSurplus		
 9132	その他資本剰余金	jpfr-t-cte:OtherCapitalSurplus		
-914	利益剰余金	jpfr-t-cte:RetainedEarnings		
-9141	利益準備金	jpfr-t-cte:LegalRetainedEarnings		
-9142	その他利益剰余金	jpfr-t-cte:OtherRetainedEarnings		
-915	自己株式	jpfr-t-cte:TreasuryStock		
-916	自己株式申込証拠金	jpfr-t-cte:TreasurySubscriptionRightsToShares		
+914	繰越利益剰余金	jpfr-t-cte:RetainedEarningsBroughtForward		
+9141	その他利益剰余金	jpfr-t-cte:OtherRetainedEarnings		
+9142	繰越利益剰余金			
+915	利益準備金	jpfr-t-cte:LegalRetainedEarnings		
+916	自己株式	jpfr-t-cte:TreasuryStock		
+917	自己株式申込証拠金	jpfr-t-cte:TreasurySubscriptionRightsToShares		
 92	評価換算差額等	jpfr-t-cte:ValuationAndTranslationAdjustments		
 921	有価証券評価差額金	jpfr-t-cte:ValuationDifferenceOnAvailableForSaleSecurities		
 922	為替換算調整勘定			
