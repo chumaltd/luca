@@ -17,7 +17,7 @@ module LucaBook
     @dirname = 'journals'
     @record_type = 'raw'
 
-    attr_reader :statement, :pl_data, :bs_data
+    attr_reader :statement, :pl_data, :bs_data, :start_balance
 
     def initialize(data, count = nil, start_d: nil, end_d: nil)
       @data = data
@@ -240,6 +240,7 @@ module LucaBook
             else
               res[k[0, 3]] = v
             end
+            res[k] = v
           end
         end
         res.sort.to_h

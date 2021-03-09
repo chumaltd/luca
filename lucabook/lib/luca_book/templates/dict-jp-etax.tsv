@@ -145,6 +145,7 @@ C1G	消耗品費	jpfr-t-cte:SuppliesExpensesSGA
 C1H	保険料	jpfr-t-cte:InsuranceExpensesSGA		
 C1I	租税公課	jpfr-t-cte:TaxesAndDuesSGA		
 C1I1	消費税			
+C1I2	事業税			
 C1J	賃借料	jpfr-etax-t-cte:LeaseExpense		
 C1K	新聞図書費	jpfr-etax-t-cte:PapersSubscriptionLibraryCost		
 C1L	貸倒損失	jpfr-t-cte:AllowanceSGA		
