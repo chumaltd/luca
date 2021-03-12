@@ -20,7 +20,7 @@ module LucaBook
     attr_reader :statement, :pl_data, :bs_data, :start_balance
 
     def initialize(data, count = nil, start_d: nil, end_d: nil)
-      @data = data
+      @monthly = data
       @count = count
       @dict = LucaRecord::Dict.load('base.tsv')
       @start_date = start_d
@@ -76,7 +76,7 @@ module LucaBook
     end
 
     def code2label
-      @statement ||= @data
+      @statement ||= @monthly
       @statement.map do |report|
         {}.tap do |h|
           report.each { |k, v| h[@dict.dig(k, :label) || k] = v }
@@ -165,7 +165,7 @@ module LucaBook
 
     def pl(level = 2)
       set_pl(level)
-      @statement = @data.map do |data|
+      @statement = @monthly.map do |data|
         {}.tap do |h|
           @pl_data.keys.each { |k| h[k] = data[k] || BigDecimal('0') }
         end
@@ -394,9 +394,9 @@ module LucaBook
     def set_bs(level = 3, legal: false)
       @start_balance.each do |k, v|
         next if /^_/.match(k)
-        @data.first[k] = (v || 0) + (@data.first[k] || 0)
+        @monthly.first[k] = (v || 0) + (@monthly.first[k] || 0)
       end
-      list = @data.map { |data| data.select { |k, _v| k.length <= level } }
+      list = @monthly.map { |data| data.select { |k, _v| k.length <= level } }
       list.map! { |data| code_sum(data).merge(data) } if legal
       @bs_data = list.each_with_object({}) do |month, h|
         month.each do |k, v|
@@ -408,11 +408,11 @@ module LucaBook
     end
 
     def set_pl(level = 2)
-      keys = @data.inject([]) { |a, data| a + data.keys }
+      keys = @monthly.inject([]) { |a, data| a + data.keys }
                .compact.select { |k| /^[A-H_].+/.match(k) }
                .uniq.sort
       keys.select! { |k| k.length <= level }
-      @pl_data = @data.each_with_object({}) do |item, h|
+      @pl_data = @monthly.each_with_object({}) do |item, h|
         keys.each do |k|
           h[k] = (h[k] || BigDecimal('0')) + (item[k] || BigDecimal('0')) if /^[^_]/.match(k)
         end

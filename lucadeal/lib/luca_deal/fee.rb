@@ -52,7 +52,7 @@ module LucaDeal
         end
         NoInvoice.asof(@date.year, @date.month) do |no_invoice|
           next if no_invoice.dig('sales_fee', 'id') != contract['id']
-          next if exceed_limit?(invoice, limit)
+          next if exceed_limit?(no_invoice, limit)
 
           no_invoice['items'].each do |item|
             rate = item['type'] == 'initial' ? @rate['initial'] : @rate['default']
@@ -214,7 +214,9 @@ module LucaDeal
       @sales_fee = readable(fee_dat['sales_fee'])
       @issue_date = fee_dat['issue_date']
       @due_date = fee_dat['due_date']
-      @amount = readable(fee_dat['sales_fee'].inject(0) { |sum, (_k, v)| sum + v })
+      @amount = readable(fee_dat['sales_fee']
+                           .reject{ |k, _v| k == :deduction_label }
+                           .inject(0) { |sum, (_k, v)| sum + v })
     end
 
     def lib_path
