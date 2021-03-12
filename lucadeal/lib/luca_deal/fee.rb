@@ -215,7 +215,7 @@ module LucaDeal
       @issue_date = fee_dat['issue_date']
       @due_date = fee_dat['due_date']
       @amount = readable(fee_dat['sales_fee']
-                           .reject{ |k, _v| k == :deduction_label }
+                           .reject{ |k, _v| k == 'deduction_label' }
                            .inject(0) { |sum, (_k, v)| sum + v })
     end
 
