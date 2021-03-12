@@ -1,7 +1,8 @@
-## LucaBook master
+## LucaBook 0.2.25
 
 * implement `luca-book report mail`
 * implement `luca-book report xbrl`: render XBRL BalanceSheet / IncomeStatement, currently have JP e-tax compatible templates.
+* use etax taxonomy dictionary as Japan default
 
 ## LucaBook 0.2.24
 

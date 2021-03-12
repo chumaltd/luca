@@ -1,167 +1,193 @@
 code	label	xbrl_id	consumption_tax	income_tax
-1	資産合計	jppfs_cor:AssetsAbstract
-10	流動資産	jppfs_cor:CurrentAssetsAbstract
-10XX	UNSETTLED_IMPORT
-110	現金及び預金	jppfs_cor:CashAndDeposits
-1101	現金
-1102	小口現金
-1103	普通預金
-1104	当座預金
-1105	定期預金
-1106	通知預金
-1107	納税準備預金
-1108	別段預金
-120	受取手形	jppfs_cor:NotesReceivableTrade
-130	売掛金	jppfs_cor:AccountsReceivableTrade
-140	短期貸付金	jppfs_cor:ShortTermLoansReceivable
-150	未収入金	jppfs_cor:AccountsReceivableOther
-1501	未収消費税等
-160	棚卸資産	jppfs_cor:Inventories
-161	商品	jppfs_cor:Merchandize
-162	製品	jppfs_cor:FinishedGoods
-163	仕掛品	jppfs_cor:WorkInProcess
-164	貯蔵品	jppfs_cor:Supplies
-180	その他流動資産	jppfs_cor:OtherCA
-181	前渡金	jppfs_cor:AdvancePaymentsTrade
-182	前払費用	jppfs_cor:AdvancePaymentsOther
-183	立替金	jppfs_cor:AdvancesPaid
-184	仮払金	jppfs_cor:SuspensePayments
-1841	仮払消費税等
-30	固定資産	jppfs_cor:NonCurrentAssetsAbstract
-31	有形固定資産	jppfs_cor:PropertyPlantAndEquipmentAbstract
-311	建物	jppfs_cor:Buildings
-312	構築物	jppfs_cor:Structures
-313	機械装置	jppfs_cor:MachineryAndEquipment
-314	車両運搬具	jppfs_cor:Vehicles
-315	工具器具備品	jppfs_cor:ToolsFurnitureAndFixtures
-316	土地	jppfs_cor:Land
-317	建設仮勘定	jppfs_cor:ConstructionInProgress
-318	船舶	jppfs_cor:Vessels
-32	無形固定資産	jppfs_cor:IntansibleAssetsAbstract
-321	ソフトウェア	jppfs_cor:Software
-322	のれん	jppfs_cor:Goodwill
-323	特許権	jppfs_cor:PatentRight
-324	借地権	jppfs_cor:LeaseholdRight
-325	商標権	jppfs_cor:RightOfTrademark
-326	電話加入権	jppfs_cor:TelephoneSubscriptionRight
-33	投資その他の資産	jppfs_cor:InvestmentsAndOtherAssetsAbstract
-331	投資有価証券	jppfs_cor:InvestmentSecurities
-332	関係会社株式	jppfs_cor:StocksOfSubsidiariesAndAffiliates
-333	長期貸付金	jppfs_cor:LongTermLoansReceivable
-334	破産更正債権	jppfs_cor:ClaimsProvableInBankruptcyClaimsProvableInRehabilitationAndOther
-335	長期前払費用	jppfs_cor:LongTermPrepaidExpenses
-336	敷金保証金	jppfs_cor:LeaseAndGuaranteeDeposits
-337	繰延税金資産	jppfs_cor:DiferredTaxAssets
-4V	繰延資産	jppfs_cor:DeferredAssets
-4V1	開業費	jppfs_cor:BusinessCommencementExpensesDA
-4V2	創立費	jppfs_cor:DeferredOrganisationExpensesDA
-4V3	新株発行費	jppfs_cor:StockIssuanceCostDA
-4V4	社債発行費	jppfs_cor:BondIssuanceCostDA
-4V5	開発費	jppfs_cor:DevelopmentExpensesDA
-5	負債・純資産合計	jppfs_cor:LiabilitiesAndNetAssets
-50	流動負債	jppfs_cor:CurrentLiabilitiesAbstract
-50XX	UNSETTLED_IMPORT
-510	支払手形	jppfs_cor:NotePayableTrade
-511	買掛金	jppfs_cor:AccountsPayableTrade
-512	短期借入金	jppfs_cor:ShortTermLoansPayable
-513	コマーシャルペーパー	jppfs_cor:CommercialPapersLiabilities
-514	未払金	jppfs_cor:AccountsPayableOther
-515	未払法人税等	jppfs_cor:IncomeTaxesPayable
-516	未払消費税等	jppfs_cor:AccruedConsumptionTaxes
-517	未払費用	jppfs_cor:AccruedExpenses
-518	前受金	jppfs_cor:AdvancesReceived
-519	預り金	jppfs_cor:DepositsReceived
-51A	仮受金	jppfs_cor:SuspenseReceipt
-51A1	仮受消費税等	jppfs_cor:SuspenseReceiptOfConsumptionTaxes
-70	固定負債	jppfs_cor:NoncurrentLiabilitiesAbstract
-711	社債	jppfs_cor:BondsPayable
-712	長期借入金	jppfs_cor:LongTermLoansPayable
-713	退職給付引当金	jppfs_cor:ProvisionForRetirementBenefits
-714	繰延税金負債	jppfs_cor:DeferredTaxLiabilities
-8ZZ	負債合計	jppfs_cor:LiabilitiesAbstract
-91	株主資本	jppfs_cor:ShareholdersAbstract
-911	資本金	jppfs_cor:CapitalStock
-912	新株式申込証拠金	jppfs_cor:DepositForSubscriptionsToShares
-913	資本剰余金	jppfs_cor:LegalCapitalSurplus
-9131	資本準備金	jppfs_cor:LegalCapitalSurplus
-9132	その他資本剰余金	jppfs_cor:OtherCapitalSurplus
-914	利益剰余金	jppfs_cor:RetainedEarnings
-9141	利益準備金	jppfs_cor:LegalRetainedEarnings
-9142	その他利益剰余金	jppfs_cor:OtherRetainedEarningsAbstract
-915	自己株式	jppfs_cor:TreasuryStock
-916	自己株式申込証拠金	jppfs_cor:DepositForSubscriptionsToTreasuryStock
-92	評価換算差額等	jppfs_cor:ValuationAndTranslationAdjustments
-921	有価証券評価差額金	jppfs_cor:ValuationDifferenceOnAvailableForSaleSecurities
-922	為替換算調整勘定	jppfs_cor:ForeignCurrencyTranslationAdjustment
-93	新株予約権	jppfs_cor:SubscriptionRightsToShares
-940	非支配株主持分	jppfs_cor:NonControllingInterests
-9ZZ	純資産合計	jppfs_cor:NetAssetsAbstract
-A0	売上	jppfs_cor:NetSalesAbstract
-A11	売上高	jppfs_cor:NetSales
-B0	売上原価	jppfs_cor:CostOfSalesAbstract
-B11	仕入	jppfs_cor:TotalPurchaseOfGoods
-B12	材料費	jppfs_cor:CostOfRawMaterialSalesCOSExpOA
-B13	当期製品製造原価	jppfs_cor:CostOfProductsManufactured
-B131	労務費
-BA	粗利益	jppfs_cor:GrossProfit
-C0	販売費及び一般管理費	jppfs_cor:SellingGeneralAndAdministrativeExpensesAbstract
-C11	役員報酬	jppfs_cor:DirectorsCompensationsSGA
-C111	役員賞与
-C12	給料手当	jppfs_cor:SalariesSGA
-C13	賞与	jppfs_cor:BonusesSGA
-C14	賃金	jpfrs_cor:WagesSGA
-C15	退職金	jppfs_cor:RetirementPaymentsSGA
-C16	法定福利費	jppfs_cor:LegalWelfareExpensesSGA
-C17	旅費交通費	jppfs_cor:TravellingAndTransportationExpensesSGA
-C18	通信費	jppfs_cor:CommunicationExpensesSGA
-C19	修繕費	jppfs_cor:RepairExpensesSGA
-C1A	広告宣伝費	jppfs_cor:AdvertisingExpensesSGA
-C1B	接待交際費	jppfs_cor:EntertainmentExpensesSGA
-C1C	荷造運賃	jppfs_cor:FreightageAndPackingExpensesSGA
-C1D	福利厚生費	jppfs_cor:WelfareExpensesSGA
-C1E	地代家賃	jppfs_cor:RentsSGA
-C1F	水道光熱費	jppfs_cor:UtilitiesExpensesSGA
-C1G	消耗品費	jppfs_cor:SuppliesExpensesSGA
-C1H	保険料	jppfs_cor:InsuranceExpensesSGA
-C1I	租税公課	jppfs_cor:TaxesAndDuesSGA
-C1J	賃借料	jppfs_cor:RentExpensesSGA
-C1K	新聞図書費	jppfs_cor:BookExpensesSGA
-C1L	貸倒損失	jppfs_cor:BadDebtsExpensesSGA
-C1M	諸会費	jppfs_cor:MembershipFeeSGA
-C1N	支払手数料	jppfs_cor:CommissionFeeSGA
-C1O	外注費	jppfs_cor:SubcontructExpensesSGA
-C1P	減価償却費	jppfs_cor:DepreciationSGA
-C1Q	雑費	jppfs_cor:MiscellaneousExpensesSGA
-C1R	貸倒引当金繰入	jppfs_cor:ProvisionOfAllowanceForDebtfulAccountsSGA
-C1S	支払報酬	jppfs_cor:CompensationsSGA
-C1T	研修費	jppfs_cor:TrainingExpensesSGA
-C1U	採用費	jppfs_cor:RecruitingExpensesSGA
-C1V	業務委託費	jppfs_cor:BusinessConsignmentExpensesSGA
-C1W	会議費	jppfs_cor:ConferenceExpensesSGA
-CA	営業利益	jppfs_cor:OperatingIncome
-D0	営業外収益	jppfs_cor:NonOperatingIncomeAbstract
-D11	受取利息	jppfs_cor:InterestIncomeNOI
-D12	受取配当金	jppfs_cor:DividendsIncomeNOI
-D13	有価証券売却益	jppfs_cor:GainOnSalesOfSecuritiesNOI
-D14	有価証券利息	jppfs_cor:InterestsOnSecuritiesNOI
-D15	為替差益	jppfs_cor:ForeignExchangeGainsNOI
-D16	雑収入	jppfs_cor:MiscellaneousIncomeNOI
-E0	営業外費用	jppfs_cor:NonOperatingExpensesAbstract
-E11	支払利息	jppfs_cor:InterestExpensesNOE
-E12	手形売却損	jppfs_cor:LossOnSalesOfNotesPayableNOE
-E13	有価証券売却損	jppfs_cor:LossOnSalesOfSecuritiesNOE
-E14	有価証券評価損	jppfs_cor:LossOnValuationOfSecuritiesNOE
-E15	為替差損	jppfs_cor:ForeignExchangeLossesNOE
-E16	雑損失	jppfs_cor:MiscellaneousLossNOE
-EA	経常利益	jppfs_cor:OrdinaryIncome
-F0	特別利益	jppfs_cor:ExtraordinaryIncomeAbstract
-F11	固定資産売却益	jppfs_cor:GainOnSalesOfNoncurrentAssetsEI
-F12	償却債権取立益	jppfs_cor:GainOnBadDebtsRecoveredEI
-G0	特別損失	jppfs_cor:ExtraordinaryLossAbstract
-G11	固定資産売却損	jppfs_cor:LossOnSalesOfNoncurrentAssetsEL
-G12	固定資産除却損	jppfs_cor:LossOnRetirementOfNoncurrentAssetsEL
-G13	災害損失	jppfs_cor:LossOnDisasterEL
-GA	税引前利益	jppfs_cor:IncomeBeforeIncomeTaxes
-H0	法人税等	jppfs_cor:IncomeTaxes
-H11	法人税、住民税及び事業税	jppfs_cor:IncomeTaxesCurrent
-HA	当期利益	jppfs_cor:ProfitLoss
+1	資産合計	jpfr-t-cte:Assets		
+10	流動資産	jpfr-t-cte:CurrentAssets		
+10XX	UNSETTLED_IMPORT			
+110	現金及び預金	jpfr-t-cte:CashAndDeposits		
+1101	現金	jpfr-etax-t-cte:CashHand		
+1102	小口現金	jpfr-etax-t-cte:PettyCash		
+1103	普通預金	jpfr-etax-t-cte:OrdinaryDeposit		
+1104	当座預金	jpfr-etax-t-cte:CheckingAccounts		
+1105	定期預金			
+1106	通知預金			
+1107	納税準備預金	jpfr-etax-t-cte:DepositsPreparationTaxPayment		
+1108	別段預金			
+120	受取手形	jpfr-t-cte:NotesReceivableTrade		
+130	売掛金	jpfr-t-cte:AccountsReceivableTrade		
+140	短期貸付金	jpfr-t-cte:ShortTermLoansReceivable		
+150	未収入金	jpfr-t-cte:AccruedIncome		
+1501	未収消費税等	jpfr-etax-t-cte:SuspenseAccountPaymentConsumptionTaxes		
+1502	未収法人税			
+1503	未収地方住民税			
+1504	未収地方事業税			
+160	棚卸資産			
+161	商品	jpfr-t-cte:Merchandise		
+162	製品	jpfr-t-cte:FinishedGoods		
+163	仕掛品	jpfr-t-cte:SemiFinishedGoods		
+164	貯蔵品	jpfr-t-cte:Supplies		
+180	その他流動資産	jpfr-t-cte:OtherCA		
+181	前渡金	jpfr-t-cte:AdvancePaymentsTrade		
+182	前払費用	jpfr-t-cte:PrepaidExpenses		
+183	立替金			
+184	仮払金			
+1841	仮払消費税等			
+185	仮払税金			
+1851	仮払法人税			
+1852	仮払法人税(地方)			
+1854	仮払地方税特別法人事業税			
+1855	仮払地方税所得割			
+1856	仮払地方税収入割			
+1857	仮払地方税資本割			
+1858	仮払地方税付加価値割			
+1859	仮払地方税法人税割			
+185A	仮払地方税均等割			
+185B	仮払消費税
+185C	仮払地方消費税
+30	固定資産	jpfr-t-cte:NoncurrentAssets		
+31	有形固定資産	jpfr-t-cte:PropertyPlantAndEquipment		
+311	建物	jpfr-t-cte:Buildings		
+312	構築物	jpfr-t-cte:Structures		
+313	機械装置	jpfr-t-cte:MachineryAndEquipment		
+314	車両運搬具	jpfr-t-cte:Vehicles		
+315	工具器具備品	jpfr-t-cte:ToolsFurnitureAndFixtures		
+316	土地	jpfr-t-cte:Land		
+317	建設仮勘定	jpfr-t-cte:ConstructionInProgress		
+318	船舶	jpfr-t-cte:Vessels		
+32	無形固定資産	jpfr-t-cte:IntangibleAssets		
+321	ソフトウェア	jpfr-t-cte:Software		
+322	のれん	jpfr-t-cte:Goodwill		
+323	特許権	jpfr-t-cte:PatentRight		
+324	借地権	jpfr-t-cte:LeaseholdRight		
+325	商標権	jpfr-t-cte:RightOfTrademark		
+326	電話加入権			
+33	投資その他の資産	jpfr-t-cte:InvestmentsAndOtherAssets		
+331	投資有価証券	jpfr-t-cte:InvestmentSecurities		
+332	関係会社株式	jpfr-t-cte:StocksOfSubsidiariesAndAffiliates		
+333	長期貸付金	jpfr-t-cte:LongTermLoansReceivable		
+334	破産更正債権	jpfr-t-cte:ClaimsProvableInBankruptcyClaimsProvableInRehabilitationAndOther		
+335	長期前払費用	jpfr-etax-t-cte:OtherLongTermPrepaidExpenses		
+336	敷金保証金	jpfr-t-cte:GuaranteeDepositsIOA		
+337	繰延税金資産	jpfr-t-cte:DeferredTaxAssetsCA		
+4V	繰延資産	jpfr-t-cte:DeferredAssets		
+4V1	開業費	jpfr-t-cte:BusinessCommencementExpensesDA		
+4V2	創立費	jpfr-t-cte:DeferredOrganizationExpensesDA		
+4V3	新株発行費	jpfr-t-cte:StockIssuanceCostDA		
+4V4	社債発行費	jpfr-t-cte:BondIssuanceCostDA		
+4V5	開発費	jpfr-t-cte:DevelopmentExpensesDA		
+5	負債・純資産合計	jpfr-t-cte:LiabilitiesAndNetAssets		
+50	流動負債	jpfr-t-cte:CurrentLiabilities		
+50XX	UNSETTLED_IMPORT			
+510	支払手形	jpfr-t-cte:NotesPayableTrade		
+511	買掛金	jpfr-t-cte:AccountsPayableTrade		
+512	短期借入金	jpfr-t-cte:ShortTermLoansPayable		
+513	コマーシャルペーパー			
+514	未払金	jpfr-t-cte:AccountsPayableOther		
+515	未払法人税等	jpfr-t-cte:IncomeTaxesPayable		
+5151	未払法人税			
+5152	未払地方事業税			
+5153	未払都道府県民税			
+5154	未払市民税			
+516	未払消費税等	jpfr-t-cte:AccruedConsumptionTaxes		
+517	未払費用	jpfr-t-cte:AccruedExpenses		
+518	前受金	jpfr-t-cte:AdvancesReceived		
+519	預り金	jpfr-t-cte:DepositsReceived		
+5191	所得税源泉給与
+5192	住民税
+5193	所得税源泉士業	
+5194	所得税源泉報酬
+51A	仮受金			
+51A1	仮受消費税等			
+70	固定負債	jpfr-t-cte:NoncurrentLiabilities		
+711	社債	jpfr-t-cte:BondsPayable		
+712	長期借入金	jpfr-t-cte:LongTermLoansPayable		
+713	退職給付引当金	jpfr-t-cte:ProvisionForRetirementBenefits		
+714	繰延税金負債	jpfr-t-cte:DeferredTaxLiabilitiesNCL		
+8ZZ	負債合計	jpfr-t-cte:Liabilities		
+91	株主資本	jpfr-t-cte:ShareholdersEquity		
+911	資本金	jpfr-t-cte:CapitalStock		
+912	新株式申込証拠金	jpfr-t-cte:DepositForSubscriptionsToShares		
+913	資本剰余金	jpfr-t-cte:LegalCapitalSurplus		
+9131	資本準備金	jpfr-t-cte:LegalCapitalSurplus		
+9132	その他資本剰余金	jpfr-t-cte:OtherCapitalSurplus		
+914	繰越利益剰余金	jpfr-t-cte:RetainedEarningsBroughtForward		
+9141	その他利益剰余金	jpfr-t-cte:OtherRetainedEarnings		
+9142	繰越利益剰余金			
+915	利益準備金	jpfr-t-cte:LegalRetainedEarnings		
+916	自己株式	jpfr-t-cte:TreasuryStock		
+917	自己株式申込証拠金	jpfr-t-cte:TreasurySubscriptionRightsToShares		
+92	評価換算差額等	jpfr-t-cte:ValuationAndTranslationAdjustments		
+921	有価証券評価差額金	jpfr-t-cte:ValuationDifferenceOnAvailableForSaleSecurities		
+922	為替換算調整勘定			
+93	新株予約権	jpfr-t-cte:TreasurySubscriptionRightsToShares		
+940	非支配株主持分			
+9ZZ	純資産合計	jpfr-t-cte:NetAssets		
+A0	売上	jpfr-t-cte:NetSales		
+A11	売上高	jpfr-t-cte:NetSales		
+B0	売上原価	jpfr-t-cte:CostOfSales		
+B11	仕入	jpfr-t-cte:CostOfPurchasedGoods		
+B12	材料費			
+B13	当期製品製造原価			
+B131	労務費			
+BA	粗利益	jpfr-t-cte:GrossProfit		
+C0	販売費及び一般管理費	jpfr-t-cte:SellingGeneralAndAdministrativeExpenses		
+C11	役員報酬	jpfr-t-cte:DirectorsCompensationsSGA		
+C111	役員賞与			
+C12	給料手当	jpfr-t-cte:SalariesSGA		
+C13	賞与	jpfr-t-cte:BonusesSGA		
+C14	賃金	jpfr-t-cte:WagesSGA		
+C15	退職金	jpfr-etax-t-cte:PensionExpense		
+C16	法定福利費	jpfr-t-cte:LegalWelfareExpensesSGA		
+C17	旅費交通費	jpfr-t-cte:TravelingExpensesSGA		
+C18	通信費	jpfr-t-cte:CommunicationExpensesSGA		
+C19	修繕費	jpfr-t-cte:RepairExpensesSGA		
+C1A	広告宣伝費	jpfr-t-cte:AdvertisingExpensesSGA		
+C1B	接待交際費	jpfr-t-cte:EntertainmentExpensesSGA		
+C1C	荷造運賃	jpfr-t-cte:HaulageExpensesSGA		
+C1D	福利厚生費	jpfr-t-cte:WelfareExpensesSGA		
+C1E	地代家賃	jpfr-t-cte:RentsSGA		
+C1F	水道光熱費	jpfr-t-cte:HeatingAndLightingExpensesSGA		
+C1G	消耗品費	jpfr-t-cte:SuppliesExpensesSGA		
+C1H	保険料	jpfr-t-cte:InsuranceExpensesSGA		
+C1I	租税公課	jpfr-t-cte:TaxesAndDuesSGA		
+C1I1	消費税			
+C1I2	事業税			
+C1J	賃借料	jpfr-etax-t-cte:LeaseExpense		
+C1K	新聞図書費	jpfr-etax-t-cte:PapersSubscriptionLibraryCost		
+C1L	貸倒損失	jpfr-t-cte:AllowanceSGA		
+C1M	諸会費	jpfr-t-cte:MembershipFeeSGA		
+C1N	支払手数料	jpfr-t-cte:CommissionFeeSGA		
+C1O	外注費	jpfr-t-cte:SubcontractExpensesSGA		
+C1P	減価償却費	jpfr-t-cte:DepreciationSGA		
+C1Q	雑費	jpfr-t-cte:MiscellaneousExpensesSGA		
+C1R	貸倒引当金繰入			
+C1S	支払報酬	jpfr-t-cte:CompensationsSGA		
+C1T	研修費	jpfr-etax-t-cte:RecruitmentEducationExpense		
+C1U	採用費			
+C1V	業務委託費			
+C1W	会議費			
+CA	営業利益	jpfr-t-cte:OperatingIncome		
+D0	営業外収益	jpfr-t-cte:NonOperatingIncome		
+D11	受取利息	jpfr-t-cte:InterestIncomeNOI		
+D12	受取配当金	jpfr-t-cte:DividendsIncomeNOI		
+D13	有価証券売却益			
+D14	有価証券利息	jpfr-t-cte:InterestOnSecuritiesNOI		
+D15	為替差益			
+D16	雑収入	jpfr-t-cte:MiscellaneousIncomeNOI		
+E0	営業外費用	jpfr-t-cte:NonOperatingExpenses		
+E11	支払利息	jpfr-t-cte:InterestExpensesNOE		
+E12	手形売却損			
+E13	有価証券売却損			
+E14	有価証券評価損			
+E15	為替差損			
+E16	雑損失			
+EA	経常利益	jpfr-t-cte:OrdinaryIncome		
+F0	特別利益	jpfr-t-cte:ExtraordinaryIncome		
+F11	固定資産売却益	jpfr-t-cte:GainOnSalesOfNoncurrentAssetsEI		
+F12	償却債権取立益			
+G0	特別損失	jpfr-t-cte:ExtraordinaryLoss		
+G11	固定資産売却損	jpfr-t-cte:LossOnSalesOfNoncurrentAssetsEL		
+G12	固定資産除却損			
+G13	災害損失	jpfr-t-cte:LossOnDisasterEL		
+GA	税引前利益	jpfr-t-cte:IncomeBeforeIncomeTaxes		
+H0	法人税等	jpfr-t-cte:IncomeTaxes		
+H11	法人税、住民税及び事業税	jpfr-t-cte:IncomeTaxesCurrent		
+HA	当期利益	jpfr-t-cte:NetIncome		
