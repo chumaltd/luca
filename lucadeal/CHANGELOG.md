@@ -3,6 +3,7 @@
 * implement deduction rate for fee calculation.
 * implement `luca-deal fee export`
 * refine export label for luca-book compatibility
+* add `luca-deal invoice create --monthly --with-fee` option.
 
 ## LucaDeal 0.2.24
 

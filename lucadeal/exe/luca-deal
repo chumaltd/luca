@@ -124,11 +124,12 @@ class LucaCmd
 
   class Invoice < LucaCmd
     def self.create(args = nil, params = {})
-      case params['mode']
+      case params[:mode]
       when 'monthly'
         date = "#{args[0]}-#{args[1]}-#{args[2] || '1'}" if !args.empty?
         LucaDeal::Invoice.new(date).monthly_invoice
         LucaDeal::NoInvoice.new(date).monthly_invoice
+        LucaDeal::Fee.new(date).monthly_fee if params[:fee]
         if params[:mail]
           LucaDeal::Invoice.new(date).stats_email
         end
@@ -198,7 +199,7 @@ class LucaCmd
 
   class Fee < LucaCmd
     def self.create(args = nil, params = {})
-      case params['mode']
+      case params[:mode]
       when 'monthly'
         date = "#{args[0]}-#{args[1]}-#{args[2] || '1'}" if !args.empty?
         LucaDeal::Fee.new(date).monthly_fee
@@ -347,8 +348,9 @@ when /invoices?/, 'i'
   when 'create'
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-deal invoices create [options] --monthly|contract_id year month [date]'
-      opt.on('--monthly', 'generate monthly data') { |_v| params['mode'] = 'monthly' }
       opt.on('--mail', 'send payment list by email. Only works with --monthly') { |_v| params[:mail] = true }
+      opt.on('--monthly', 'generate monthly data') { |_v| params[:mode] = 'monthly' }
+      opt.on('--with-fee', 'generate sales fee data after monthly invoice creation') { |_v| params[:fee] = true }
       args = opt.parse(ARGV)
       LucaCmd::Invoice.create(args, params)
     end
@@ -394,7 +396,7 @@ when /fee/
   when 'create'
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-deal fee create [options] year month [date]'
-      opt.on('--monthly', 'generate monthly data') { |_v| params['mode'] = 'monthly' }
+      opt.on('--monthly', 'generate monthly data') { |_v| params[:mode] = 'monthly' }
       args = opt.parse(ARGV)
       LucaCmd::Fee.create(args, params)
     end
