@@ -187,7 +187,6 @@ module LucaSupport
       end
     end
 
-    #
     # return current value with effective/defunct on target @date
     # For multiple attribues, return hash on other than 'val'. Examples are as bellows:
     #
@@ -200,18 +199,23 @@ module LucaSupport
     #     point: 1000
     #   => { 'effective' => 2020-1-1, 'rank' => 5, 'point' => 1000 }
     #
+    #   - defunct: 2020-1-1
+    #     val: 3000
+    #   => nil
+    #
     def take_current(dat, item)
-      target = dat.dig(item)
-      if target.is_a?(Array) && target.map(&:keys).flatten.include?('effective')
-        latest = target
-                 .filter { |a| Date.parse(a.dig('effective').to_s) < @date }
-                 .max { |a, b| Date.parse(a.dig('effective').to_s) <=> Date.parse(b.dig('effective').to_s) }
-        return nil if !latest.dig('defunct').nil? && Date.parse(latest.dig('defunct').to_s) < @date
+      target = dat&.dig(item)
+      return target unless target.is_a?(Array)
 
-        latest.dig('val') || latest
-      else
-        target
-      end
+      keys = target.map(&:keys).flatten
+      return target if !keys.include?('effective') && !keys.include?('defunct')
+
+      latest = target
+                 .reject { |a| a['defunct'] && Date.parse(a['defunct'].to_s) < @date  }
+                 .filter { |a| a['effective'] && Date.parse(a['effective'].to_s) < @date }
+                 .max { |a, b| Date.parse(a['effective'].to_s) <=> Date.parse(b['effective'].to_s) }
+
+      latest&.dig('val') || latest
     end
 
     def has_status?(dat, status)

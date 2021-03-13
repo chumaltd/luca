@@ -1,6 +1,7 @@
-## LucaRecord master
+## LucaRecord 0.2.25
 
 * Implement `dir_digest()` for data validation.
+* support defunct without effective history record
 
 ## LucaRecord 0.2.24
 
