@@ -20,21 +20,23 @@ module LucaDeal
     end
 
     def deliver_mail(attachment_type = nil, mode: nil)
-      attachment_type = CONFIG.dig('invoice', 'attachment') || :html
       invoices = self.class.asof(@date.year, @date.month)
       raise "No invoice for #{@date.year}/#{@date.month}" if invoices.count.zero?
 
       invoices.each do |dat, path|
         next if has_status?(dat, 'mail_delivered')
 
-        mail = compose_mail(dat, mode: mode, attachment: attachment_type.to_sym)
-        LucaSupport::Mail.new(mail, PJDIR).deliver
-        self.class.add_status!(path, 'mail_delivered') if mode.nil?
+        deliver_one(dat, path, mode: mode, attachment_type: attachment_type)
       end
     end
 
     def preview_mail(attachment_type = nil)
-      deliver_mail(attachment_type, mode: :preview)
+      invoices = self.class.asof(@date.year, @date.month)
+      raise "No invoice for #{@date.year}/#{@date.month}" if invoices.count.zero?
+
+      invoices.each do |dat, path|
+        deliver_one(dat, path, mode: :preview, attachment_type: attachment_type)
+      end
     end
 
     # Render HTML to console
@@ -260,6 +262,13 @@ module LucaDeal
       @issue_date = invoice_dat['issue_date']
       @due_date = invoice_dat['due_date']
       @amount = readable(invoice_dat['subtotal'].inject(0) { |sum, i| sum + i['items'] + i['tax'] })
+    end
+
+    def deliver_one(invoice, path, mode: nil, attachment_type: nil)
+      attachment_type ||= CONFIG.dig('invoice', 'attachment') || :html
+      mail = compose_mail(invoice, mode: mode, attachment: attachment_type.to_sym)
+      LucaSupport::Mail.new(mail, PJDIR).deliver
+      self.class.add_status!(path, 'mail_delivered') if mode.nil?
     end
 
     def lib_path
