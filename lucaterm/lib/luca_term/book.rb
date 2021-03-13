@@ -57,6 +57,18 @@ module LucaTerm
           @visible = set_visible(@data)
         when KEY_ENTER, KEY_CTRL_J
           show_detail(@data[@index])
+        when 'N'
+          newdate = edit_dialog "Enter date of new record: YYYY-m-d"
+          tmpl = {
+            date: newdate,
+            debit: [
+              { code: '10XX', amount: 0 }
+            ],
+            credit: [
+              { code: '50XX', amount: 0 }
+            ],
+          }
+          show_detail(tmpl)
         when 'q'
           exit 0
         end
@@ -69,6 +81,7 @@ module LucaTerm
       debit_length = Array(record[:debit]).length
       credit_length = Array(record[:credit]).length
       date, txid = LucaSupport::Code.decode_id(record[:id]) if record[:id]
+      date ||= record[:date]
       loop do
         window.setpos(0, 0)
         window << "#{date}  "
@@ -131,7 +144,7 @@ module LucaTerm
             @d_h = 0
           end
         when 'n'
-          position = [0,1].include?(@d_h) ? :debit : :credit
+          position = [0, 1].include?(@d_h) ? :debit : :credit
           new_code = select_code
           next if new_code.nil?
 
@@ -155,7 +168,11 @@ module LucaTerm
             record[position][@d_v][:amount] = new_amount
           end
         when 's', KEY_CTRL_S
-          LucaBook::Journal.save record
+          if record[:id]
+            LucaBook::Journal.save record
+          else
+            LucaBook::Journal.create record
+          end
           break
         when 'q'
           break
@@ -195,6 +212,7 @@ module LucaTerm
 
     def select_code
       list = @dict.map{ |code, entry| { code: code, label: entry[:label] } }
+               .select{ |d| d[:code].length >= 3 }
       visible_dup = @visible
       index_dup = @index
       active_dup = @active
@@ -208,8 +226,6 @@ module LucaTerm
           line = format("%s %s", entry[:code], entry[:label])
           if i == @active
             window.attron(A_REVERSE) { window << line }
-          elsif @visible[i][:code].length <= 2
-            window.attron(A_UNDERLINE) { window << line }
           else
             window << line
           end

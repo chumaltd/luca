@@ -1,5 +1,5 @@
-## LucaTerm master
+## LucaTerm 0.1.1
 
 * `luca book`: handle cursor on journal detail
-* `luca book`: edit journal
+* `luca book`: add / edit journal
 * `luca book`: move to another month

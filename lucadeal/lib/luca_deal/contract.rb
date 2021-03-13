@@ -69,11 +69,11 @@ module LucaDeal
     end
 
     def active_period?(dat)
-      unless dat.dig('defunct').nil?
-        defunct = dat.dig('defunct').respond_to?(:year) ? dat.dig('defunct') : Date.parse(dat.dig('defunct'))
+      unless dat['defunct'].nil?
+        defunct = dat['defunct'].respond_to?(:year) ? dat['defunct'] : Date.parse(dat['defunct'])
         return false if @date > defunct
       end
-      effective = dat.dig('effective').respond_to?(:year) ? dat.dig('effective') : Date.parse(dat.dig('effective'))
+      effective = dat['effective'].respond_to?(:year) ? dat['effective'] : Date.parse(dat['effective'])
       @date >= effective
     end
 
