@@ -222,7 +222,7 @@ when /balance/
   case subcmd
   when 'update'
     OptionParser.new do |opt|
-      opt.banner = 'Usage: luca-book balance update YYYY'
+      opt.banner = 'Usage: luca-book balance update YYYY [M]'
       args = opt.parse!(ARGV)
       LucaCmd::Dict.update_balance(args, params)
     end

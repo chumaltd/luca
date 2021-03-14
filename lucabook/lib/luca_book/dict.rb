@@ -112,9 +112,10 @@ module LucaBook
       Date.parse(obj.dig('_date', :label))
     end
 
-    def self.generate_balance(year)
+    def self.generate_balance(year, month = nil)
       start_date = Date.new((year.to_i - 1), LucaSupport::CONFIG['fy_start'], 1)
-      end_date = Date.new(year.to_i, LucaSupport::CONFIG['fy_start'] - 1, -1)
+      month ||= LucaSupport::CONFIG['fy_start'] - 1
+      end_date = Date.new(year.to_i, month, -1)
       labels = load('base.tsv')
       bs = load_balance(start_date, end_date)
       fy_digest = checksum(start_date, end_date)
