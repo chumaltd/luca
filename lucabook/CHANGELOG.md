@@ -1,3 +1,8 @@
+## LucaBook master
+
+* implement `luca-book balance update`
+* select latest balance with given date and fy_start
+
 ## LucaBook 0.2.25
 
 * implement `luca-book report mail`

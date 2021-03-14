@@ -311,6 +311,14 @@ module LucaRecord # :nodoc:
             File.open(subpath, mode) { |f| yield(f, id_set) }
           end
         end
+
+        # Calculate md5sum with original digest, file content and filename(optional).
+        #
+        def update_digest(digest, str, filename = nil)
+          str = filename.nil? ? str : filename + str
+          content = Digest::MD5.new.update(str).hexdigest
+          Digest::MD5.new.update(digest + content).hexdigest
+        end
       end
 
       # git object like structure
@@ -432,14 +440,6 @@ module LucaRecord # :nodoc:
       else
         {}
       end
-    end
-
-    # Calculate md5sum with original digest, file content and filename(optional).
-    #
-    def update_digest(digest, str, filename = nil)
-      str = filename.nil? ? str : filename + str
-      content = Digest::MD5.new.update(str).hexdigest
-      Digest::MD5.new.update(digest + content).hexdigest
     end
   end
 end

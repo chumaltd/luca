@@ -95,6 +95,12 @@ class LucaCmd
       puts YAML.dump(dat)
     end
   end
+
+  class Dict < LucaCmd
+    def self.update_balance(args, params)
+      LucaBook::Dict.generate_balance(*args)
+    end
+  end
 end
 
 def new_pj(args = nil, params = {})
@@ -210,6 +216,16 @@ when /reports?/, 'r'
     puts '  bs: show balance sheet'
     puts '  pl: show statement of income'
     exit 1
+  end
+when /balance/
+  subcmd = ARGV.shift
+  case subcmd
+  when 'update'
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca-book balance update YYYY'
+      args = opt.parse!(ARGV)
+      LucaCmd::Dict.update_balance(args, params)
+    end
   end
 else
   puts 'Proper subcommand needed.'

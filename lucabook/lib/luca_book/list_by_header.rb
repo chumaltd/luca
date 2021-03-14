@@ -67,7 +67,7 @@ module LucaBook #:nodoc:
     def set_balance
       return BigDecimal('0') if @code.nil? || /^[A-H]/.match(@code)
 
-      balance_dict = Dict.latest_balance
+      balance_dict = Dict.latest_balance(@start)
       start_balance = BigDecimal(balance_dict.dig(@code.to_s, :balance) || '0')
       start = Dict.issue_date(balance_dict)&.next_month
       last = @start.prev_month
