@@ -126,6 +126,8 @@ module LucaBook
         f << ['_digest', fy_digest]
         f << ['_gitref', current_ref] if current_ref
         bs.each do |code, balance|
+          next if LucaSupport::Code.readable(balance) == 0
+
           f << [code, labels.dig(code, :label), LucaSupport::Code.readable(balance)]
         end
       end
