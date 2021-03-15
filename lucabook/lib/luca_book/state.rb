@@ -27,7 +27,7 @@ module LucaBook
       @count = count
       @start_date = start_d
       @end_date = end_d
-      @start_balance = set_balance
+      set_balance
     end
 
     def self.range(from_year, from_month, to_year = from_year, to_month = from_month)
@@ -56,19 +56,23 @@ module LucaBook
       last_date = Date.new(to_year.to_i, to_month.to_i, -1)
       raise 'invalid term specified' if date > last_date
 
-      reports = [].tap do |r|
+      balance = start_balance(date.year, date.month, recursive: recursive)[code] || 0
+      first_line = { 'code' => nil, 'label' => nil, 'debit_amount' => nil, 'debit_count' => nil, 'credit_amount' => nil, 'credit_count' => nil, 'net' => nil, 'balance' => balance, '_d' => nil }
+      reports = [first_line].tap do |r|
         while date <= last_date do
           diff = {}.tap do |h|
             g = gross(date.year, date.month, code: code, recursive: recursive)
             sum = g.dig(:debit).nil? ? BigDecimal('0') : Util.calc_diff(g[:debit], code)
             sum -= g.dig(:credit).nil? ? BigDecimal('0') : Util.calc_diff(g[:credit], code)
+            balance += sum
             h['code'] = code
-            h['label'] = LucaRecord::Dict.load('base.tsv').dig(code, :label)
-            h['net'] = sum
+            h['label'] = @@dict.dig(code, :label)
             h['debit_amount'] = g[:debit]
             h['debit_count'] = g[:debit_count]
             h['credit_amount'] = g[:credit]
             h['credit_count'] = g[:credit_count]
+            h['net'] = sum
+            h['balance'] = balance
             h['_d'] = date.to_s
           end
           r << diff
@@ -205,25 +209,28 @@ module LucaBook
     end
 
     def set_balance
-      pre_last = @start_date.prev_month
-      start_year = if @start_date.month > CONFIG['fy_start'].to_i
-                     pre_last.year
-                   else
-                     pre_last.year - 1
-                   end
-      pre = self.class.accumulate_term(start_year, CONFIG['fy_start'], pre_last.year, pre_last.month)
+      @start_balance = self.class.start_balance(@start_date.year, @start_date.month)
+    end
 
-      base = Dict.latest_balance(@start_date).each_with_object({}) do |(k, v), h|
+    def self.start_balance(year, month, recursive: true)
+      start_date = Date.new(year, month, 1)
+      base = Dict.latest_balance(start_date).each_with_object({}) do |(k, v), h|
         h[k] = BigDecimal(v[:balance].to_s) if v[:balance]
         h[k] ||= BigDecimal('0') if k.length == 2
       end
-      if pre
-        idx = (pre.keys + base.keys).uniq
-        base = {}.tap do |h|
-          idx.each { |k| h[k] = (base[k] || BigDecimal('0')) + (pre[k] || BigDecimal('0')) }
+      if month == CONFIG['fy_start'].to_i
+        return recursive ? total_subaccount(base) : base
+      end
+
+      pre_last = start_date.prev_month
+      year -= 1 if month <= CONFIG['fy_start'].to_i
+      pre = accumulate_term(year, CONFIG['fy_start'], pre_last.year, pre_last.month)
+      total = {}.tap do |h|
+        (pre.keys + base.keys).uniq.each do |k|
+          h[k] = (base[k] || BigDecimal('0')) + (pre[k] || BigDecimal('0'))
         end
       end
-      self.class.total_subaccount(base)
+      recursive ? total_subaccount(total) : total
     end
 
     def render_xbrl(filename = nil)

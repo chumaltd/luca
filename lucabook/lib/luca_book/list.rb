@@ -21,13 +21,17 @@ module LucaBook #:nodoc:
       @start = start_date
     end
 
-    def self.term(from_year, from_month, to_year = from_year, to_month = from_month, code: nil, basedir: @dirname)
+    def self.term(from_year, from_month, to_year = from_year, to_month = from_month, code: nil, basedir: @dirname, recursive: false)
       code = search_code(code) if code
       data = LucaBook::Journal.term(from_year, from_month, to_year, to_month, code).select do |dat|
         if code.nil?
           true
         else
-          [:debit, :credit].map { |key| serialize_on_key(dat[key], :code) }.flatten.include?(code)
+          if recursive
+            ! [:debit, :credit].map { |key| serialize_on_key(dat[key], :code) }.flatten.select { |idx|  /^#{code}/.match(idx) }.empty?
+          else
+            [:debit, :credit].map { |key| serialize_on_key(dat[key], :code) }.flatten.include?(code)
+          end
         end
       end
       new data, Date.new(from_year.to_i, from_month.to_i, 1), code
@@ -43,13 +47,13 @@ module LucaBook #:nodoc:
       end
     end
 
-    def list_by_code
-      calc_code
+    def list_by_code(recursive = false)
+      calc_code(recursive: recursive)
       convert_label
       @data = [code_header] + @data.map do |dat|
         date, txid = LucaSupport::Code.decode_id(dat[:id])
         {}.tap do |res|
-          res['code'] = dat[:code]
+          res['code'] = dat[:code].length == 1 ? dat[:code].first : dat[:code]
           res['date'] = date
           res['no'] = txid
           res['id'] = dat[:id]
@@ -99,30 +103,22 @@ module LucaBook #:nodoc:
 
     private
 
-    def set_balance
+    def set_balance(recursive = false)
       return BigDecimal('0') if @code.nil? || /^[A-H]/.match(@code)
 
-      balance_dict = Dict.latest_balance(@start)
-      start_balance = BigDecimal(balance_dict.dig(@code.to_s, :balance) || '0')
-      start = Dict.issue_date(balance_dict)&.next_month
-      last = @start.prev_month
-      if last.year >= start.year && last.month >= start.month
-        start_balance + self.class.term(start.year, start.month, last.year, last.month, code: @code).accumulate_code
-      else
-        start_balance
-      end
+      LucaBook::State.start_balance(@start.year, @start.month, recursive: recursive)
     end
 
-    def calc_code
-      @balance = set_balance
+    def calc_code(recursive: false)
+      @balance = set_balance(recursive)[@code] || BigDecimal('0')
       if @code
         balance = @balance
         @data.each do |dat|
           dat[:diff] = Util.diff_by_code(dat[:debit], @code) - Util.diff_by_code(dat[:credit], @code)
           balance += dat[:diff]
           dat[:balance] = balance
-          dat[:code] = @code
-          counter = dat[:diff] * Util.pn_debit(@code) > 0 ? :credit : :debit
+          target, counter = dat[:diff] * Util.pn_debit(@code) > 0 ? [:debit, :credit] : [:credit, :debit]
+          dat[:code] = dat[target].map { |d| d[:code] }
           dat[:counter_code] = dat[counter].map { |d| d[:code] }
         end
       end
@@ -132,7 +128,7 @@ module LucaBook #:nodoc:
     def convert_label
       @data.each do |dat|
         if @code
-          dat[:code] = "#{dat[:code]} #{@@dict.dig(dat[:code], :label)}"
+          dat[:code] = dat[:code].map { |target| "#{target} #{@@dict.dig(target, :label)}" }
           dat[:counter_code] = dat[:counter_code].map { |counter| "#{counter} #{@@dict.dig(counter, :label)}" }
         else
           dat[:debit].each { |debit| debit[:code] = "#{debit[:code]} #{@@dict.dig(debit[:code], :label)}" }

@@ -24,7 +24,7 @@ module LucaBook
 
     def amount_by_code(items, code)
       items
-        .select { |item| item.dig(:code) == code }
+        .select { |item| /^#{code}/.match(item[:code]) }
         .inject(BigDecimal('0')) { |sum, item| sum + item[:amount] }
     end
 
