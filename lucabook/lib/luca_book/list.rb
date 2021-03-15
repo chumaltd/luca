@@ -106,11 +106,11 @@ module LucaBook #:nodoc:
     def set_balance(recursive = false)
       return BigDecimal('0') if @code.nil? || /^[A-H]/.match(@code)
 
-      LucaBook::State.start_balance(@start.year, @start.month, recursive: recursive)
+      LucaBook::State.start_balance(@start.year, @start.month, recursive: recursive)[@code] || BigDecimal('0')
     end
 
     def calc_code(recursive: false)
-      @balance = set_balance(recursive)[@code] || BigDecimal('0')
+      @balance = set_balance(recursive)
       if @code
         balance = @balance
         @data.each do |dat|

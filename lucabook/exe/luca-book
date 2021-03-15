@@ -19,7 +19,7 @@ class LucaCmd
     end
 
     def self.list(args, params)
-      args = gen_range(params[:n] || 1) if args.empty?
+      args = gen_range(params[:n]) if args.empty?
       if params['code']
         if params['headers']
           render(LucaBook::ListByHeader.term(*args, code: params['code'], header: params['headers']).list_by_code, params)
@@ -78,11 +78,19 @@ class LucaCmd
     end
   end
 
-  def self.gen_range(count)
-    count ||= 3
+  def self.gen_range(count = nil)
     today = Date.today
-    start = today.prev_month(count - 1)
-    [start.year, start.month, today.year, today.month]
+    if count
+      start = today.prev_month(count - 1)
+      [start.year, start.month, today.year, today.month]
+    else
+      start_year = if today.month >= LucaSupport::CONFIG['fy_start'].to_i
+                     today.year
+                   else
+                     today.year - 1
+                   end
+      [start_year, LucaSupport::CONFIG['fy_start'], start_year + 1, LucaSupport::CONFIG['fy_start'].to_i - 1]
+    end
   end
 
   def self.render(dat, params)
