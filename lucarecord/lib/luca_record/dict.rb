@@ -17,10 +17,11 @@ module LucaRecord
       set_driver
     end
 
-    # Search word with n-gram.
+    # Search code with n-gram word.
     # If dictionary has Hash or Array, it returns [label, options].
     #
     def search(word, default_word = nil, main_key: 'label', options: nil)
+      definitions_lazyload
       res, score = max_score_code(word.gsub(/[[:space:]]/, ''))
       return default_word if score < 0.4
 
@@ -32,6 +33,12 @@ module LucaRecord
       else
         res
       end
+    end
+
+    # Search with unique code.
+    #
+    def dig(*args)
+      @data.dig(*args)
     end
 
     # Separate main item from other options.
@@ -49,7 +56,6 @@ module LucaRecord
       [obj[main_key], options.compact]
     end
 
-    #
     # Load CSV with config options
     #
     def load_csv(path)
@@ -58,7 +64,6 @@ module LucaRecord
       end
     end
 
-    #
     # load dictionary data
     #
     def self.load(file = @filename)
@@ -72,7 +77,6 @@ module LucaRecord
       end
     end
 
-    #
     # generate dictionary from TSV file. Minimum assumption is as bellows:
     # 1st row is converted symbol.
     #
@@ -101,7 +105,7 @@ module LucaRecord
         puts 'No error detected.'
         nil
       else
-        "Key #{errors.join(', ')} has nil #{target_key}."
+        puts "Key #{errors.join(', ')} has nil #{target_key}."
         errors.count
       end
     end
@@ -109,9 +113,15 @@ module LucaRecord
     private
 
     def set_driver
-      input = self.class.load(@path)
-      @config = input['config']
-      @definitions = input['definitions']
+      @data = self.class.load(@path)
+      @config = @data['config']
+      @definitions = @data['definitions']
+    end
+
+    # Build Reverse dictionary for TSV data
+    #
+    def definitions_lazyload
+      @definitions ||= @data.each_with_object({}) { |(k, entry), h| h[entry[:label]] = k if entry[:label] }
     end
 
     def self.dict_path(filename)
@@ -124,7 +134,7 @@ module LucaRecord
 
     def max_score_code(str)
       res = @definitions.map do |k, v|
-        [v, match_score(str, k, 3)]
+        [v, match_score(str, k, 2)]
       end
       res.max { |x, y| x[1] <=> y[1] }
     end

@@ -132,8 +132,9 @@ module LucaSupport
     end
 
     def match_score(a, b, n = 2)
-      v_a = to_ngram(a, n)
-      v_b = to_ngram(b, n)
+      split_factor = [a.length, b.length, n].min
+      v_a = to_ngram(a, split_factor)
+      v_b = to_ngram(b, split_factor)
 
       v_a.map { |item| v_b.include?(item) ? 1 : 0 }.sum / v_a.length.to_f
     end

@@ -1,3 +1,8 @@
+## LucaRecord master
+
+* Support #dig / #search for TSV dictionary
+* Fix: shorten n-gram split factor on search word length < specified factor
+
 ## LucaRecord 0.2.25
 
 * Implement `dir_digest()` for data validation.
