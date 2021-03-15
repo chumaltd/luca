@@ -1,4 +1,4 @@
-## LucaRecord master
+## LucaRecord 0.2.26
 
 * Support #dig / #search for TSV dictionary
 * Fix: shorten n-gram split factor on search word length < specified factor

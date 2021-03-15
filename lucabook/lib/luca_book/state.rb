@@ -18,13 +18,13 @@ module LucaBook
 
     @dirname = 'journals'
     @record_type = 'raw'
+    @@dict = LucaRecord::Dict.new('base.tsv')
 
     attr_reader :statement, :pl_data, :bs_data, :start_balance
 
     def initialize(data, count = nil, start_d: nil, end_d: nil)
       @monthly = data
       @count = count
-      @dict = LucaRecord::Dict.load('base.tsv')
       @start_date = start_d
       @end_date = end_d
       @start_balance = set_balance
@@ -51,6 +51,7 @@ module LucaBook
     end
 
     def self.by_code(code, from_year, from_month, to_year = from_year, to_month = from_month)
+      code = search_code(code) if code
       date = Date.new(from_year.to_i, from_month.to_i, -1)
       last_date = Date.new(to_year.to_i, to_month.to_i, -1)
       raise 'invalid term specified' if date > last_date
@@ -81,7 +82,7 @@ module LucaBook
       @statement ||= @monthly
       @statement.map do |report|
         {}.tap do |h|
-          report.each { |k, v| h[@dict.dig(k, :label) || k] = v }
+          report.each { |k, v| h[@@dict.dig(k, :label) || k] = v }
         end
       end
     end
@@ -106,7 +107,7 @@ module LucaBook
         data.sort.to_h
       end
       keys.map! { |k| k[0, level] }.uniq.select! { |k| k.length <= level } if level
-      @count.prepend({}.tap { |header| keys.each { |k| header[k] = @dict.dig(k, :label) }})
+      @count.prepend({}.tap { |header| keys.each { |k| header[k] = @@dict.dig(k, :label) }})
       @count
     end
 
@@ -139,7 +140,7 @@ module LucaBook
       @statement = [].tap do |a|
         rows.times do |i|
           {}.tap do |res|
-            res['debit_label'] = base[:debit][i] ? @dict.dig(base[:debit][i].keys[0], :label) : ''
+            res['debit_label'] = base[:debit][i] ? @@dict.dig(base[:debit][i].keys[0], :label) : ''
             #res['debit_balance'] = base[:debit][i] ? (@start_balance.dig(base[:debit][i].keys[0]) || 0) + base[:debit][i].values[0] : ''
             res['debit_balance'] = base[:debit][i] ? base[:debit][i].values[0] : ''
             res['credit_label'] = base[:credit][i] ? @dict.dig(base[:credit][i].keys[0], :label) : ''
@@ -248,7 +249,7 @@ module LucaBook
       return nil if /^_/.match(code)
 
       context = /^[0-9]/.match(code) ? 'CurrentYearNonConsolidatedInstant' : 'CurrentYearNonConsolidatedDuration'
-      tag = @dict.dig(code, :xbrl_id)
+      tag = @@dict.dig(code, :xbrl_id)
       #raise "xbrl_id not found: #{code}" if tag.nil?
       return nil if tag.nil?
       return nil if readable(amount).zero? && prior_amount.nil?
@@ -257,6 +258,17 @@ module LucaBook
       current = "<#{tag} decimals=\"0\" unitRef=\"JPY\" contextRef=\"#{context}\">#{readable(amount)}</#{tag}>"
 
       prior + current
+    end
+
+    def self.search_code(code)
+      return code if @@dict.dig(code)
+
+      @@dict.search(code).tap do |new_code|
+        if new_code.nil?
+          puts "Search word is not matched with labels"
+          exit 1
+        end
+      end
     end
 
     private

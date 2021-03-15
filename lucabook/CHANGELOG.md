@@ -1,7 +1,8 @@
-## LucaBook master
+## LucaBook 0.2.26
 
 * implement `luca-book balance update`
 * select latest balance with given date and fy_start
+* support search by account label with `-c` option of `luca-book journals list` and `luca-book journals stats`
 
 ## LucaBook 0.2.25
 

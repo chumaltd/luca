@@ -12,16 +12,17 @@ module LucaBook #:nodoc:
   #
   class List < LucaBook::Journal
     @dirname = 'journals'
+    @@dict = LucaRecord::Dict.new('base.tsv')
     attr_reader :data
 
     def initialize(data, start_date, code = nil)
       @data = data
       @code = code
       @start = start_date
-      @dict = LucaRecord::Dict.load('base.tsv')
     end
 
     def self.term(from_year, from_month, to_year = from_year, to_month = from_month, code: nil, basedir: @dirname)
+      code = search_code(code) if code
       data = LucaBook::Journal.term(from_year, from_month, to_year, to_month, code).select do |dat|
         if code.nil?
           true
@@ -85,6 +86,17 @@ module LucaBook #:nodoc:
       end
     end
 
+    def self.search_code(code)
+      return code if @@dict.dig(code)
+
+      @@dict.search(code).tap do |new_code|
+        if new_code.nil?
+          puts "Search word is not matched with labels"
+          exit 1
+        end
+      end
+    end
+
     private
 
     def set_balance
@@ -120,18 +132,14 @@ module LucaBook #:nodoc:
     def convert_label
       @data.each do |dat|
         if @code
-          dat[:code] = "#{dat[:code]} #{@dict.dig(dat[:code], :label)}"
-          dat[:counter_code] = dat[:counter_code].map { |counter| "#{counter} #{@dict.dig(counter, :label)}" }
+          dat[:code] = "#{dat[:code]} #{@@dict.dig(dat[:code], :label)}"
+          dat[:counter_code] = dat[:counter_code].map { |counter| "#{counter} #{@@dict.dig(counter, :label)}" }
         else
-          dat[:debit].each { |debit| debit[:code] = "#{debit[:code]} #{@dict.dig(debit[:code], :label)}" }
-          dat[:credit].each { |credit| credit[:code] = "#{credit[:code]} #{@dict.dig(credit[:code], :label)}" }
+          dat[:debit].each { |debit| debit[:code] = "#{debit[:code]} #{@@dict.dig(debit[:code], :label)}" }
+          dat[:credit].each { |credit| credit[:code] = "#{credit[:code]} #{@@dict.dig(credit[:code], :label)}" }
         end
       end
       self
-    end
-
-    def dict
-      LucaBook::Dict::Data
     end
 
     def code_header
