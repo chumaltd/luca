@@ -1,3 +1,7 @@
+## LucaBook 0.2.27
+
+* Fix: update_digest
+
 ## LucaBook 0.2.26
 
 * implement `luca-book balance update`
