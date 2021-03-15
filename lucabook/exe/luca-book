@@ -34,7 +34,7 @@ class LucaCmd
     def self.stats(args, params)
       args = gen_range(params[:n]) if args.empty?
       if params['code']
-        render(LucaBook::State.by_code(params['code'], *args), params)
+        render(LucaBook::State.by_code(params['code'], *args, recursive: params[:recursive]), params)
       else
         render(LucaBook::State.range(*args).stats(params[:level]), params)
       end
@@ -146,9 +146,11 @@ when /journals?/, 'j'
       LucaCmd::Journal.add_header(args, params)
     end
   when 'stats'
+    params[:recursive] = false
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-book journals stats [options] [YYYY M]'
       opt.on('-c', '--code VAL', 'filter with code or label') { |v| params['code'] = v }
+      opt.on('-r', '--recursive', 'include subaccounts') { |_v| params[:recursive] = true }
       opt.on('-n VAL', 'report count') { |v| params[:n] = v.to_i }
       opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
       opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }

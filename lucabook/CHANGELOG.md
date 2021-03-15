@@ -1,3 +1,7 @@
+## LucaBook master
+
+* Support `--recursive` option for `luca-book journals stats -c`, totaling subaccounts.
+
 ## LucaBook 0.2.27
 
 * Fix: update_digest

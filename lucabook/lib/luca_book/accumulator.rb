@@ -74,7 +74,7 @@ module LucaBook
 
       # for assert purpose
       #
-      def gross(start_year, start_month, end_year = nil, end_month = nil,  code:  nil, date_range: nil, rows: 4)
+      def gross(start_year, start_month, end_year = nil, end_month = nil,  code:  nil, date_range: nil, rows: 4, recursive: false)
         if ! date_range.nil?
           raise if date_range.class != Range
           # TODO: date based range search
@@ -92,14 +92,14 @@ module LucaBook
             case i
             when 0
               idx_memo = row.map(&:to_s)
-              next if code && !idx_memo.include?(code)
+              next if code && idx_memo.select { |idx| /^#{code}/.match(idx) }.empty?
 
               idx_memo.each do |r|
                 sum[:debit][r] ||= BigDecimal('0')
                 sum[:debit_count][r] ||= 0
               end
             when 1
-              next if code && !idx_memo.include?(code)
+              next if code && idx_memo.select { |idx| /^#{code}/.match(idx) }.empty?
 
               row.each_with_index do |r, j|
                 sum[:debit][idx_memo[j]] += BigDecimal(r.to_s)
@@ -107,7 +107,7 @@ module LucaBook
               end
             when 2
               idx_memo = row.map(&:to_s)
-              break if code && !idx_memo.include?(code)
+              break if code && idx_memo.select { |idx| /^#{code}/.match(idx) }.empty?
 
               idx_memo.each do |r|
                 sum[:credit][r] ||= BigDecimal('0')
@@ -123,13 +123,21 @@ module LucaBook
             end
           end
         end
-        if code
-          sum[:debit] = sum[:debit][code] || BigDecimal('0')
-          sum[:credit] = sum[:credit][code] || BigDecimal('0')
-          sum[:debit_count] = sum[:debit_count][code] || 0
-          sum[:credit_count] = sum[:credit_count][code] || 0
+        return sum if code.nil?
+
+        codes = if recursive
+                  sum[:debit].keys.concat(sum[:credit].keys).uniq.select { |k| /^#{code}/.match(k) }
+                else
+                  Array(code)
+                end
+        res = { debit: 0, credit: 0, debit_count: 0, credit_count: 0 }
+        codes.each do |code|
+          res[:debit] += sum[:debit][code] || BigDecimal('0')
+          res[:credit] += sum[:credit][code] || BigDecimal('0')
+          res[:debit_count] += sum[:debit_count][code] || 0
+          res[:credit_count] += sum[:credit_count][code] || 0
         end
-        sum
+        res
       end
 
       # netting vouchers in specified term

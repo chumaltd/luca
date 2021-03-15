@@ -386,14 +386,17 @@ module LucaRecord # :nodoc:
         Pathname(LucaSupport::PJDIR) / 'data' / base_dir
       end
 
-      # true when file doesn't have record on code
-      # false when file may have one
+      # True when file doesn't have record on code.
+      # False when file may have one.
+      # If filename doesn't record codes, always return false,
+      # so later check is required. This is partial optimization.
+      #
       def skip_on_unmatch_code(subpath, code = nil)
         # p filename.split('-')[1..-1]
         filename = subpath.split('/').last
         return false if code.nil? || filename.length <= 4
 
-        !filename.split('-')[1..-1].include?(code)
+        filename.split('-')[1..-1].select { |fragment| /^#{code}/.match(fragment) }.empty?
       end
 
       # AUTO INCREMENT

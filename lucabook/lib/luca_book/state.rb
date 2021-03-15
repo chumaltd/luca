@@ -50,7 +50,7 @@ module LucaBook
          )
     end
 
-    def self.by_code(code, from_year, from_month, to_year = from_year, to_month = from_month)
+    def self.by_code(code, from_year, from_month, to_year = from_year, to_month = from_month, recursive: false)
       code = search_code(code) if code
       date = Date.new(from_year.to_i, from_month.to_i, -1)
       last_date = Date.new(to_year.to_i, to_month.to_i, -1)
@@ -59,7 +59,7 @@ module LucaBook
       reports = [].tap do |r|
         while date <= last_date do
           diff = {}.tap do |h|
-            g = gross(date.year, date.month, code: code)
+            g = gross(date.year, date.month, code: code, recursive: recursive)
             sum = g.dig(:debit).nil? ? BigDecimal('0') : Util.calc_diff(g[:debit], code)
             sum -= g.dig(:credit).nil? ? BigDecimal('0') : Util.calc_diff(g[:credit], code)
             h['code'] = code

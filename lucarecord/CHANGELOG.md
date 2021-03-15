@@ -1,3 +1,7 @@
+## LucaRecord master
+
+* change code search from exact match to prefix match
+
 ## LucaRecord 0.2.26
 
 * Support #dig / #search for TSV dictionary
