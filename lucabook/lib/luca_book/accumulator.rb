@@ -130,12 +130,12 @@ module LucaBook
                 else
                   Array(code)
                 end
-        res = { debit: 0, credit: 0, debit_count: 0, credit_count: 0 }
-        codes.each do |code|
-          res[:debit] += sum[:debit][code] || BigDecimal('0')
-          res[:credit] += sum[:credit][code] || BigDecimal('0')
-          res[:debit_count] += sum[:debit_count][code] || 0
-          res[:credit_count] += sum[:credit_count][code] || 0
+        res = { debit: { code => 0 }, credit: { code => 0 }, debit_count: { code => 0 }, credit_count: { code => 0 } }
+        codes.each do |cd|
+          res[:debit][code] += sum[:debit][cd] || BigDecimal('0')
+          res[:credit][code] += sum[:credit][cd] || BigDecimal('0')
+          res[:debit_count][code] += sum[:debit_count][cd] || 0
+          res[:credit_count][code] += sum[:credit_count][cd] || 0
         end
         res
       end

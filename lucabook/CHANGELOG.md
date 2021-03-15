@@ -1,3 +1,7 @@
+## LucaBook master
+
+* Fix: LucaBook::State.net by code now works
+
 ## LucaBook 0.2.27
 
 * Support `--recursive` option for `luca-book journals stats -c`, totaling subaccounts.
