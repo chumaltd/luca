@@ -1,5 +1,6 @@
 ## LucaRecord master
 
+* @record_type = 'raw' is deprecated in favor of overriding LucaRecord::IO.load_data
 * change code search from exact match to prefix match
 
 ## LucaRecord 0.2.27

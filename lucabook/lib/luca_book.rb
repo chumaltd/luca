@@ -13,5 +13,6 @@ module LucaBook
   autoload :ListByHeader, 'luca_book/list_by_header'
   autoload :Setup, 'luca_book/setup'
   autoload :State, 'luca_book/state'
+  autoload :Test, 'luca_book/test'
   autoload :Util, 'luca_book/util'
 end

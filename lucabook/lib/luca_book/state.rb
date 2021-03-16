@@ -17,7 +17,6 @@ module LucaBook
     include Accumulator
 
     @dirname = 'journals'
-    @record_type = 'raw'
     @@dict = LucaRecord::Dict.new('base.tsv')
 
     attr_reader :statement, :pl_data, :bs_data, :start_balance

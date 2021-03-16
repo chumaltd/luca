@@ -1,5 +1,6 @@
 ## LucaBook master
 
+* Initial implement LucaBook::Test, data testing framework
 * Fix: LucaBook::State.net by code now works
 
 ## LucaBook 0.2.27

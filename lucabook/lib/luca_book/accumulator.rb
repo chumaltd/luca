@@ -74,7 +74,7 @@ module LucaBook
 
       # for assert purpose
       #
-      def gross(start_year, start_month, end_year = nil, end_month = nil,  code:  nil, date_range: nil, rows: 4, recursive: false)
+      def gross(start_year, start_month, end_year = nil, end_month = nil, code:  nil, date_range: nil, rows: 4, recursive: false)
         if ! date_range.nil?
           raise if date_range.class != Range
           # TODO: date based range search
@@ -84,7 +84,7 @@ module LucaBook
         end_month ||= start_month
         sum = { debit: {}, credit: {}, debit_count: {}, credit_count: {} }
         idx_memo = []
-        term(start_year, start_month, end_year, end_month, code) do |f, _path|
+        term(start_year, start_month, end_year, end_month, code, 'journals') do |f, _path|
           CSV.new(f, headers: false, col_sep: "\t", encoding: 'UTF-8')
             .each_with_index do |row, i|
             break if i >= rows
@@ -142,8 +142,8 @@ module LucaBook
 
       # netting vouchers in specified term
       #
-      def net(start_year, start_month, end_year = nil, end_month = nil, code: nil, date_range: nil)
-        g = gross(start_year, start_month, end_year, end_month, code: code, date_range: date_range)
+      def net(start_year, start_month, end_year = nil, end_month = nil, code: nil, date_range: nil, recursive: false)
+        g = gross(start_year, start_month, end_year, end_month, code: code, date_range: date_range, recursive: recursive)
         idx = (g[:debit].keys + g[:credit].keys).uniq.sort
         count = {}
         diff = {}.tap do |sum|
@@ -155,6 +155,26 @@ module LucaBook
         end
         [diff, count]
       end
+
+      # Override LucaRecord::IO.load_data
+      #
+      def load_data(io, path = nil)
+        io
+      end
+    end
+
+    # TODO: provide default date via instance variable
+    #
+    def net_amount(code, start_year, start_month, end_year = nil, end_month = nil, recursive: true)
+      self.class.net(start_year, start_month, end_year, end_month, code: code, recursive: recursive)[0][code]
+    end
+
+    def debit_amount(code, start_year, start_month, end_year = nil, end_month = nil, recursive: true)
+      self.class.gross(start_year, start_month, end_year, end_month, code: code, recursive: recursive)[:debit][code]
+    end
+
+    def credit_amount(code, start_year, start_month, end_year = nil, end_month = nil, recursive: true)
+      self.class.gross(start_year, start_month, end_year, end_month, code: code, recursive: recursive)[:credit][code]
     end
   end
 end

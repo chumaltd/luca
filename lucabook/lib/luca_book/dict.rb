@@ -10,11 +10,10 @@ require 'pathname'
 
 module LucaBook
   class Dict < LucaRecord::Dict
-    include Accumulator
     include LucaRecord::IO
+    include Accumulator
 
     @dirname = 'journals'
-    @record_type = 'raw'
     # Column number settings for CSV/TSV convert
     #
     # :label

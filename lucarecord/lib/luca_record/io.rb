@@ -64,11 +64,7 @@ module LucaRecord # :nodoc:
 
         LucaSupport::Code.encode_term(start_year, start_month, end_year, end_month).each do |subdir|
           open_records(basedir, subdir, nil, code) do |f, path|
-            if @record_type == 'raw'
-              yield f, path
-            else
-              yield load_data(f, path)
-            end
+            yield load_data(f, path)
           end
         end
       end
@@ -80,11 +76,7 @@ module LucaRecord # :nodoc:
 
         subdir = year.to_s + LucaSupport::Code.encode_month(month)
         open_records(basedir, subdir, LucaSupport::Code.encode_date(day), code) do |f, path|
-          if @record_type == 'raw'
-            yield f, path
-          else
-            yield load_data(f, path), path
-          end
+          yield load_data(f, path), path
         end
       end
 
@@ -360,9 +352,6 @@ module LucaRecord # :nodoc:
       def load_data(io, path = nil)
         if @record_type
           case @record_type
-          when 'raw'
-            # TODO: raw may be unneeded in favor of override
-            io
           when 'json'
             # TODO: implement JSON parse
           end
