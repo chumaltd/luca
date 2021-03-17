@@ -2,6 +2,7 @@
 
 require 'luca_support/code'
 require 'luca_support/config'
+require 'luca_support/range'
 require 'luca_record/dict'
 require 'luca_record/io'
 require 'luca_book'
@@ -10,6 +11,8 @@ require 'pathname'
 
 module LucaBook
   class Dict < LucaRecord::Dict
+    include LucaSupport::Range
+    include LucaBook::Util
     include LucaRecord::IO
     include Accumulator
 
@@ -168,16 +171,6 @@ module LucaBook
     def self.gitref
       digest = `git rev-parse HEAD`
       $?.exitstatus == 0 ? digest.strip : nil
-    end
-
-    def self.term_by_month(start_date, end_date)
-      Enumerator.new do |yielder|
-        each_month = start_date
-        while each_month <= end_date
-          yielder << each_month
-          each_month = each_month.next_month
-        end
-      end
     end
   end
 end

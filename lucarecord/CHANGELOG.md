@@ -1,5 +1,6 @@
-## LucaRecord master
+## LucaRecord 0.2.28
 
+* implement LucaSupport::Range, handle #by_month enumeration between several months.
 * @record_type = 'raw' is deprecated in favor of overriding LucaRecord::IO.load_data
 * change code search from exact match to prefix match
 

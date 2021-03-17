@@ -5,8 +5,9 @@ require 'securerandom'
 require 'digest/sha1'
 require 'luca_support/config'
 
-# implement Luca IDs convention
-module LucaSupport
+module LucaSupport # :nodoc:
+  # implement Luca IDs convention
+  #
   module Code
     module_function
 

@@ -163,18 +163,50 @@ module LucaBook
       end
     end
 
-    # TODO: provide default date via instance variable
-    #
-    def net_amount(code, start_year, start_month, end_year = nil, end_month = nil, recursive: true)
+    def net_amount(code, start_year = nil, start_month = nil, end_year = nil, end_month = nil, recursive: true)
+      start_year ||= @cursor_start&.year || @start_date.year
+      start_month ||= @cursor_start&.month || @start_date.month
+      end_year ||= @cursor_end&.year || @end_date.year
+      end_month ||= @cursor_end&.month || @end_date.month
       self.class.net(start_year, start_month, end_year, end_month, code: code, recursive: recursive)[0][code]
     end
 
-    def debit_amount(code, start_year, start_month, end_year = nil, end_month = nil, recursive: true)
-      self.class.gross(start_year, start_month, end_year, end_month, code: code, recursive: recursive)[:debit][code]
+    def debit_amount(code, start_year = nil, start_month = nil, end_year = nil, end_month = nil, recursive: true)
+      gross_amount(code, start_year, start_month, end_year, end_month, recursive: recursive)[0]
     end
 
-    def credit_amount(code, start_year, start_month, end_year = nil, end_month = nil, recursive: true)
-      self.class.gross(start_year, start_month, end_year, end_month, code: code, recursive: recursive)[:credit][code]
+    def credit_amount(code, start_year = nil, start_month = nil, end_year = nil, end_month = nil, recursive: true)
+      gross_amount(code, start_year, start_month, end_year, end_month, recursive: recursive)[1]
+    end
+
+    def gross_amount(code, start_year = nil, start_month = nil, end_year = nil, end_month = nil, recursive: true)
+      start_year ||= @cursor_start&.year || @start_date.year
+      start_month ||= @cursor_start&.month || @start_date.month
+      end_year ||= @cursor_end&.year || @end_date.year
+      end_month ||= @cursor_end&.month || @end_date.month
+      g = self.class.gross(start_year, start_month, end_year, end_month, code: code, recursive: recursive)
+      [g[:debit][code], g[:credit][code]]
+    end
+
+    def debit_count(code, start_year = nil, start_month = nil, end_year = nil, end_month = nil, recursive: true)
+      gross_count(code, start_year, start_month, end_year, end_month, recursive: recursive)[0]
+    end
+
+    def credit_count(code, start_year = nil, start_month = nil, end_year = nil, end_month = nil, recursive: true)
+      gross_count(code, start_year, start_month, end_year, end_month, recursive: recursive)[1]
+    end
+
+    def gross_count(code, start_year = nil, start_month = nil, end_year = nil, end_month = nil, recursive: true)
+      start_year ||= @cursor_start&.year || @start_date.year
+      start_month ||= @cursor_start&.month || @start_date.month
+      end_year ||= @cursor_end&.year || @end_date.year
+      end_month ||= @cursor_end&.month || @end_date.month
+      g = self.class.gross(start_year, start_month, end_year, end_month, code: code, recursive: recursive)
+      [g[:debit_count][code], g[:credit_count][code]]
+    end
+
+    def each_month
+      yield
     end
   end
 end

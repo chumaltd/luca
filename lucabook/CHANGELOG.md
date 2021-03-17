@@ -1,6 +1,7 @@
-## LucaBook master
+## LucaBook 0.2.28
 
 * Initial implement LucaBook::Test, data testing framework
+* implement LucaBook::Util#current_fy, setting range from CONFIG['fy_start']
 * Fix: LucaBook::State.net by code now works
 
 ## LucaBook 0.2.27

@@ -42,5 +42,15 @@ module LucaBook
         nil
       end
     end
+
+    def current_fy(date = nil, to: nil)
+      date ||= Date.today
+      start_month = LucaSupport::CONFIG['fy_start']
+      start_year = date.month >= start_month ? date.year : date.year - 1
+      @start_date = Date.new(start_year, start_month, 1)
+      @end_date = Date.new(start_year + 1, start_month - 1, -1)
+      @end_date = [to, @end_date].min if to
+      [@start_date, @end_date]
+    end
   end
 end

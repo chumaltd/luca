@@ -97,7 +97,7 @@ definitions:
 
 Advanced option can be available. Array of config with `on_amount` checks transaction amount, and the first is taken that matches specified criteria.
 
-```
+```yaml
 definitions:
   CandSCompany:
   - on_amount: ">1000.00"
@@ -109,6 +109,33 @@ definitions:
 ## JSON import
 
 Journals can be generated from LucaDeal or LucaSalary via JSON import(`-j` option).
+
+
+## Journal validation test
+
+LucaBook introduced standard testing to book keeping.  
+`LucaBook::Test` provides test facilities based on Ruby standard [minitest](https://github.com/seattlerb/minitest).  
+You can integrate journal check into CI tools for automation.
+
+```ruby
+# frozen_string_literal: true
+
+require 'luca_book/test'
+
+class JournalValidation < LucaBook::Test
+  def setup
+    # set test range from the start of Financial year to the previous month of today
+    current_fy(to: Date.today.prev_month)
+  end
+
+  def test_that_has_sales
+    # check records in each month
+    by_month.each do
+      assert net_amount('A11') > 0, "No sales records in #{@cursor_start}"
+    end
+  end
+end
+```
 
 
 ## Account code
