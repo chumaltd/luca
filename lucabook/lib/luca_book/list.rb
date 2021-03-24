@@ -101,10 +101,120 @@ module LucaBook #:nodoc:
       end
     end
 
+    def render_html(file_type = :html)
+      start_balance = set_balance(true)
+      @journals = group_by_code.map do |account|
+        balance = start_balance[account[:code]] || BigDecimal('0')
+        table = []
+        table << %Q(<h2 class="title">#{@@dict.dig(account[:code], :label)}</h2>)
+
+        account[:vouchers].map { |voucher| filter_by_code(voucher, account[:code]) }.flatten
+          .unshift({ balance: readable(balance) })
+          .map { |row|
+          balance += Util.pn_debit(account[:code]) * ((row.dig(:amount, :debit) || 0) - (row.dig(:amount, :credit) || 0))
+          row[:balance] = readable(balance)
+          row
+          }
+          .map { |row| render_line(row) }
+          .each_slice(28) do |rows|
+          table << table_header
+          table << rows.join("\n")
+          table << table_footer
+          table << %Q(<hr class='pgbr' />)
+        end
+        table[0..-2].join("\n")
+      end
+
+      case file_type
+      when :html
+        render_erb(search_template('journals.html.erb'))
+      when :pdf
+        erb2pdf(search_template('journals.html.erb'))
+      else
+        raise 'This filetype is not supported.'
+      end
+    end
+
+    def table_header
+      %Q(<table>
+        <thead>
+        <th>Date<br />No</th>
+        <th>Counter account</th>
+        <th>Sub account<br />Note</th>
+        <th>Debit</th>
+        <th>Credit</th>
+        <th>Balance</th>
+        </thead>
+        <tbody>)
+    end
+
+    def table_footer
+      %Q(</tbody>
+        </table>)
+    end
+
+    def filter_by_code(voucher, code)
+      [:debit, :credit].each_with_object([]) do |balance, lines|
+        voucher[balance].each do |record|
+          next unless /^#{code}/.match(record[:code])
+
+          counter_balance = (balance == :debit) ? :credit : :debit
+          view = { code: record[:code], amount: {} }
+          view[:date], view[:txid] = decode_id(voucher[:id])
+          view[:label] = @@dict.dig(record[:code], :label) if record[:code].length >= 4
+          view[:amount][balance] = readable(record[:amount])
+          view[:counter_code] = voucher.dig(counter_balance, 0, :code)
+          view[:counter_label] = @@dict.dig(view[:counter_code], :label) || ''
+          view[:counter_label] += ' sundry a/c' if voucher[counter_balance].length > 1
+          view[:note] = voucher[:note]
+          lines << view
+        end
+      end
+    end
+
+    def render_line(view)
+          %Q(<tr>
+          <td class="date">#{view[:date]}<br /><div>#{view[:txid]}</div></td>
+          <td class="counter">#{view[:counter_label]}</td>
+          <td class="note">#{view[:label]}<br /><div class="note">#{view[:note]}</div></td>
+          <td class="debit amount">#{view.dig(:amount, :debit)}</td>
+          <td class="credit amount">#{view.dig(:amount, :credit)}</td>
+          <td class="balance">#{view[:balance]}</td>
+          </tr>)
+    end
+
+    def group_by_code(level = 3)
+      list_accounts.map do |code|
+        vouchers = @data.filter do |voucher|
+          codes = [:debit, :credit].map do |balance|
+            voucher[balance].map { |record| record[:code][0, level] }
+          end
+          codes.flatten.include?(code)
+        end
+        { code: code, vouchers: vouchers }
+      end
+    end
+
+    def list_accounts(level = 3)
+      return nil if level < 3
+
+      list = @data.each_with_object([]) do |voucher, codes|
+        [:debit, :credit].each do |balance|
+          voucher[balance].each do |record|
+            next if record[:code].length < level
+
+            codes << record[:code][0, level]
+          end
+        end
+      end
+      list.uniq.sort
+    end
+
     private
 
     def set_balance(recursive = false)
-      return BigDecimal('0') if @code.nil? || /^[A-H]/.match(@code)
+      return LucaBook::State.start_balance(@start.year, @start.month, recursive: recursive) if @code.nil?
+      return BigDecimal('0') if /^[A-H]/.match(@code)
 
       LucaBook::State.start_balance(@start.year, @start.month, recursive: recursive)[@code] || BigDecimal('0')
     end
@@ -144,6 +254,10 @@ module LucaBook #:nodoc:
           h[k] = k == 'balance' ? @balance : ''
         end
       end
+    end
+
+    def lib_path
+      __dir__
     end
   end
 end

@@ -26,6 +26,8 @@ class LucaCmd
         else
           render(LucaBook::List.term(*args, code: params['code'], recursive: params[:recursive]).list_by_code(params[:recursive]), params)
         end
+      elsif params['render']
+        puts LucaBook::List.term(*args).render_html(params['render'])
       else
         render(LucaBook::List.term(*args).list_journals, params)
       end
@@ -141,6 +143,8 @@ when /journals?/, 'j'
       opt.on('-n VAL', 'report count') { |v| params[:n] = v.to_i }
       opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
       opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }
+      opt.on('--html', 'output journals html') { |_v| params['render'] = :html }
+      opt.on('--pdf', 'output journals PDF') { |_v| params['render'] = :pdf }
       opt.on_tail('List records. If you specify code and/or month, search on each criteria.')
       args = opt.parse!(ARGV)
       LucaCmd::Journal.list(args, params)

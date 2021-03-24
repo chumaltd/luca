@@ -1,3 +1,7 @@
+## LucaBook 0.2.29
+
+* Implement `luca-book journals list [--pdf|--html]` for print
+
 ## LucaBook 0.2.28
 
 * Initial implement LucaBook::Test, data testing framework
