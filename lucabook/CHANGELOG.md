@@ -1,3 +1,7 @@
+## LucaBook master
+
+* Fix: set import default code
+
 ## LucaBook 0.2.29
 
 * Implement `luca-book journals list [--pdf|--html]` for print

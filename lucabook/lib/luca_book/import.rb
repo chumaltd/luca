@@ -81,7 +81,7 @@ module LucaBook
       else
         amount = BigDecimal(row[@config[:credit_amount]])
       end
-      default_label = debit ? @config.dig(:default_debit) : @config.dig(:default_credit)
+      default_label = debit ? (@config.dig(:default_debit) || DEBIT_DEFAULT) : (@config.dig(:default_credit) || CREDIT_DEFAULT)
       code, options = search_code(row[@config[:label]], default_label, amount)
       counter_code = @code_map.dig(@config[:counter_label])
       if options

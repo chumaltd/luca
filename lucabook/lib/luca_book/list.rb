@@ -162,6 +162,7 @@ module LucaBook #:nodoc:
           view = { code: record[:code], amount: {} }
           view[:date], view[:txid] = decode_id(voucher[:id])
           view[:label] = @@dict.dig(record[:code], :label) if record[:code].length >= 4
+          view[:label] = voucher.dig(:headers, 'x-customer') if view[:label].nil?
           view[:amount][balance] = readable(record[:amount])
           view[:counter_code] = voucher.dig(counter_balance, 0, :code)
           view[:counter_label] = @@dict.dig(view[:counter_code], :label) || ''
