@@ -81,7 +81,7 @@ module LucaBook
       else
         amount = BigDecimal(row[@config[:credit_amount]])
       end
-      default_label = debit ? (@config.dig(:default_debit) || DEBIT_DEFAULT) : (@config.dig(:default_credit) || CREDIT_DEFAULT)
+      default_label = debit ? @config[:default_debit] : @config[:default_credit]
       code, options = search_code(row[@config[:label]], default_label, amount)
       counter_code = @code_map.dig(@config[:counter_label])
       if options
@@ -94,10 +94,12 @@ module LucaBook
         d['date'] = parse_date(row)
         if debit
           d['debit'] = data
+          d['debit'][0]['code'] ||= DEBIT_DEFAULT
           d['credit'] = data_c
         else
           d['debit'] = data_c
           d['credit'] = data
+          d['credit'][0]['code'] ||= CREDIT_DEFAULT
         end
         d['note'] = Array(@config[:note]).map{ |col| row[col] }.join(' ')
         d['headers'] = { 'x-editor' => "LucaBook::Import/#{@dict_name}" }
