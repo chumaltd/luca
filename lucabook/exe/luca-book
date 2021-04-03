@@ -228,9 +228,11 @@ when /reports?/, 'r'
   else
     puts 'Proper subcommand needed.'
     puts
-    puts 'Usage: luca-book (r|report[s]) (bs|pl) [options] YYYY M'
+    puts 'Usage: luca-book (r|report[s]) (bs|pl|mail|xbrl) [options] YYYY M'
     puts '  bs: show balance sheet'
     puts '  pl: show statement of income'
+    puts '  mail: send BS/PL via email'
+    puts '  xbrl: render XBRL report'
     exit 1
   end
 when /balance/
@@ -249,5 +251,6 @@ else
   puts 'Usage: luca-book (j[ournals]|r[eports]) subcommand'
   puts '  journals: operate journal records'
   puts '  reports: show reports'
+  puts '  balance update: generate accumulated balance'
   exit 1
 end
