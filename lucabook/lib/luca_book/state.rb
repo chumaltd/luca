@@ -146,7 +146,7 @@ module LucaBook
             res['debit_label'] = base[:debit][i] ? @@dict.dig(base[:debit][i].keys[0], :label) : ''
             #res['debit_balance'] = base[:debit][i] ? (@start_balance.dig(base[:debit][i].keys[0]) || 0) + base[:debit][i].values[0] : ''
             res['debit_balance'] = base[:debit][i] ? base[:debit][i].values[0] : ''
-            res['credit_label'] = base[:credit][i] ? @dict.dig(base[:credit][i].keys[0], :label) : ''
+            res['credit_label'] = base[:credit][i] ? @@dict.dig(base[:credit][i].keys[0], :label) : ''
             #res['credit_balance'] = base[:credit][i] ? (@start_balance.dig(base[:credit][i].keys[0]) || 0) + base[:credit][i].values[0] : ''
             res['credit_balance'] = base[:credit][i] ? base[:credit][i].values[0] : ''
             a << res
