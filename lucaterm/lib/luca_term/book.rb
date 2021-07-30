@@ -10,8 +10,10 @@ module LucaTerm
     include Curses
     attr_accessor :window
 
-    def initialize(window, data=nil)
+    def initialize(window, year, month, data=nil)
       @window = window
+      @year = year
+      @month = month
       @data = data
       @index = 0
       @active = 0  # active line in window
@@ -21,7 +23,7 @@ module LucaTerm
     end
 
     def self.journals(window, *args)
-      new(window, LucaSupport::Code.readable(LucaBook::List.term(*args).data))
+      new(window, args[0], args[1], LucaSupport::Code.readable(LucaBook::List.term(*args).data))
     end
 
     def main_loop
@@ -50,8 +52,24 @@ module LucaTerm
         when 'G'
           cursor_last @data
         when 'm'
-          ym = edit_dialog('Change month: yyyy m')&.split(/[\/\s]/)
+          ym = edit_dialog('Change month: [yyyy] m')&.split(/[\/\s]/)
+          ym = [@year, ym[0]] if ym.length == 1
           @data = LucaSupport::Code.readable(LucaBook::List.term(*ym).data)
+          @year, @month = ym
+          @index = 0
+          @active = 0
+          @visible = set_visible(@data)
+        when '<'
+          target = Date.parse("#{@year}-#{@month}-1").prev_month
+          @data = LucaSupport::Code.readable(LucaBook::List.term(target.year, target.month).data)
+          @year, @month = target.year, target.month
+          @index = 0
+          @active = 0
+          @visible = set_visible(@data)
+        when '>'
+          target = Date.parse("#{@year}-#{@month}-1").next_month
+          @data = LucaSupport::Code.readable(LucaBook::List.term(target.year, target.month).data)
+          @year, @month = target.year, target.month
           @index = 0
           @active = 0
           @visible = set_visible(@data)
@@ -194,11 +212,13 @@ module LucaTerm
     def edit_dialog(message = '')
       sub = window.subwin(4, 30, (window.maxy-4)/2, (window.maxx - 30)/2)
       sub.box(?|, ?-)
-      sub.setpos(1, 3)
-      sub << message
+      sub.setpos(1, 1)
+      padding = [0, 30 - message.length - 4].max
+      sub << "  #{message + ' ' * padding}"
       clrtoeol
-      sub.setpos(2, 3)
-      sub << "> "
+      sub.setpos(2, 1)
+      sub << "  > #{' ' * (30 - 6)}"
+      sub.setpos(2, 6)
       clrtoeol
       sub.refresh
       loop do
