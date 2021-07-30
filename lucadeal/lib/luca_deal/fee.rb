@@ -66,13 +66,14 @@ module LucaDeal
       end
     end
 
-    def deliver_mail(attachment_type = nil, mode: nil)
+    def deliver_mail(attachment_type = nil, mode: nil, skip_no_item: true)
       attachment_type = CONFIG.dig('fee', 'attachment') || :html
       fees = self.class.asof(@date.year, @date.month)
       raise "No report for #{@date.year}/#{@date.month}" if fees.count.zero?
 
       fees.each do |dat, path|
         next if has_status?(dat, 'mail_delivered')
+        next if skip_no_item && dat['items'].empty?
 
         mail = compose_mail(dat, mode: mode, attachment: attachment_type.to_sym)
         LucaSupport::Mail.new(mail, PJDIR).deliver

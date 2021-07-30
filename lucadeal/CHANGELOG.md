@@ -1,10 +1,11 @@
-## LucaDeal master
+## LucaDeal 0.2.25
 
 * implement deduction rate for fee calculation.
 * implement `luca-deal fee export`
 * refine export label for luca-book compatibility
 * add `luca-deal invoice create --monthly --with-fee` option.
 * preview_mail can deliver regardless of `mail_delivered` status
+* `luca-deal fee mail` skip no item record by default.
 
 ## LucaDeal 0.2.24
 

@@ -437,6 +437,7 @@ else
   puts '        customers'
   puts '        contracts'
   puts '        invoices'
+  puts '        fee'
   puts '        new: initialize project dir'
   puts '        export: puts invoice data for LucaBook import'
   exit 1
