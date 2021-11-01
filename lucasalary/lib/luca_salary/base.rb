@@ -59,7 +59,7 @@ module LucaSalary
       code = CONFIG['country']
       if code
         require "luca_salary/#{code.downcase}"
-        Kernel.const_get "LucaSalary::#{code.capitalise}"
+        Kernel.const_get "LucaSalary::#{code.capitalize}"
       else
         nil
       end
