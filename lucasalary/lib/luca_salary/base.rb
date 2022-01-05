@@ -37,13 +37,13 @@ module LucaSalary
       {}.tap do |h|
         (1..4).each do |n|
           code = n.to_s
-          h[code] = sum_code(obj, code)
+          h[code] = self.class.sum_code(obj, code)
         end
         h['5'] = h['1'] - h['2'] - h['3'] + h['4']
       end
     end
 
-    def sum_code(obj, code, exclude = nil)
+    def self.sum_code(obj, code, exclude = nil)
       target = obj.select { |k, _v| /^#{code}[0-9A-Fa-f]{,3}$/.match(k) }
       target = target.reject { |k, _v| exclude.include?(k) } if exclude
       target.values.inject(:+) || 0

@@ -1,3 +1,7 @@
+## LucaSalary 0.1.23
+
+* Breaking change: move sum_code() to Class method
+
 ## LucaSalary 0.1.22
 
 * Add `luca-salary payments total` command for year total

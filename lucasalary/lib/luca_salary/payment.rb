@@ -74,7 +74,7 @@ module LucaSalary
       require "luca_salary/#{CONFIG['country'].downcase}"
       klass = Kernel.const_get("LucaSalary::#{CONFIG['country'].capitalize}")
       klass.year_total(payment, date)
-    rescue
+    rescue NameError
       return payment
     end
 
