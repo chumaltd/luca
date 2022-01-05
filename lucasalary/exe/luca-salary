@@ -39,6 +39,10 @@ module LucaCmd
         LucaSalary::Monthly.new.report(params.dig('mode'))
       end
     end
+
+    def self.total(args = nil, _params = nil)
+      LucaSalary::Payment.year_total(args.first.to_i)
+    end
   end
 end
 
@@ -79,6 +83,12 @@ when /payments?/
       opt.on('--mail', 'send to managers') { |_v| params['mode'] = 'mail' }
       args = opt.parse(ARGV)
       LucaCmd::Payment.list(args, params)
+    end
+  when 'total'
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca-salary payments total year'
+      args = opt.parse(ARGV)
+      LucaCmd::Payment.total(args)
     end
   else
     puts 'Proper subcommand needed.'

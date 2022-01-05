@@ -1,5 +1,6 @@
-## LucaSalary master
+## LucaSalary 0.1.22
 
+* Add `luca-salary payments total` command for year total
 * Fix: call localcode with calculation date
 
 ## LucaSalary 0.1.20
