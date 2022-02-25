@@ -1,3 +1,7 @@
+## LucaSalary 0.1.24
+
+* Fix: remove null record from `luca-salary export` JSON
+
 ## LucaSalary 0.1.23
 
 * Breaking change: move sum_code() to Class method

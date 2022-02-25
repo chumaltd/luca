@@ -100,8 +100,8 @@ module LucaSalary
       [].tap do |res|
         {}.tap do |item|
           item['date'] = "#{accrual_date.year}-#{accrual_date.month}-#{accrual_date.day}"
-          item['debit'] = h[:debit].map { |k, v| { 'label' => k, 'amount' => v } }
-          item['credit'] = h[:credit].map { |k, v| { 'label' => k, 'amount' => v } }
+          item['debit'] = h[:debit].reject { |_k, v| v.nil? }.map { |k, v| { 'label' => k, 'amount' => v } }
+          item['credit'] = h[:credit].reject { |_k, v| v.nil? }.map { |k, v| { 'label' => k, 'amount' => v } }
           item['x-editor'] = 'LucaSalary'
           res << item
         end
