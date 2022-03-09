@@ -105,7 +105,7 @@ code	label	xbrl_id	consumption_tax	income_tax
 91	株主資本	jpfr-t-cte:ShareholdersEquity		
 911	資本金	jpfr-t-cte:CapitalStock		
 912	新株式申込証拠金	jpfr-t-cte:DepositForSubscriptionsToShares		
-913	資本剰余金	jpfr-t-cte:LegalCapitalSurplus		
+913	資本剰余金	jpfr-t-cte:CapitalSurplus		
 9131	資本準備金	jpfr-t-cte:LegalCapitalSurplus		
 9132	その他資本剰余金	jpfr-t-cte:OtherCapitalSurplus		
 914	繰越利益剰余金	jpfr-t-cte:RetainedEarningsBroughtForward		

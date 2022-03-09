@@ -82,7 +82,7 @@ code	label	xbrl_id	consumption_tax	income_tax
 91	株主資本	jppfs_cor:ShareholdersAbstract
 911	資本金	jppfs_cor:CapitalStock
 912	新株式申込証拠金	jppfs_cor:DepositForSubscriptionsToShares
-913	資本剰余金	jppfs_cor:LegalCapitalSurplus
+913	資本剰余金	jppfs_cor:CapitalSurplus
 9131	資本準備金	jppfs_cor:LegalCapitalSurplus
 9132	その他資本剰余金	jppfs_cor:OtherCapitalSurplus
 914	利益剰余金	jppfs_cor:RetainedEarnings
