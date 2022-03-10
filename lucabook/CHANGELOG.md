@@ -1,5 +1,6 @@
-## LucaBook master
+## LucaBook 0.2.30
 
+* Implement `luca-book balance export` for M&A
 * Fix: set import default code
 
 ## LucaBook 0.2.29

@@ -232,6 +232,7 @@ module LucaBook
       recursive ? total_subaccount(total) : total
     end
 
+    # TODO: currency setting other than JPY
     def render_xbrl(filename = nil)
       set_bs(3, legal: true)
       set_pl(3)
@@ -260,7 +261,11 @@ module LucaBook
       return nil if tag.nil?
       return nil if readable(amount).zero? && prior_amount.nil?
 
-      prior = prior_amount.nil? ? '' : "<#{tag} decimals=\"0\" unitRef=\"JPY\" contextRef=\"Prior1YearNonConsolidatedInstant\">#{readable(prior_amount)}</#{tag}>\n"
+      prior = if prior_amount.nil?
+                /^[9]/.match(code) ? "<#{tag} decimals=\"0\" unitRef=\"JPY\" contextRef=\"Prior1YearNonConsolidatedInstant\">0</#{tag}>\n" : ''
+              else
+                "<#{tag} decimals=\"0\" unitRef=\"JPY\" contextRef=\"Prior1YearNonConsolidatedInstant\">#{readable(prior_amount)}</#{tag}>\n"
+              end
       current = "<#{tag} decimals=\"0\" unitRef=\"JPY\" contextRef=\"#{context}\">#{readable(amount)}</#{tag}>"
 
       prior + current

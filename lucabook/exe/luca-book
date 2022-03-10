@@ -110,6 +110,11 @@ class LucaCmd
     def self.update_balance(args, params)
       LucaBook::Dict.generate_balance(*args)
     end
+
+    def self.export_balance(args, params)
+      date = Date.new(args[0].to_i, args[1].to_i, args[2].to_i)
+      LucaBook::Dict.export_balance(date)
+    end
   end
 end
 
@@ -243,6 +248,12 @@ when /balance/
       opt.banner = 'Usage: luca-book balance update YYYY [M]'
       args = opt.parse!(ARGV)
       LucaCmd::Dict.update_balance(args, params)
+    end
+  when 'export'
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca-book balance export YYYY M d'
+      args = opt.parse!(ARGV)
+      LucaCmd::Dict.export_balance(args, params)
     end
   end
 else

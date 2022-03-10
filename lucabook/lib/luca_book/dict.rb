@@ -139,6 +139,31 @@ module LucaBook
       File.open(filepath, 'w') { |f| f.write csv }
     end
 
+    # TODO: support date in the middle of month.
+    def self.export_balance(date)
+      start_date, end_date = Util.current_fy(date, to: date)
+      labels = load('base.tsv')
+      bs = load_balance(start_date, end_date)
+      dat = [].tap do |res|
+        item = {}
+        item['date'] = date.to_s
+        item['debit'] = []
+        item['credit'] = []
+        bs.each do |code, balance|
+          next if balance.zero?
+
+          if /^[1-4]/.match(code)
+            item['debit'] << { 'label' => labels.dig(code, :label), 'amount' => LucaSupport::Code.readable(balance) }
+          elsif /^[5-9]/.match(code)
+            item['credit'] << { 'label' => labels.dig(code, :label), 'amount' => LucaSupport::Code.readable(balance) }
+          end
+        end
+        item['x-editor'] = 'LucaBook'
+        res << item
+      end
+      puts JSON.dump(dat)
+    end
+
     def self.load_balance(start_date, end_date)
       base = latest_balance(start_date).each_with_object({}) do |(k, v), h|
         h[k] = BigDecimal(v[:balance].to_s) if v[:balance]
