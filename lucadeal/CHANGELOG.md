@@ -1,3 +1,7 @@
+## LucaDeal 0.3.1
+
+* add `luca-deal invoices settle --search-terms` for late payment case.
+
 ## LucaDeal 0.3.0
 
 * implement `luca-deal reports balance` for unsettled balance by customer

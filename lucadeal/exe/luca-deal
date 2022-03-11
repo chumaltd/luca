@@ -201,9 +201,9 @@ class LucaCmd
       end
     end
 
-    def self.settle(args = nil, _params = nil)
+    def self.settle(args = nil, params = nil)
       str = args[0].nil? ? STDIN.read : File.read(args[0])
-      LucaDeal::Invoice.settle(str)
+      LucaDeal::Invoice.settle(str, params[:term])
     end
   end
 
@@ -390,11 +390,13 @@ when /invoices?/, 'i'
       LucaCmd::Invoice.mail(args, params)
     end
   when 'settle'
+    params[:term] = 1
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-deal invoices settle [filepath]'
+      opt.on('--search-term VAL', 'search invoice N months before payment date. default: 1') { |v| params[:term] = v.to_i }
       args = opt.parse(ARGV)
+      LucaCmd::Invoice.settle(args, params)
     end
-    LucaCmd::Invoice.settle(ARGV)
   else
     puts 'Proper subcommand needed.'
     puts
