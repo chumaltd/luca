@@ -5,6 +5,7 @@ require 'json'
 require 'yaml'
 require 'pathname'
 require 'bigdecimal'
+require 'luca_support/code'
 require 'luca_support/config'
 require 'luca_support/mail'
 require 'luca_deal/contract'
@@ -73,6 +74,113 @@ module LucaDeal
         erb2pdf(search_template('invoice.html.erb'))
       else
         raise 'This filetype is not supported.'
+      end
+    end
+
+    def self.report(date, scan_years = 10, detail: false, due: false)
+      fy_end = Date.new(date.year, date.month, -1)
+      if detail
+        customers = {}.tap do |h|
+          Customer.all.each { |c| h[c['name']] = c }
+        end
+      end
+      [].tap do |res|
+        items = {}
+        head = date.prev_year(scan_years)
+        e = Enumerator.new do |yielder|
+          while head <= date
+            yielder << head
+            head = head.next_month
+          end
+        end
+        e.each do |d|
+          asof(d.year, d.month).map do |invoice|
+            if invoice['settled']
+              next if !due
+              settle_date = invoice['settled']['date'].class.name == "String" ? Date.parse(invoice['settled']['date']) : invoice['settled']['date']
+              next if (settle_date && settle_date <= fy_end)
+            end
+
+            customer = invoice.dig('customer', 'name')
+            items[customer] ||= { 'unsettled' => BigDecimal('0'), 'invoices' => [] }
+            items[customer]['unsettled'] += (invoice.dig('subtotal', 0, 'items') + invoice.dig('subtotal', 0, 'tax')||0)
+            items[customer]['invoices'] << invoice
+          end
+        end
+        items.each do |k, item|
+          row = {
+            'customer' => k,
+            'unsettled' => LucaSupport::Code.readable(item['unsettled']),
+          }
+          if detail
+            row['address'] = %Q(#{customers.dig(k, 'address')}#{customers.dig(k, 'address2')})
+            row['invoices'] = item['invoices'].map{ |i| { 'id' => i['id'], 'issue' => i['issue_date'].to_s } }
+          end
+          res << row
+        end
+        res.sort! { |a, b| b['unsettled'] <=> a['unsettled'] }
+      end
+    end
+
+    # === JSON Format:
+    #   [
+    #     {
+    #       "journals" : [
+    #         {
+    #           "id": "2021A/U001",
+    #           "header": "customer name",
+    #           "diff": -20000
+    #         }
+    #       ]
+    #     }
+    #   ]
+    #
+    def self.settle(io, payment_terms = 1)
+      customers = {}.tap do |h|
+        Customer.all.each { |c| h[c['name']] = c }
+      end
+      contracts = {}.tap do |h|
+        Contract.all.each { |c| h[c['customer_id']] ||= []; h[c['customer_id']] << c }
+      end
+      JSON.parse(io).each do |d|
+        next if d['journals'].nil?
+
+        d['journals'].each do |j|
+          next if j['diff'] >= 0
+
+          if j['header'] == 'others'
+            STDERR.puts "#{j['id']}: no customer header found. skip"
+            next
+          end
+
+          ord = customers.map do |k, v|
+            [v, LucaSupport::Code.match_score(j['header'], k, 2)]
+          end
+          customer = ord.max { |x, y| x[1] <=> y[1] }.dig(0, 'id')
+
+          if customer
+            contract = contracts[customer].length == 1 ? contracts.dig(customer, 0, 'id') : nil
+            date = Date.parse(j['date'])
+            invoices = term(date.prev_month(payment_terms).year, date.prev_month(payment_terms).month, date.year, date.month, contract)
+            invoices.each do |invoice, _path|
+              next if invoice['customer']['id'] != customer
+              next if invoice['issue_date'] > date
+              if Regexp.new("^LucaBook/#{j['id']}").match invoice.dig('settled', 'id')||''
+                break
+              end
+
+              invoice['settled'] = {
+                'id' => "LucaBook/#{j['id']}",
+                'date' => j['date'],
+                'amount' => j['diff']
+              }
+              save(invoice)
+              break
+            end
+          else
+            STDERR.puts "#{j['id']}: no customer found"
+          end
+        end
       end
     end
 

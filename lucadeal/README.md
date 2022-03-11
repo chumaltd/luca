@@ -167,7 +167,7 @@ Fields for sales fee are as bellows:
 Invoice is basically auto generated from Customer and Contract objects.
 
 | Top level  | Second level | Description                              |
-|------------|--------------|------------------------------------------|
+|------------+--------------+------------------------------------------|
 | id         |              | uuid                                     |
 | issue_date |              |                                          |
 | due_date   |              |                                          |
@@ -183,6 +183,10 @@ Invoice is basically auto generated from Customer and Contract objects.
 |            | qty          | quantity. Default: 1.                    |
 |            | type         |                                          |
 |            | product_id   | refrence for Product                     |
+| settled    |              |                                          |
+|            | id           | data source id for duplication check     |
+|            | date         | payment date                             |
+|            | amount       | payment amount                           |
 | subtotal   |              | Array of subtotal by tax category.       |
 |            | items        | amount of items                          |
 |            | tax          | amount of tax                            |

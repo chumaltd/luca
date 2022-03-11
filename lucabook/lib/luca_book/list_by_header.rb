@@ -49,7 +49,7 @@ module LucaBook #:nodoc:
             res['note'] = dat[:note]
           end
         end
-        a << { 'code' => v.last[:code], 'header' => k, 'balance' => v.last[:balance], 'count' => v.count, 'jounals' => journals }
+        a << { 'code' => v.last[:code], 'header' => k, 'balance' => v.last[:balance], 'count' => v.count, 'journals' => journals }
       end
       readable(@data)
     end
@@ -67,16 +67,8 @@ module LucaBook #:nodoc:
     def set_balance
       return BigDecimal('0') if @code.nil? || /^[A-H]/.match(@code)
 
-      balance_dict = Dict.latest_balance(@start)
-      start_balance = BigDecimal(balance_dict.dig(@code.to_s, :balance) || '0')
-      start = Dict.issue_date(balance_dict)&.next_month
-      last = @start.prev_month
-      if last.year >= start.year && last.month >= start.month
-        #TODO: start_balance to be implemented by header
-        self.class.term(start.year, start.month, last.year, last.month, code: @code).accumulate_code
-      else
-        #start_balance
-      end
+      #TODO: start_balance to be implemented by header
+      LucaBook::State.start_balance(@start.year, @start.month)
     end
 
     def calc_code

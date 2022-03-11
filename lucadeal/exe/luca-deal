@@ -186,6 +186,11 @@ class LucaCmd
       end
     end
 
+    def self.report(args = nil, params = {})
+      date = Date.new(args[0].to_i, args[1].to_i, 1)
+      render(LucaDeal::Invoice.report(date, detail: params[:detail], due: params[:due]), params)
+    end
+
     def self.mail(args = nil, params = {})
       date = "#{args[0]}-#{args[1]}-#{args[2] || '1'}" if !args.empty?
       case params['mode']
@@ -194,6 +199,11 @@ class LucaCmd
       else
         LucaDeal::Invoice.new(date).deliver_mail
       end
+    end
+
+    def self.settle(args = nil, _params = nil)
+      str = args[0].nil? ? STDIN.read : File.read(args[0])
+      LucaDeal::Invoice.settle(str)
     end
   end
 
@@ -257,6 +267,12 @@ class LucaCmd
       puts JSON.dump(dat)
     when 'nu'
       LucaSupport::View.nushell(YAML.dump(dat))
+    when 'csv'
+      str = CSV.generate(String.new, col_sep: "\t") do |row|
+        row << dat.first.keys
+        dat.each { |d| row << d.values }
+      end
+      puts str
     else
       puts YAML.dump(dat)
     end
@@ -373,6 +389,12 @@ when /invoices?/, 'i'
       args = opt.parse(ARGV)
       LucaCmd::Invoice.mail(args, params)
     end
+  when 'settle'
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca-deal invoices settle [filepath]'
+      args = opt.parse(ARGV)
+    end
+    LucaCmd::Invoice.settle(ARGV)
   else
     puts 'Proper subcommand needed.'
     puts
@@ -381,6 +403,29 @@ when /invoices?/, 'i'
     puts '  delete'
     puts '  list'
     puts '  mail: send mail with invoice'
+    puts '  settle'
+    exit 1
+  end
+when /reports?/, 'r'
+  subcmd = ARGV.shift
+  case subcmd
+  when 'balance'
+    params[:detail] = false
+    params[:due] = false
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca-deal r[eports] balance [options] [year month]'
+      opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
+      opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }
+      opt.on('--detail', 'show detail info') { |_v| params[:detail] = true }
+      opt.on('--force-due', 'respect due date over actual payment') { |_v| params[:due] = true }
+      args = opt.parse(ARGV)
+      LucaCmd::Invoice.report(args, params)
+    end
+  else
+    puts 'Proper subcommand needed.'
+    puts
+    puts 'Usage: luca-deal r[eports] subcommand [--help|options]'
+    puts '  balance'
     exit 1
   end
 when 'new'
@@ -436,8 +481,9 @@ else
   puts 'Usage: luca-deal subcommand [options]'
   puts '        customers'
   puts '        contracts'
-  puts '        invoices'
+  puts '        i[nvoices]'
   puts '        fee'
+  puts '        r[eports]'
   puts '        new: initialize project dir'
   puts '        export: puts invoice data for LucaBook import'
   exit 1

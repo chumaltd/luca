@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
 module LucaDeal
-  VERSION = '0.2.25'
+  VERSION = '0.3.0'
 end

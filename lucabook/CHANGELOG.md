@@ -1,3 +1,7 @@
+## LucaBook 0.2.31
+
+* Fix: `luca-book journals list --customer` format
+
 ## LucaBook 0.2.30
 
 * Implement `luca-book balance export` for M&A

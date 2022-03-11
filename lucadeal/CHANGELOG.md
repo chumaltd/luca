@@ -1,3 +1,8 @@
+## LucaDeal 0.3.0
+
+* implement `luca-deal reports balance` for unsettled balance by customer
+* implement `luca-deal invoices settle` for import payment data from LucaBook
+
 ## LucaDeal 0.2.25
 
 * implement deduction rate for fee calculation.
