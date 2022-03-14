@@ -1,3 +1,7 @@
+## LucaBook 0.2.32
+
+* update JP dictionary for tax accounting automation.
+
 ## LucaBook 0.2.31
 
 * Fix: `luca-book journals list --customer` format

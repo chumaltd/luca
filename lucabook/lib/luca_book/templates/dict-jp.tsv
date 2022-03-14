@@ -17,8 +17,9 @@ code	label	xbrl_id	consumption_tax	income_tax
 150	未収入金	jpfr-t-cte:AccruedIncome		
 1501	未収消費税等	jpfr-etax-t-cte:SuspenseAccountPaymentConsumptionTaxes		
 1502	未収法人税			
-1503	未収地方住民税			
+1503	未収都道府県住民税			
 1504	未収地方事業税			
+1505	未収市民税			
 160	棚卸資産			
 161	商品	jpfr-t-cte:Merchandise		
 162	製品	jpfr-t-cte:FinishedGoods		

@@ -16,6 +16,10 @@ code	label	xbrl_id	consumption_tax	income_tax
 140	短期貸付金	jppfs_cor:ShortTermLoansReceivable
 150	未収入金	jppfs_cor:AccountsReceivableOther
 1501	未収消費税等
+1502	未収法人税			
+1503	未収都道府県住民税			
+1504	未収地方事業税			
+1505	未収市民税			
 160	棚卸資産	jppfs_cor:Inventories
 161	商品	jppfs_cor:Merchandize
 162	製品	jppfs_cor:FinishedGoods
@@ -27,6 +31,18 @@ code	label	xbrl_id	consumption_tax	income_tax
 183	立替金	jppfs_cor:AdvancesPaid
 184	仮払金	jppfs_cor:SuspensePayments
 1841	仮払消費税等
+185	仮払税金			
+1851	仮払法人税			
+1852	仮払法人税(地方)			
+1854	仮払地方税特別法人事業税			
+1855	仮払地方税所得割			
+1856	仮払地方税収入割			
+1857	仮払地方税資本割			
+1858	仮払地方税付加価値割			
+1859	仮払地方税法人税割			
+185A	仮払地方税均等割			
+185B	仮払消費税
+185C	仮払地方消費税
 30	固定資産	jppfs_cor:NonCurrentAssetsAbstract
 31	有形固定資産	jppfs_cor:PropertyPlantAndEquipmentAbstract
 311	建物	jppfs_cor:Buildings
@@ -67,10 +83,18 @@ code	label	xbrl_id	consumption_tax	income_tax
 513	コマーシャルペーパー	jppfs_cor:CommercialPapersLiabilities
 514	未払金	jppfs_cor:AccountsPayableOther
 515	未払法人税等	jppfs_cor:IncomeTaxesPayable
+5151	未払法人税			
+5152	未払地方事業税			
+5153	未払都道府県民税			
+5154	未払市民税			
 516	未払消費税等	jppfs_cor:AccruedConsumptionTaxes
 517	未払費用	jppfs_cor:AccruedExpenses
 518	前受金	jppfs_cor:AdvancesReceived
 519	預り金	jppfs_cor:DepositsReceived
+5191	所得税源泉給与
+5192	住民税
+5193	所得税源泉士業	
+5194	所得税源泉報酬
 51A	仮受金	jppfs_cor:SuspenseReceipt
 51A1	仮受消費税等	jppfs_cor:SuspenseReceiptOfConsumptionTaxes
 70	固定負債	jppfs_cor:NoncurrentLiabilitiesAbstract
@@ -88,8 +112,9 @@ code	label	xbrl_id	consumption_tax	income_tax
 914	利益剰余金	jppfs_cor:RetainedEarnings
 9141	利益準備金	jppfs_cor:LegalRetainedEarnings
 9142	その他利益剰余金	jppfs_cor:OtherRetainedEarningsAbstract
-915	自己株式	jppfs_cor:TreasuryStock
-916	自己株式申込証拠金	jppfs_cor:DepositForSubscriptionsToTreasuryStock
+915	利益準備金
+916	自己株式	jppfs_cor:TreasuryStock
+917	自己株式申込証拠金	jppfs_cor:DepositForSubscriptionsToTreasuryStock
 92	評価換算差額等	jppfs_cor:ValuationAndTranslationAdjustments
 921	有価証券評価差額金	jppfs_cor:ValuationDifferenceOnAvailableForSaleSecurities
 922	為替換算調整勘定	jppfs_cor:ForeignCurrencyTranslationAdjustment
@@ -124,6 +149,8 @@ C1F	水道光熱費	jppfs_cor:UtilitiesExpensesSGA
 C1G	消耗品費	jppfs_cor:SuppliesExpensesSGA
 C1H	保険料	jppfs_cor:InsuranceExpensesSGA
 C1I	租税公課	jppfs_cor:TaxesAndDuesSGA
+C1I1	消費税			
+C1I2	事業税			
 C1J	賃借料	jppfs_cor:RentExpensesSGA
 C1K	新聞図書費	jppfs_cor:BookExpensesSGA
 C1L	貸倒損失	jppfs_cor:BadDebtsExpensesSGA
