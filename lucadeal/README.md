@@ -1,6 +1,7 @@
 # LucaDeal
 
 [![Gem Version](https://badge.fury.io/rb/lucadeal.svg)](https://badge.fury.io/rb/lucadeal)
+[![doc](ihttps://img.shields.io/badge/doc-rubydoc-green.svg)](https://www.rubydoc.info/gems/lucadeal/index)
 
 LucaDeal is Sales contract management application.
 

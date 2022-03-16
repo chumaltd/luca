@@ -1,6 +1,7 @@
 # LucaRecord
 
 [![Gem Version](https://badge.fury.io/rb/lucarecord.svg)](https://badge.fury.io/rb/lucarecord)
+[![doc](ihttps://img.shields.io/badge/doc-rubydoc-green.svg)](https://www.rubydoc.info/gems/lucarecord/index)
 
 LucaRecord is Git-aware ERP app framework.
 
