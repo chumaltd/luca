@@ -1,7 +1,8 @@
 # LucaBook
 
-[![Gem Version](https://badge.fury.io/rb/lucasalary.svg)](https://badge.fury.io/rb/lucabook)
-[![doc](ihttps://img.shields.io/badge/doc-rubydoc-green.svg)](https://www.rubydoc.info/gems/lucabook/index)
+[![Gem Version](https://badge.fury.io/rb/lucabook.svg)](https://badge.fury.io/rb/lucabook)
+[![doc](https://img.shields.io/badge/doc-rubydoc-green.svg)](https://www.rubydoc.info/gems/lucabook/index)
+![license](https://img.shields.io/github/license/chumaltd/luca)
 
 LucaBook is Accounting book kepping application.
 

@@ -1,5 +1,8 @@
 # LucaSuite
 
+[![Gem Version](https://badge.fury.io/rb/lucasuite.svg)](https://badge.fury.io/rb/lucasuite)
+![license](https://img.shields.io/github/license/chumaltd/luca)
+
 ## What's LucaSuite
 
 LucaSuite is work-in-progress ERP applications, named after [Luca Pacioli](https://en.wikipedia.org/wiki/Luca_Pacioli)(1447 - 1517).  
