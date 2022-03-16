@@ -90,6 +90,12 @@ module LucaRecord # :nodoc:
         end
       end
 
+      # [year, month] pair of the latest record
+      #
+      def latest_month(code = nil, basedir = @dirname)
+        LucaSupport::Code.decode_term(Dir.entries(abs_path(basedir)).max)
+      end
+
       # ----------------------------------------------------------------
       # :section: Write Methods
       # <tt>basedir</tt> is set by class instance variable <tt>@dirname</tt>

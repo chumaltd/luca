@@ -1,3 +1,9 @@
+## LucaTerm 0.2.0
+
+* `luca book`: Works without args. Show journals of the latest month.
+* `luca book`: Show categories on Account code selection
+* `luca book`: Show x-customer header on detail screen
+
 ## LucaTerm 0.1.2
 
 * `luca book`: '<' for prev month, '>' for next month.

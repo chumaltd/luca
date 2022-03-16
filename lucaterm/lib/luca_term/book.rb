@@ -4,13 +4,14 @@ require 'curses'
 require "unicode/display_width/string_ext"
 require 'mb_string'
 require 'luca_book'
-
+require 'json'
 module LucaTerm
   class Book
     include Curses
-    attr_accessor :window
+    attr_accessor :window, :modeline
 
     def initialize(window, year, month, data=nil)
+      @modeline = Window.new(1, 0, 0, 0)
       @window = window
       @year = year
       @month = month
@@ -26,16 +27,22 @@ module LucaTerm
       new(window, args[0], args[1], LucaSupport::Code.readable(LucaBook::List.term(*args).data))
     end
 
+    # render monthly journal list
+    #
     def main_loop
       loop do
+        modeline.setpos(0, 0)
+        modeline << "#{Date::ABBR_MONTHNAMES[@month.to_i]} #{@year}"
+        modeline.clrtoeol
+        modeline.refresh
+
         window.setpos(0,0)
         @visible.each.with_index(0) do |dat, i|
           cursor = i == @active ? :full : nil
           draw_line(dat, cursor, true)
-          clrtoeol
           window << "\n"
         end
-        (window.maxy - window.cury).times { window.deleteln() }
+        (window.maxy - window.cury).times { window << "\n" }
         window.refresh
 
         window.keypad(true)
@@ -52,7 +59,7 @@ module LucaTerm
         when 'G'
           cursor_last @data
         when 'm'
-          ym = edit_dialog('Change month: [yyyy] m')&.split(/[\/\s]/)
+          ym = edit_dialog('Enter: [yyyy] m', title: 'Change Month')&.split(/[\/\s]/)
           ym = [@year, ym[0]] if ym.length == 1
           @data = LucaSupport::Code.readable(LucaBook::List.term(*ym).data)
           @year, @month = ym
@@ -75,8 +82,9 @@ module LucaTerm
           @visible = set_visible(@data)
         when KEY_ENTER, KEY_CTRL_J
           show_detail(@data[@index])
+          @visible = set_visible(@data)
         when 'N'
-          newdate = edit_dialog "Enter date of new record: YYYY-m-d"
+          newdate = edit_dialog "Enter date of new record: YYYY-m-d", title: 'Create Journal'
           tmpl = {
             date: newdate,
             debit: [
@@ -93,16 +101,26 @@ module LucaTerm
       end
     end
 
+    # render each journal
+    #
     def show_detail(record)
       @d_v = 0
       @d_h = 0
       debit_length = Array(record[:debit]).length
       credit_length = Array(record[:credit]).length
       date, txid = LucaSupport::Code.decode_id(record[:id]) if record[:id]
+      fileid = record[:id].split('/').last if record[:id]
       date ||= record[:date]
+      modeline.setpos(0, 0)
+      modeline << "#{date} #{fileid} "
+      modeline.clrtoeol
+      modeline.refresh
+
       loop do
         window.setpos(0, 0)
-        window << "#{date}  "
+        if record.dig(:headers, 'x-customer')
+          window << format(" [%s] ", record.dig(:headers, 'x-customer'))
+        end
         window << record[:note]
         clrtoeol; window << "\n"
         [debit_length, credit_length].max.times do |i|
@@ -119,7 +137,7 @@ module LucaTerm
           clrtoeol
           window << "\n"
         end
-        (window.maxy - window.cury).times { window.deleteln() }
+        (window.maxy - window.cury).times { window << "\n" }
         window.refresh
 
         window.keypad(true)
@@ -173,14 +191,15 @@ module LucaTerm
           debit_length = Array(record[:debit]).length
           credit_length = Array(record[:credit]).length
         when KEY_CTRL_J
-          position = [0,1].include?(@d_h) ? :debit : :credit
+          position, counter = [0,1].include?(@d_h) ? [:debit, :credit] : [:credit, :debit]
           if [0, 2].include? @d_h
             new_code = select_code
             next if new_code.nil?
 
             record[position][@d_v][:code] = new_code
           else
-            new_amount = edit_amount(record[position][@d_v][:amount])
+            diff = record[counter].map { |c| c[:amount] }.sum - record[position].map { |p| p[:amount] }.sum + record[position][@d_v][:amount]
+            new_amount = edit_amount(record[position][@d_v][:amount], diff)
             next if new_amount.nil?
 
             record[position][@d_v][:amount] = new_amount
@@ -198,9 +217,12 @@ module LucaTerm
       end
     end
 
-    def edit_amount(current = nil)
+    # returns amount after edit
+    #
+    def edit_amount(current = nil, diff = nil)
+      diff_msg = diff.nil? ? '' : "#{diff} meets balance."
       begin
-        scmd = edit_dialog "Current: #{current&.to_s}"
+        scmd = edit_dialog "Current: #{current&.to_s}", diff_msg, title: 'Edit Amount'
         return nil if scmd.length == 0
         # TODO: guard from not number
         return scmd.to_i
@@ -209,17 +231,22 @@ module LucaTerm
       end
     end
 
-    def edit_dialog(message = '')
-      sub = window.subwin(4, 30, (window.maxy-4)/2, (window.maxx - 30)/2)
-      sub.box(?|, ?-)
+    def edit_dialog(message = '', submessage = '', title: '')
+      sub = window.subwin(5, 30, (window.maxy-5)/2, (window.maxx - 30)/2)
       sub.setpos(1, 1)
-      padding = [0, 30 - message.length - 4].max
-      sub << "  #{message + ' ' * padding}"
-      clrtoeol
+      sub << "  #{message}"
+      sub.clrtoeol
       sub.setpos(2, 1)
-      sub << "  > #{' ' * (30 - 6)}"
-      sub.setpos(2, 6)
-      clrtoeol
+      sub.clrtoeol
+      sub.setpos(2, 3)
+      sub.attron(A_REVERSE) { sub << "  > #{' ' * (30 - 9)}" }
+      sub.setpos(3, 1)
+      sub << "  #{submessage}"
+      sub.clrtoeol
+      sub.box(?|, ?-)
+      sub.setpos(0, 2)
+      sub << "[ #{title} ]"
+      sub.setpos(2, 7)
       sub.refresh
       loop do
         echo
@@ -230,57 +257,75 @@ module LucaTerm
       end
     end
 
+    # returns Account code after selection from list dialog
+    #
     def select_code
-      list = @dict.map{ |code, entry| { code: code, label: entry[:label] } }
-               .select{ |d| d[:code].length >= 3 }
+      top = window.maxy >= 25 ? 5 : 2
+      sub = window.subwin(window.maxy - top, window.maxx - 4, top, 2)
+      padding = ' ' * account_index(sub.maxx)[0].length
+      list = @dict.reject{ |code, _e| code.length < 3 || /^[15]0XX/.match(code) || /^[89]ZZ/.match(code) }
+               .map{ |code, entry| { code: code, label: entry[:label], category: padding } }
+      tabstop = ['1', '5', '9', 'A', 'C'].map { |cap| list.index { |ac| /^#{cap}/.match(ac[:code]) } }.compact
+      account_index(sub.maxx).each.with_index do |cat, i|
+        list[tabstop[i]][:category] = cat
+      end
       visible_dup = @visible
       index_dup = @index
       active_dup = @active
       @index = 0
       @active = 0
       @visible = nil
-      @visible = set_visible(list)
+      @visible = set_visible(list, sub.maxy - 2)
       loop do
-        window.setpos(0,0)
         @visible.each.with_index(0) do |entry, i|
-          line = format("%s %s", entry[:code], entry[:label])
+          sub.setpos(i+1, 1)
+          head = entry[:code].length == 3 ? '' : '  '
+          line = format("%s %s %s %s", head, entry[:category], entry[:code], entry[:label])
           if i == @active
-            window.attron(A_REVERSE) { window << line }
+            sub.attron(A_REVERSE) { sub << line }
           else
-            window << line
+            sub << line
           end
-          clrtoeol
-          window << "\n"
+          sub.clrtoeol
+          #sub << "\n"
         end
-        (window.maxy - window.cury).times { window.deleteln() }
-        window.refresh
+        (window.maxy - window.cury).times { window << "\n" }
+        sub.box(?|, ?-)
+        sub.setpos(0, 2)
+        sub << "[ Select Account ]"
+        sub.refresh
 
         cmd = window.getch
         case cmd
         when KEY_DOWN, 'j', KEY_CTRL_N
           next if @index >= list.length - 1
 
-          cursor_down list
+          cursor_down list, sub.maxy - 2
         when KEY_NPAGE
-          cursor_pagedown list
+          cursor_pagedown list, sub.maxy - 2
         when KEY_UP, 'k', KEY_CTRL_P
           next if @index <= 0
 
           cursor_up list
         when KEY_PPAGE
-          cursor_pageup list
+          cursor_pageup list, sub.maxy - 2
+        when KEY_LEFT
+          cursor_jump tabstop, list, rev: true
+        when KEY_RIGHT
+          cursor_jump tabstop, list
         when 'G'
-          cursor_last list
+          cursor_last list, sub.maxy - 2
         when KEY_CTRL_J
-          code = list[@index][:code]
           @visible = visible_dup
           @index = index_dup
           @active = active_dup
-          return code
+          sub.close
+          return list[@index][:code]
         when 'q'
           @visible = visible_dup
           @index = index_dup
           @active = active_dup
+          sub.close
           return nil
         end
       end
@@ -288,17 +333,36 @@ module LucaTerm
 
     private
 
+    def account_index(maxx = 50)
+      term = if maxx >= 45
+               ['Assets', 'Liabilities', 'Net Assets', 'Sales', 'Expenses']
+             elsif maxx >= 40
+               ['Assets', 'LIAB', 'NetAsset', 'Sales', 'EXP']
+             else
+               ['', '', '', '', '']
+             end
+      len = term.map { |str| str.length }.max
+      term.map { |str| str += ' ' * (len - str.length) }
+    end
+
     def draw_line(dat, cursor = nil, note = false)
       date, txid = LucaSupport::Code.decode_id(dat[:id]) if dat[:id]
+      date_str = date.nil? ? '' : date.split('-')[1, 2].join('/')&.mb_rjust(5, ' ')
       debit_cd = fmt_code(dat[:debit])
       debit_amount = fmt_amount(dat[:debit])
       credit_cd = fmt_code(dat[:credit])
       credit_amount = fmt_amount(dat[:credit])
       lines = [Array(dat[:debit]).length, Array(dat[:credit]).length].max
-      window << sprintf("%s %s |%s| ",
-                        date&.mb_rjust(10, ' ') || '',
-                        txid || '',
-                        lines > 1 ? lines.to_s : ' ',
+      lines = if lines == 1
+                ' '
+              elsif lines > 9
+                '+'
+              else
+                lines
+              end
+      window << sprintf("%s |%s| ",
+                        date_str,
+                        lines,
                        )
       case cursor
       when 0
@@ -317,8 +381,8 @@ module LucaTerm
         window.attron(A_REVERSE) { window << credit_amount }
       else
         rest = format("%s %s | %s %s", debit_cd, debit_amount, credit_cd, credit_amount)
-        if note && window.maxx > 80
-          rest += " | #{dat[:note].mb_truncate(window.maxx - 80)}"
+        if note && window.maxx > 70
+          rest += " | #{dat[:note]&.mb_truncate(window.maxx - 70)}"
         end
         if cursor == :full
           window.attron(A_REVERSE) { window << rest }
@@ -354,46 +418,62 @@ module LucaTerm
       @visible = set_visible(data)
     end
 
-    def cursor_pageup(data)
-      n_idx = @index - window.maxy
+    def cursor_pageup(data, maxy = nil)
+      maxy ||= window.maxy
+      n_idx = @index - maxy
       return if n_idx <= 0
 
       @index = n_idx
       @active = 0
-      @visible = set_visible(data)
+      @visible = set_visible(data, maxy)
     end
 
-    def cursor_down(data)
+    def cursor_down(data, maxy = nil)
+      maxy ||= window.maxy
       @index += 1
-      @active = @active >= window.maxy - 1 ? window.maxy - 1 : @active + 1
-      @visible = set_visible(data)
+      @active = @active >= maxy - 1 ? @active : @active + 1
+      @visible = set_visible(data, maxy)
     end
 
-    def cursor_pagedown(data)
-      n_idx = @index + window.maxy
+    def cursor_pagedown(data, maxy = nil)
+      maxy ||= window.maxy
+      n_idx = @index + maxy
       return if n_idx >= data.length - 1
 
       @index = n_idx
       @active = 0
+      @visible = set_visible(data, maxy)
+    end
+
+    def cursor_jump(tabstop, data, rev: false)
+      @index = if rev
+                 tabstop.filter{ |t| t < @index ? t : nil }.max || @index
+               else
+                 tabstop.filter{ |t| t > @index ? t : nil }.min || @index
+               end
+
+      @active = 0
       @visible = set_visible(data)
     end
 
-    def cursor_last(data)
+    def cursor_last(data, maxy = nil)
+      maxy ||= window.maxy
       @index = data.length - 1
-      @active = window.maxy - 1
-      @visible = set_visible(data)
+      @active = maxy - 1
+      @visible = set_visible(data, maxy)
     end
 
-    def set_visible(data)
-      return data if data.nil? || data.length <= window.maxy
+    def set_visible(data, maxy = nil)
+      maxy ||= window.maxy
+      return data if data.nil? || data.length <= maxy
 
       if @visible.nil?
-        data.slice(0, window.maxy)
+        data.slice(0, maxy)
       else
-        if @active == (window.maxy - 1)
-          data.slice(@index - window.maxy + 1, window.maxy)
+        if @active == (maxy - 1)
+          data.slice(@index - maxy + 1, maxy)
         elsif @active == 0
-          data.slice(@index, window.maxy)
+          data.slice(@index, maxy)
         else
           @visible
         end

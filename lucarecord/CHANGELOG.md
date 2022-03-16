@@ -1,3 +1,7 @@
+## LucaRecord 0.3.0
+
+* implement LucaRecord::IO.latest_month
+
 ## LucaRecord 0.2.28
 
 * implement LucaSupport::Range, handle #by_month enumeration between several months.

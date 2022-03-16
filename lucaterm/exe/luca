@@ -3,19 +3,22 @@
 
 require 'optparse'
 require 'curses'
+require 'luca_book/journal'
 require 'luca_term'
 
 include Curses
 
-init_screen
-curs_set(0)
-noecho
 
 class LucaCmd
   def self.book(args, params = {})
+    init_screen
+    curs_set(0)
+    noecho
+
     begin
-      window = Curses::Window.new(0, 0, 0, 0)
-      LucaTerm::Book.journals(window, *ARGV)
+      window = Curses::Window.new(0, 0, 1, 0)
+      args = ARGV.empty? ? LucaBook::Journal.latest_month : ARGV
+      LucaTerm::Book.journals(window, *args)
     ensure
       close_screen
     end
