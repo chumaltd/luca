@@ -5,7 +5,7 @@ require 'luca_book'
 require 'luca_record/io'
 require 'luca_support/range'
 
-module LucaBook # :nodoc:
+module LucaBook #:nodoc:
   # Provide data testing framework utilizing minitest.
   #
   class Test < MiniTest::Test

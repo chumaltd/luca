@@ -5,7 +5,7 @@ require 'luca_support/config'
 
 module LucaBook
   module Accumulator
-    def self.included(klass) # :nodoc:
+    def self.included(klass) #:nodoc:
       klass.extend ClassMethods
     end
 

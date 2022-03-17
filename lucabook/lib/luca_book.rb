@@ -6,6 +6,7 @@ require 'luca_book/version'
 
 module LucaBook
   autoload :Accumulator, 'luca_book/accumulator'
+  autoload :Code, 'luca_book/code'
   autoload :Dict, 'luca_book/dict'
   autoload :Import, 'luca_book/import'
   autoload :Journal, 'luca_book/journal'

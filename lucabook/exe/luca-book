@@ -56,8 +56,23 @@ class LucaCmd
     def self.xbrl(args, params)
       level = params[:level] || 3
       legal = params[:legal] || false
-      args = gen_range(params[:n] || 1) if args.empty?
-      LucaBook::State.range(*args).render_xbrl(params[:output])
+      range = case args.length
+              when 4
+                args
+              when 2
+                date = Date.new(args[0].to_i, args[1].to_i)
+                r = LucaBook::Util.current_fy(date, to: date)
+                [r[0].year, r[0].month, r[1].year, r[1].month]
+              when 0
+                if params[:n]
+                  gen_range(params[:n])
+                else
+                  date = params[:lastyear] ? Date.today.prev_year : Date.today
+                  r = LucaBook::Util.current_fy(date)
+                  [r[0].year, r[0].month, r[1].year, r[1].month]
+                end
+              end
+      LucaBook::State.range(*range).render_xbrl(params[:output])
     end
 
     def self.balancesheet(args, params)
@@ -197,14 +212,16 @@ when /reports?/, 'r'
   case subcmd
   when 'xbrl'
     OptionParser.new do |opt|
-      opt.banner = 'Usage: luca-book reports bs [options] [YYYY M]'
-      opt.on('-o', '--output VAL', 'output filename') { |v| params[:output] = v }
+      opt.banner = 'Usage: luca-book r[eports] xbrl [options] [YYYY M]'
+      opt.on('-n VAL', 'report count') { |v| params[:n] = v.to_i }
+      opt.on('-o VAL', '--output VAL', 'specify file name') { |v| params[:output] = v }
+      opt.on('--lastyear', 'report last Financial Year') { |_v| params[:lastyear] = true }
       args = opt.parse!(ARGV)
       LucaCmd::Report.xbrl(args, params)
     end
   when 'bs'
     OptionParser.new do |opt|
-      opt.banner = 'Usage: luca-book reports bs [options] [YYYY M]'
+      opt.banner = 'Usage: luca-book r[eports] bs [options] [YYYY M]'
       opt.on('-l', '--level VAL', 'account level') { |v| params[:level] = v.to_i }
       opt.on('--legal', 'show legal mandatory account') { |_v| params[:legal] = true }
       opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
@@ -214,7 +231,7 @@ when /reports?/, 'r'
     end
   when 'pl'
     OptionParser.new do |opt|
-      opt.banner = 'Usage: luca-book reports pl [options] [YYYY M YYYY M]'
+      opt.banner = 'Usage: luca-book r[eports] pl [options] [YYYY M YYYY M]'
       opt.on('-l', '--level VAL', 'account level') { |v| params[:level] = v.to_i }
       opt.on('-n VAL', 'report count') { |v| params[:n] = v.to_i }
       opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
@@ -224,7 +241,7 @@ when /reports?/, 'r'
     end
   when 'mail'
     OptionParser.new do |opt|
-      opt.banner = 'Usage: luca-book reports mail [options] [YYYY M YYYY M]'
+      opt.banner = 'Usage: luca-book r[eports] mail [options] [YYYY M YYYY M]'
       opt.on('-l', '--level VAL', 'account level') { |v| params[:level] = v.to_i }
       opt.on('-n VAL', 'report count') { |v| params[:n] = v.to_i }
       args = opt.parse!(ARGV)

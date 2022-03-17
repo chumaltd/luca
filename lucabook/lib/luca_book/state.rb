@@ -232,7 +232,6 @@ module LucaBook
       recursive ? total_subaccount(total) : total
     end
 
-    # TODO: currency setting other than JPY
     def render_xbrl(filename = nil)
       set_bs(3, legal: true)
       set_pl(3)
@@ -246,12 +245,14 @@ module LucaBook
       prior_bs = @start_balance.filter { |k, _v| /^[9]/.match(k) }
       @xbrl_entries = @bs_data.map{ |k, v| xbrl_line(k, v, prior_bs[k]) }.compact.join("\n")
       @xbrl_entries += @pl_data.map{ |k, v| xbrl_line(k, v) }.compact.join("\n")
+      @xbrl_entries += equity_change.join("\n")
       @filename = filename || @issue_date.to_s
 
       File.open("#{@filename}.xbrl", 'w') { |f| f.write render_erb(search_template("base-#{country_suffix}.xbrl.erb")) }
       File.open("#{@filename}.xsd", 'w') { |f| f.write render_erb(search_template("base-#{country_suffix}.xsd.erb")) }
     end
 
+    # TODO: proper decimals attr for each currency
     def xbrl_line(code, amount, prior_amount = nil)
       return nil if /^_/.match(code)
 
@@ -262,11 +263,11 @@ module LucaBook
       return nil if readable(amount).zero? && prior_amount.nil?
 
       prior = if prior_amount.nil?
-                /^[9]/.match(code) ? "<#{tag} decimals=\"0\" unitRef=\"JPY\" contextRef=\"Prior1YearNonConsolidatedInstant\">0</#{tag}>\n" : ''
+                /^[9]/.match(code) ? "<#{tag} decimals=\"0\" unitRef=\"#{Code.currency_code(CONFIG['country'])}\" contextRef=\"Prior1YearNonConsolidatedInstant\">0</#{tag}>\n" : ''
               else
-                "<#{tag} decimals=\"0\" unitRef=\"JPY\" contextRef=\"Prior1YearNonConsolidatedInstant\">#{readable(prior_amount)}</#{tag}>\n"
+                "<#{tag} decimals=\"0\" unitRef=\"#{Code.currency_code(CONFIG['country'])}\" contextRef=\"Prior1YearNonConsolidatedInstant\">#{readable(prior_amount)}</#{tag}>\n"
               end
-      current = "<#{tag} decimals=\"0\" unitRef=\"JPY\" contextRef=\"#{context}\">#{readable(amount)}</#{tag}>"
+      current = "<#{tag} decimals=\"0\" unitRef=\"#{Code.currency_code(CONFIG['country'])}\" contextRef=\"#{context}\">#{readable(amount)}</#{tag}>"
 
       prior + current
     end
@@ -285,9 +286,12 @@ module LucaBook
     private
 
     def set_bs(level = 3, legal: false)
-      @start_balance.each do |k, v|
-        next if /^_/.match(k)
-        @monthly.first[k] = (v || 0) + (@monthly.first[k] || 0)
+      unless @monthly.first['_setup']
+        @start_balance.each do |k, v|
+          next if /^_/.match(k)
+          @monthly.first[k] = (v || 0) + (@monthly.first[k] || 0)
+        end
+        @monthly.first['_setup'] = 'done'
       end
       list = @monthly.map { |data| data.select { |k, _v| k.length <= level } }
       list.map! { |data| code_sum(data).merge(data) } if legal
@@ -320,6 +324,59 @@ module LucaBook
       when 'jp'
         ['31', '32', '33', '91', '911', '912', '913', '9131', '9132', '914', '9141', '9142', '915', '916', '92', '93']
       end
+    end
+
+    def equity_change
+      begin
+        ex_dict = LucaRecord::Dict.new('ext.tsv')
+      rescue
+        return nil
+      end
+
+      changes = []
+      LucaBook::Journal.filter_by_code(@start_date.year, @start_date.month, @end_date.year, @end_date.month, '9').each do |dat|
+        debit_str = 'ASET' if dat[:debit].find { |e| /^[124]/.match(e[:code]) }
+        debit_str ||= '33' if dat[:debit].find { |e| /^[33]/.match(e[:code]) }
+        debit_str ||= 'ASET' if dat[:debit].find { |e| /^[3]/.match(e[:code]) }
+        credit_str = 'DEBT' if dat[:credit].find { |e| /^[57]/.match(e[:code]) }
+        credit_str ||= 'ASET' if dat[:credit].find { |e| /^[12]/.match(e[:code]) }
+        dat[:credit].each do |entry|
+          case entry[:code]
+          when /^(91[0-9a-zA-Z]+)/
+            code = $1
+            debit_str ||= dat[:debit].find { |e| /^[9]/.match(e[:code]) }.dig(:code)
+            debit_str = '914' if /^914[0-9a-zA-Z]+/.match(debit_str)
+            tag = ex_dict.dig("#{debit_str}:c#{code}#{credit_str}")&.dig(:xbrl_id)
+            changes << [tag, readable(entry[:amount])] if tag
+          end
+        end
+        dat[:debit].each do |entry|
+          case entry[:code]
+          when /^(916[0-9a-zA-Z]*)/
+            tag = ex_dict.dig("d#{$1}:_")&.dig(:xbrl_id)
+            changes << [tag, readable(entry[:amount] * -1)] if tag
+          when /^(91[0-57-9a-zA-Z]+)/
+            code = $1
+            credit_str ||= dat[:credit].find { |e| /^[9]/.match(e[:code]) }.dig(:code)
+            credit_str = '914' if /^914[0-9a-zA-Z]+/.match(credit_str)
+            tag = ex_dict.dig("#{debit_str}:c#{code}#{credit_str}")&.dig(:xbrl_id)
+            changes << [tag, readable(entry[:amount])] if tag
+          end
+        end
+      end
+      set_bs(4) # require level 4 accounts
+      @bs_data.each do |code, amount|
+        next if /^[^9]/.match(code)
+
+        diff = amount - (@start_balance[code]||0)
+        next if diff == 0
+
+        tag = ex_dict.dig("#{code}:#{code}")&.dig(:xbrl_id)
+        changes << [tag, readable(diff)] if tag
+      end
+      currency = %Q(unitRef="#{Code.currency_code(CONFIG['country'])}")
+      context = 'contextRef="CurrentYearNonConsolidatedDuration"'
+      changes.map { |tag, amount| %Q(<#{tag} decimals="0" #{currency} #{context}>#{amount}</#{tag}>) }
     end
 
     def lib_path

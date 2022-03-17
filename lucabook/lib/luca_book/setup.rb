@@ -19,6 +19,12 @@ module LucaBook
                end
         FileUtils.cp("#{__dir__}/templates/#{dict}", 'dict/base.tsv') unless File.exist?('dict/base.tsv')
         FileUtils.cp("#{__dir__}/templates/config.yml", 'config.yml') unless File.exist?('config.yml')
+        exdict = if File.exist?("#{__dir__}/templates/dictex-#{country}.tsv")
+                   "dict-#{country}.tsv"
+                 else
+                   nil
+                 end
+        FileUtils.cp("#{__dir__}/templates/#{exdict}", 'dict/ext.tsv') unless (File.exist?('dict/ext.tsv') || exdict.nil?)
         prepare_starttsv(dict) unless File.exist? 'data/balance/start.tsv'
       end
     end

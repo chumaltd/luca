@@ -1,3 +1,9 @@
+## LucaBook 0.3.0
+
+* `luca book reports xbrl` supports 'Changes in shareholders equity' generation.
+* Add taxonomy list for Japan 'Changes in shareholders equity'.
+* `luca book reports xbrl [--lastyear]` refers financial year config.
+
 ## LucaBook 0.2.32
 
 * update JP dictionary for tax accounting automation.

@@ -162,5 +162,36 @@ module LucaBook #:nodoc:
         record[:note] = record[:note]&.join('\n')
       end
     end
+
+    # Load data based on account code.
+    #
+    def self.filter_by_code(start_year, start_month, end_year, end_month, code, recursive = true, basedir = @dirname)
+      return enum_for(:filter_by_code, start_year, start_month, end_year, end_month, code, basedir) unless block_given?
+
+      re = recursive ? "^#{code}" : "^#{code}$"
+      LucaSupport::Code.encode_term(start_year, start_month, end_year, end_month).each do |subdir|
+        open_records(basedir, subdir, nil, nil) do |f, path|
+          CSV.new(f, headers: false, col_sep: "\t", encoding: 'UTF-8')
+            .each.with_index(0) do |line, i|
+            case i
+            when 0
+              if line.find { |cd| /#{re}/.match(cd) }
+                f.rewind
+                yield load_data(f, path), path
+                break
+              end
+            when 2
+              if line.find { |cd| /#{re}/.match(cd) }
+                f.rewind
+                yield load_data(f, path), path
+              end
+            when 3
+              break
+            else # skip
+            end
+          end
+        end
+      end
+    end
   end
 end

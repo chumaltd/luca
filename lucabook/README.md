@@ -67,6 +67,11 @@ $ luca-book reports bs --nu
 $ luca-book reports pl --nu
 ```
 
+`reports` also generate XBRL if taxonomy provided.
+
+```bash
+$ luca-book reports xbrl yyyy mm yyyy mm
+```
 
 ## CSV import
 
