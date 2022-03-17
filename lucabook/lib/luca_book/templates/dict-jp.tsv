@@ -19,7 +19,7 @@ code	label	xbrl_id	consumption_tax	income_tax
 1502	未収法人税			
 1503	未収都道府県住民税			
 1504	未収地方事業税			
-1505	未収市民税			
+1505	未収市町村住民税			
 160	棚卸資産			
 161	商品	jpfr-t-cte:Merchandise		
 162	製品	jpfr-t-cte:FinishedGoods		
@@ -85,8 +85,8 @@ code	label	xbrl_id	consumption_tax	income_tax
 515	未払法人税等	jpfr-t-cte:IncomeTaxesPayable		
 5151	未払法人税			
 5152	未払地方事業税			
-5153	未払都道府県民税			
-5154	未払市民税			
+5153	未払都道府県住民税			
+5154	未払市町村住民税			
 516	未払消費税等	jpfr-t-cte:AccruedConsumptionTaxes		
 517	未払費用	jpfr-t-cte:AccruedExpenses		
 518	前受金	jpfr-t-cte:AdvancesReceived		
@@ -191,4 +191,8 @@ G13	災害損失	jpfr-t-cte:LossOnDisasterEL
 GA	税引前利益	jpfr-t-cte:IncomeBeforeIncomeTaxes		
 H0	法人税等	jpfr-t-cte:IncomeTaxes		
 H11	法人税、住民税及び事業税	jpfr-t-cte:IncomeTaxesCurrent		
+H111	法人税
+H112	都道府県住民税
+H113	市町村住民税
+H114	地方事業税
 HA	当期利益	jpfr-t-cte:NetIncome		
