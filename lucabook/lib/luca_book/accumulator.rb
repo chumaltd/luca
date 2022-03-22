@@ -74,17 +74,41 @@ module LucaBook
 
       # for assert purpose
       #
-      def gross(start_year, start_month, end_year = nil, end_month = nil, code:  nil, date_range: nil, rows: 4, recursive: false)
+      # header: { customer: 'some-customer' }
+      #
+      def gross(start_year, start_month, end_year = nil, end_month = nil, code:  nil, date_range: nil, rows: 4, recursive: false, header: nil)
         if ! date_range.nil?
           raise if date_range.class != Range
           # TODO: date based range search
         end
+        scan_headers = header&.map { |k, v|
+          [:customer, :editor].include?(k) ? [ "x-#{k.to_s}", v ] : nil
+        }&.compact&.to_h
 
         end_year ||= start_year
         end_month ||= start_month
         sum = { debit: {}, credit: {}, debit_count: {}, credit_count: {} }
         idx_memo = []
-        term(start_year, start_month, end_year, end_month, code, 'journals') do |f, _path|
+
+        enm = if scan_headers.nil? || scan_headers.empty?
+                term(start_year, start_month, end_year, end_month, code, 'journals')
+              else
+                Enumerator.new do |y|
+                  term(start_year, start_month, end_year, end_month, code, 'journals') do |f, path|
+                    4.times { f.gets } # skip to headers
+                    CSV.new(f, headers: false, col_sep: "\t", encoding: 'UTF-8')
+                      .each do |line|
+                      break if line.empty?
+
+                      if scan_headers.keys.include? line[0]
+                        f.rewind
+                        y << [f, path]
+                      end
+                    end
+                  end
+                end
+              end
+        enm.each do |f, _path|
           CSV.new(f, headers: false, col_sep: "\t", encoding: 'UTF-8')
             .each_with_index do |row, i|
             break if i >= rows
@@ -142,8 +166,8 @@ module LucaBook
 
       # netting vouchers in specified term
       #
-      def net(start_year, start_month, end_year = nil, end_month = nil, code: nil, date_range: nil, recursive: false)
-        g = gross(start_year, start_month, end_year, end_month, code: code, date_range: date_range, recursive: recursive)
+      def net(start_year, start_month, end_year = nil, end_month = nil, code: nil, date_range: nil, recursive: false, header: nil)
+        g = gross(start_year, start_month, end_year, end_month, code: code, date_range: date_range, recursive: recursive, header: header)
         idx = (g[:debit].keys + g[:credit].keys).uniq.sort
         count = {}
         diff = {}.tap do |sum|

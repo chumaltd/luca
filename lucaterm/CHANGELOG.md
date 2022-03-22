@@ -1,3 +1,7 @@
+## LucaTerm 0.2.1
+
+* `luca book` Fix: proper account code selection
+
 ## LucaTerm 0.2.0
 
 * `luca book`: Works without args. Show journals of the latest month.

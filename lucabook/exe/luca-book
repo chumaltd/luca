@@ -78,20 +78,43 @@ class LucaCmd
     def self.balancesheet(args, params)
       level = params[:level] || 3
       legal = params[:legal] || false
-      args = gen_range(params[:n] || 1) if args.empty?
-      render(LucaBook::State.range(*args).bs(level, legal: legal), params)
+      render(LucaBook::State.range(*parse_range_args(args, params)).bs(level, legal: legal), params)
     end
 
     def self.profitloss(args, params)
       level = params[:level] || 2
-      args = gen_range(params[:n]) if args.empty?
-      render(LucaBook::State.range(*args).pl(level), params)
+      render(LucaBook::State.range(*parse_range_args(args, params)).pl(level), params)
     end
 
     def self.report_mail(args, params)
       level = params[:level] || 3
       args = gen_range(params[:n] || 12) if args.empty?
       render(LucaBook::State.range(*args).report_mail(level), params)
+    end
+  end
+
+  def self.parse_range_args(args, params)
+    case args.length
+    when 4
+      args
+    when 2
+      if params[:financialyear]
+        date = Date.new(args[0].to_i, args[1].to_i)
+        r = LucaBook::Util.current_fy(date, to: date)
+        [r[0].year, r[0].month, r[1].year, r[1].month]
+      else
+        args
+      end
+    when 0
+      if params[:n]
+        gen_range(params[:n])
+      elsif params[:financialyear]
+        date = Date.today
+        r = LucaBook::Util.current_fy(date)
+        [r[0].year, r[0].month, date.year, date.month]
+      else
+        [Date.today.year, Date.today.month]
+      end
     end
   end
 
@@ -223,6 +246,7 @@ when /reports?/, 'r'
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-book r[eports] bs [options] [YYYY M]'
       opt.on('-l', '--level VAL', 'account level') { |v| params[:level] = v.to_i }
+      opt.on('--fy', 'adjust start date to Financial Year') { |_v| params[:financialyear] = true }
       opt.on('--legal', 'show legal mandatory account') { |_v| params[:legal] = true }
       opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
       opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }
@@ -233,6 +257,7 @@ when /reports?/, 'r'
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-book r[eports] pl [options] [YYYY M YYYY M]'
       opt.on('-l', '--level VAL', 'account level') { |v| params[:level] = v.to_i }
+      opt.on('--fy', 'adjust start date to Financial Year') { |_v| params[:financialyear] = true }
       opt.on('-n VAL', 'report count') { |v| params[:n] = v.to_i }
       opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
       opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }

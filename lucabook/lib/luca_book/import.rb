@@ -54,6 +54,12 @@ module LucaBook
         d['debit'].each { |h| h['code'] = code_map.dig(h['label']) || DEBIT_DEFAULT }
         d['credit'].each { |h| h['code'] = code_map.dig(h['label']) || CREDIT_DEFAULT }
 
+        LucaBook::Journal::ACCEPTED_HEADERS.each do |header|
+          next if d[header].nil?
+          d['headers'] ||= {}
+          d['headers'][header] = d[header]
+          d[header].delete
+        end
         LucaBook::Journal.create(d)
       end
     end

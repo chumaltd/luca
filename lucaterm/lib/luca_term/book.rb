@@ -316,11 +316,12 @@ module LucaTerm
         when 'G'
           cursor_last list, sub.maxy - 2
         when KEY_CTRL_J
+          selected = list[@index][:code]
           @visible = visible_dup
           @index = index_dup
           @active = active_dup
           sub.close
-          return list[@index][:code]
+          return selected
         when 'q'
           @visible = visible_dup
           @index = index_dup
