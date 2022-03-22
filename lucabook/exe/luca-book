@@ -88,8 +88,7 @@ class LucaCmd
 
     def self.report_mail(args, params)
       level = params[:level] || 3
-      args = gen_range(params[:n] || 12) if args.empty?
-      render(LucaBook::State.range(*args).report_mail(level), params)
+      render(LucaBook::State.range(*parse_range_args(args, params)).report_mail(level), params)
     end
   end
 
@@ -268,6 +267,7 @@ when /reports?/, 'r'
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-book r[eports] mail [options] [YYYY M YYYY M]'
       opt.on('-l', '--level VAL', 'account level') { |v| params[:level] = v.to_i }
+      opt.on('--fy', 'adjust start date to Financial Year') { |_v| params[:financialyear] = true }
       opt.on('-n VAL', 'report count') { |v| params[:n] = v.to_i }
       args = opt.parse!(ARGV)
       LucaCmd::Report.report_mail(args, params)

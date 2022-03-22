@@ -1,3 +1,7 @@
+## LucaBook 0.4.1
+
+* `luca-book reports mail --fy` for Financial Year aware reporting.
+
 ## LucaBook 0.4.0
 
 * `Luca::Book::State#net()`, `Luca::Book::State#gross()` can now calcurate with `x-customer` / `x-editor` filter
