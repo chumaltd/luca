@@ -1,3 +1,7 @@
+## LucaBook 0.4.2
+
+* Fix: header validation on import JSON
+
 ## LucaBook 0.4.1
 
 * `luca-book reports mail --fy` for Financial Year aware reporting.

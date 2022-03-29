@@ -58,7 +58,7 @@ module LucaBook
           next if d[header].nil?
           d['headers'] ||= {}
           d['headers'][header] = d[header]
-          d[header].delete
+          d.delete header
         end
         LucaBook::Journal.create(d)
       end
