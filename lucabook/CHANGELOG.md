@@ -1,3 +1,7 @@
+## LucaBook 0.4.3
+
+* Add prefix for XBRL filename. JP eTax rejects dateonly filename silently.
+
 ## LucaBook 0.4.2
 
 * Fix: header validation on import JSON

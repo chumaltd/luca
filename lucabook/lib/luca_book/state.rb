@@ -246,7 +246,7 @@ module LucaBook
       @xbrl_entries = @bs_data.map{ |k, v| xbrl_line(k, v, prior_bs[k]) }.compact.join("\n")
       @xbrl_entries += @pl_data.map{ |k, v| xbrl_line(k, v) }.compact.join("\n")
       @xbrl_entries += equity_change.join("\n")
-      @filename = filename || @issue_date.to_s
+      @filename = filename || "statement-#{@issue_date}"
 
       File.open("#{@filename}.xbrl", 'w') { |f| f.write render_erb(search_template("base-#{country_suffix}.xbrl.erb")) }
       File.open("#{@filename}.xsd", 'w') { |f| f.write render_erb(search_template("base-#{country_suffix}.xsd.erb")) }
