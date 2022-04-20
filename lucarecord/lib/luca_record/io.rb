@@ -150,7 +150,7 @@ module LucaRecord # :nodoc:
 
       def add_status!(id, status, basedir = @dirname)
         path = abs_path(basedir) / id2path(id)
-        origin = YAML.load_file(path, **{})
+        origin = YAML.safe_load(File.read(path), permitted_classes: [Date])
         newline = { status => DateTime.now.to_s }
         origin['status'] = [] if origin['status'].nil?
         origin['status'] << newline
@@ -362,7 +362,7 @@ module LucaRecord # :nodoc:
             # TODO: implement JSON parse
           end
         else
-          LucaSupport::Code.decimalize(YAML.load(io.read)).tap { |obj| validate_keys(obj) }
+          LucaSupport::Code.decimalize(YAML.safe_load(io.read, permitted_classes: [Date])).tap { |obj| validate_keys(obj) }
         end
       end
 
@@ -434,7 +434,7 @@ module LucaRecord # :nodoc:
     def load_config(path = nil)
       path = path.to_s
       if File.exist?(path)
-        YAML.load_file(path, **{})
+        YAML.safe_load(File.read(path), permitted_classes: [Date])
       else
         {}
       end

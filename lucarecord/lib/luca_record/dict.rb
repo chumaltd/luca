@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'csv'
+require 'date'
 require 'fileutils'
 require 'yaml'
 require 'pathname'
@@ -71,7 +72,7 @@ module LucaRecord
       when '.tsv', '.csv'
         load_tsv_dict(dict_path(file))
       when '.yaml', '.yml'
-        YAML.load_file(dict_path(file), **{})
+        YAML.safe_load(File.read(dict_path(file)), permitted_classes: [Date])
       else
         raise 'cannot load this filetype'
       end

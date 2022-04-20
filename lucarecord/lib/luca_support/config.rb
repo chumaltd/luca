@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'date'
 require 'pathname'
 require 'yaml'
 
@@ -11,7 +12,7 @@ module LucaSupport
              {
                'decimal_separator' => '.',
                'thousands_separator' => ','
-             }.merge(YAML.load_file(Pathname(PJDIR) / 'config.yml'))
+             }.merge(YAML.safe_load(File.read(Pathname(PJDIR) / 'config.yml'), permitted_classes: [Date]))
            rescue Errno::ENOENT
              {
                'decimal_separator' => '.',

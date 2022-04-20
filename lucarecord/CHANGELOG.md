@@ -1,3 +1,7 @@
+## LucaRecord 0.4.0
+
+* Replace YAML.load/load_file to YAML.safe_load for compatibility with Ruby 3.1
+
 ## LucaRecord 0.3.0
 
 * implement LucaRecord::IO.latest_month
