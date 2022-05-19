@@ -11,7 +11,7 @@ Built on Ruby, its primary target is terminal environment for Linux, Android [Te
 * [LucaBook](lucabook/README.md): Accounting
 * [LucaDeal](lucadeal/README.md): Sales contract management
 * [LucaSalary](lucasalary/README.md): Salary calculation
-* [LucaTerm](lucabook/README.md): Interactive terminal client based on ncurses. This needs to be installed separately.
+* [LucaTerm](lucaterm/README.md): Interactive terminal client based on ncurses. This needs to be installed separately.
 
 
 ## Framework
