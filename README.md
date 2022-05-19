@@ -11,6 +11,7 @@ Built on Ruby, its primary target is terminal environment for Linux, Android [Te
 * [LucaBook](lucabook/README.md): Accounting
 * [LucaDeal](lucadeal/README.md): Sales contract management
 * [LucaSalary](lucasalary/README.md): Salary calculation
+* [LucaTerm](lucabook/README.md): Interactive terminal client based on ncurses. This needs to be installed separately.
 
 
 ## Framework
@@ -31,6 +32,8 @@ Add this line to your application's Gemfile:
 
 ```ruby
 gem 'lucasuite'
+gem 'mail'         # If you don't use mail functionality, you can remove this line.
+# gem 'lucaterm'   # If you need TUI client, enable this line.
 ```
 
 And then execute:

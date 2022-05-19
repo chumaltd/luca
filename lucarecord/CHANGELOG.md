@@ -1,3 +1,7 @@
+## LucaRecord 0.5.0
+
+* Exclude mail gem from dependencies. Just install it separately if you use mail functionality.
+
 ## LucaRecord 0.4.0
 
 * Replace YAML.load/load_file to YAML.safe_load for compatibility with Ruby 3.1

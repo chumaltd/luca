@@ -12,6 +12,7 @@ Add this line to your application's Gemfile:
 
 ```ruby
 gem 'lucabook'
+gem 'mail'       # If you don't use mail functionality, you can remove this line.
 ```
 
 And then execute:

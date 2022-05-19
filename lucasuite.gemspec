@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name          = 'lucasuite'
-  spec.version       = '0.1.0'
+  spec.version       = '0.2.0'
   spec.license       = 'GPL'
   spec.authors       = ['Chuma Takahiro']
   spec.email         = ['co.chuma@gmail.com']
@@ -32,10 +32,10 @@ Gem::Specification.new do |spec|
   spec.bindir        = 'exe'
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
 
-  spec.add_dependency 'lucabook'
-  spec.add_dependency 'lucadeal'
-  spec.add_dependency 'lucasalary'
-  spec.add_dependency 'lucaterm'
+  spec.add_dependency 'lucabook', '>= 0.4.3'
+  spec.add_dependency 'lucadeal', '>= 0.3.1'
+  spec.add_dependency 'lucasalary', '>= 0.1.24'
+  spec.add_dependency 'lucarecord', '>= 0.5.0'
 
   spec.add_development_dependency 'bundler', '>= 1.17'
   spec.add_development_dependency 'minitest', '~> 5.0'
