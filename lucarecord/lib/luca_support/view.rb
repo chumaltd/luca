@@ -29,8 +29,8 @@ module LucaSupport
     # Requires wkhtmltopdf command
     #
     def html2pdf(html_dat)
-      out, err, stat = Open3.capture3('wkhtmltopdf - -', stdin_data: html_dat)
-      puts err
+      out, err, stat = Open3.capture3('wkhtmltopdf --enable-local-file-access - -', stdin_data: html_dat)
+      STDERR.puts err
       out
     end
 

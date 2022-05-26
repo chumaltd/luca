@@ -1,3 +1,7 @@
+## LucaRecord 0.5.1
+
+* add `--enable-local-file-access` option to `wkhtmltopdf` command.
+
 ## LucaRecord 0.5.0
 
 * Exclude mail gem from dependencies. Just install it separately if you use mail functionality.

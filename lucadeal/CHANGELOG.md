@@ -1,3 +1,8 @@
+## LucaDeal 0.4.0
+
+* implement `luca-deal invoices print` for local HTML/PDF rendering.
+* remove `luca-deal invoices list --html` in favor of `print` sub command.
+
 ## LucaDeal 0.3.1
 
 * add `luca-deal invoices settle --search-terms` for late payment case.

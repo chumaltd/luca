@@ -40,13 +40,26 @@ module LucaDeal
       end
     end
 
-    # Render HTML to console
+    # Render HTML/PDF to files
+    # TODO: change output dir
     #
-    def preview_stdout
-      self.class.asof(@date.year, @date.month) do |dat, _|
+    def print(id = nil, params = {})
+      filetype = params[:output] || :html
+      if id
+        dat = self.class.find(id)
         @company = set_company
         invoice_vars(dat)
-        puts render_invoice
+        File.open(attachment_name(dat, filetype), 'w') do |f|
+          f.puts render_invoice(filetype)
+        end
+      else
+        self.class.asof(@date.year, @date.month) do |dat, _|
+          @company = set_company
+          invoice_vars(dat)
+          File.open(attachment_name(dat, filetype), 'w') do |f|
+            f.puts render_invoice(filetype)
+          end
+        end
       end
     end
 

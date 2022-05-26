@@ -177,9 +177,7 @@ class LucaCmd
         date = "#{Date.today.year}-#{Date.today.month}-1"
         count = 3
       end
-      if params[:html]
-        LucaDeal::Invoice.new(date).preview_stdout
-      elsif params[:mail]
+      if params[:mail]
         LucaDeal::Invoice.new(date).stats_email
       else
         render(LucaDeal::Invoice.new(date).stats(count || 1), params)
@@ -198,6 +196,16 @@ class LucaCmd
         LucaDeal::Invoice.new(date).preview_mail
       else
         LucaDeal::Invoice.new(date).deliver_mail
+      end
+    end
+
+    def self.print(args = nil, params = {})
+      if args.length >= 2
+        date = "#{args[0]}-#{args[1]}-#{args[2] || '1'}" if !args.empty?
+        LucaDeal::Invoice.new(date).print(nil, params)
+      else
+        date = "#{Date.today.year}-#{Date.today.month}-#{Date.today.day}"
+        LucaDeal::Invoice.new(date).print(args[0], params)
       end
     end
 
@@ -377,7 +385,6 @@ when /invoices?/, 'i'
       opt.banner = 'Usage: luca-deal invoices list [options] year month [date]'
       opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
       opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }
-      opt.on('--html', 'output html invoices') { |_v| params[:html] = 'monthly' }
       opt.on('--mail', 'send payment list by email') { |_v| params[:mail] = true }
       args = opt.parse(ARGV)
       LucaCmd::Invoice.list(args, params)
@@ -388,6 +395,13 @@ when /invoices?/, 'i'
       opt.on('--preview', 'send to preview user') { |_v| params['mode'] = 'preview' }
       args = opt.parse(ARGV)
       LucaCmd::Invoice.mail(args, params)
+    end
+  when 'print'
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca-deal invoices print [options] <invoice_id | year month>'
+      opt.on('--pdf', 'output PDF invoices. wkhtmlpdf is required') { |_v| params[:output] = :pdf }
+      args = opt.parse(ARGV)
+      LucaCmd::Invoice.print(args, params)
     end
   when 'settle'
     params[:term] = 1
@@ -405,6 +419,7 @@ when /invoices?/, 'i'
     puts '  delete'
     puts '  list'
     puts '  mail: send mail with invoice'
+    puts '  print: render invoices into HTML/PDF'
     puts '  settle'
     exit 1
   end
