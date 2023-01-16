@@ -45,7 +45,9 @@ module LucaSalary
 
     def self.sum_code(obj, code, exclude = nil)
       target = obj.select { |k, _v| /^#{code}[0-9A-Fa-f]{,3}$/.match(k) }
-      target = target.reject { |k, _v| exclude.include?(k) } if exclude
+      target = target
+                 .reject { |_k, v| v.nil? }
+                 .reject { |k, _v| exclude&.include?(k) }
       target.values.inject(:+) || 0
     end
 

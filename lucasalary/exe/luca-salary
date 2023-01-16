@@ -40,8 +40,12 @@ module LucaCmd
       end
     end
 
-    def self.total(args = nil, _params = nil)
-      LucaSalary::Payment.year_total(args.first.to_i)
+    def self.total(args = nil, params = nil)
+      if params['mode'] == 'adjust'
+        LucaSalary::Payment.year_adjust(args[0].to_i, args[1].to_i)
+      else
+        LucaSalary::Payment.year_total(args.first.to_i)
+      end
     end
   end
 end
@@ -86,9 +90,10 @@ when /payments?/
     end
   when 'total'
     OptionParser.new do |opt|
-      opt.banner = 'Usage: luca-salary payments total year'
+      opt.banner = 'Usage: luca-salary payments total [--adjust] year [month]'
+      opt.on('--adjust', 'Apply year total adjustment to payslip of year/month') { |_v| params['mode'] = 'adjust' }
       args = opt.parse(ARGV)
-      LucaCmd::Payment.total(args)
+      LucaCmd::Payment.total(args, params)
     end
   else
     puts 'Proper subcommand needed.'

@@ -1,3 +1,7 @@
+## LucaSalary 0.1.25
+
+* Add `luca-salary payments total --adjust`: applying yearly tax refund.
+
 ## LucaSalary 0.1.24
 
 * Fix: remove null record from `luca-salary export` JSON

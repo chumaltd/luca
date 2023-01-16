@@ -78,6 +78,30 @@ module LucaSalary
       return payment
     end
 
+    # Apply adjustment for yearly refund.
+    # Search Year Total records 6 months before specified payslip month.
+    #
+    def self.year_adjust(year, month)
+      target_month = Date.new(year, month, 1)
+      total_st = target_month.prev_month(6)
+      search(year, month).each do |slip, path|
+        term(total_st.year, total_st.month, year, month, slip['profile_id'], "#{@dirname}/total/") do |total|
+          slip['3A1'] = total['3A1']
+          slip['4A1'] = total['4A1']
+        end
+        # Recalculate sum
+        ['3', '4'].each do |key|
+          slip[key] = 0
+          slip[key] = LucaSalary::Base.sum_code(slip, key)
+          slip['5'] = slip['1'] - slip['2'] - slip['3'] + slip['4']
+        end
+        IO.write(
+          abs_path(@dirname) / path[0] / "#{path[1]}-#{path[2]}",
+          YAML.dump(LucaSupport::Code.readable(slip.sort.to_h))
+        )
+      end
+    end
+
     # Export json for LucaBook.
     # Accrual_date can be change with `payment_term` on config.yml. Default value is 0.
     # `payment_term: 1` means payment on the next month of calculation target.
