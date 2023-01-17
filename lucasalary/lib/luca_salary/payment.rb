@@ -95,8 +95,9 @@ module LucaSalary
           slip[key] = LucaSalary::Base.sum_code(slip, key)
           slip['5'] = slip['1'] - slip['2'] - slip['3'] + slip['4']
         end
-        IO.write(
-          abs_path(@dirname) / path[0] / "#{path[1]}-#{path[2]}",
+        update_record(
+          @dirname,
+          path,
           YAML.dump(LucaSupport::Code.readable(slip.sort.to_h))
         )
       end

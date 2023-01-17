@@ -1,3 +1,7 @@
+## LucaRecord 0.5.2
+
+* add `update_record()` by `open_records()` id_set.
+
 ## LucaRecord 0.5.1
 
 * add `--enable-local-file-access` option to `wkhtmltopdf` command.

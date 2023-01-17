@@ -311,6 +311,17 @@ module LucaRecord # :nodoc:
         end
       end
 
+      # Write record with id_set supplied by open_records().
+      #
+      def update_record(basedir, id_set, content)
+        raise "path fragments are too short" if id_set.length < 2
+
+        ::IO.write(
+          abs_path(basedir) / id_set[0] / id_set[1..-1].join('-'),
+          content
+        )
+      end
+
       # Calculate md5sum with original digest, file content and filename(optional).
       #
       def update_digest(digest, str, filename = nil)
