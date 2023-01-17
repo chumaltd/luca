@@ -5,6 +5,8 @@ require 'luca_record'
 
 module LucaSalary
   class State < LucaRecord::Base
+    include Accumulator
+
     @dirname = 'payments'
 
     def initialize(data, count = nil, start_d: nil, end_d: nil)
@@ -23,9 +25,10 @@ module LucaSalary
       counts = []
       reports = [].tap do |r|
         while date <= last_date do
-          record, count = accumulate_term(date.year, date.month)
+          slips = term(date.year, date.month, date.year, date.month)
+          record, count = accumulate(slips)
           r << record.tap { |c| c['_d'] = date.to_s }
-          counts << count #.tap { |c| c['_d'] = date.to_s }
+          counts << count
           date = Date.new(date.next_month.year, date.next_month.month, -1)
         end
       end
@@ -36,12 +39,8 @@ module LucaSalary
     end
 
     def report()
-      total = { '_d' => 'total' }
-      @monthly.each do |m|
-        m.select { |k, _v| /^[1-4][0-9A-Fa-f]{,3}$/.match(k) }.each do |k, v|
-          total[k] = total[k] ? total[k] + v : v
-        end
-      end
+      total, _count = LucaSalary::State.accumulate(@monthly)
+      total['_d'] = 'total'
       [@monthly, total].flatten.map do |m|
         {}.tap do |r|
           m.sort.to_h.each do |k, v|
@@ -49,20 +48,6 @@ module LucaSalary
           end
         end
       end
-    end
-
-    def self.accumulate_term(start_year, start_month, end_year = nil, end_month = nil)
-      end_year ||= start_year
-      end_month ||= start_month
-      payment = {}
-      count = 0
-      term(start_year, start_month, end_year, end_month, nil, @dirname) do |slip, _path|
-        count += 1
-        slip.select { |k, _v| /^[1-4][0-9A-Fa-f]{,3}$/.match(k) }.each do |k, v|
-          payment[k] = payment[k] ? payment[k] + v : v
-        end
-      end
-      [payment, count]
     end
   end
 end

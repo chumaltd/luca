@@ -9,6 +9,8 @@ require 'luca_record'
 
 module LucaSalary
   class Payment < LucaRecord::Base
+    include Accumulator
+
     @dirname = 'payments'
 
     def initialize(date = nil)
@@ -47,21 +49,9 @@ module LucaSalary
     def self.year_total(year)
       Profile.all do |profile|
         id = profile.dig('id')
-        payment = { 'profile_id' => id }
-        # payment = {}
-        (1..12).each do |month|
-          search(year, month, nil, id).each do |origin|
-            # TODO: to be updated null check
-            if origin == {}
-              month
-            else
-              origin.select { |k, _v| /^[1-4][0-9A-Fa-f]{,3}$/.match(k) }.each do |k, v|
-                payment[k] = payment[k] ? payment[k] + v : v
-              end
-              nil
-            end
-          end
-        end
+        slips = term(year, 1, year, 12, id)
+        payment, _count = accumulate(slips)
+        payment['profile_id'] = id
         date = Date.new(year, 12, 31)
         payment = local_convert(payment, date)
         create(payment, date: date, codes: [id], basedir: 'payments/total')
