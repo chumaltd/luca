@@ -1,3 +1,7 @@
+## LucaSalary 0.1.26
+
+* Add `luca-salary payments report`: monthly statement by code.
+
 ## LucaSalary 0.1.25
 
 * Add `luca-salary payments total --adjust`: applying yearly tax refund.

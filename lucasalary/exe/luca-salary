@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 # frozen_string_literal: true
 
+require 'json'
 require 'optparse'
 require 'luca_salary'
 require 'luca_salary/monthly'
@@ -40,11 +41,26 @@ module LucaCmd
       end
     end
 
+    def self.report(args = nil, params = nil)
+        render(LucaSalary::State.range(*args).report(), params)
+    end
+
     def self.total(args = nil, params = nil)
       if params['mode'] == 'adjust'
         LucaSalary::Payment.year_adjust(args[0].to_i, args[1].to_i)
       else
         LucaSalary::Payment.year_total(args.first.to_i)
+      end
+    end
+
+    def self.render(dat, params)
+      case params[:output]
+      when 'json'
+        puts JSON.dump(dat)
+      when 'nu'
+        LucaSupport::View.nushell(YAML.dump(dat))
+      else
+        puts YAML.dump(dat)
       end
     end
   end
@@ -87,6 +103,13 @@ when /payments?/
       opt.on('--mail', 'send to managers') { |_v| params['mode'] = 'mail' }
       args = opt.parse(ARGV)
       LucaCmd::Payment.list(args, params)
+    end
+  when 'report'
+    OptionParser.new do |opt|
+      opt.banner = 'Usage: luca-salary payments report [--nu] year month [year month]'
+      opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
+      args = opt.parse(ARGV)
+      LucaCmd::Payment.report(args, params)
     end
   when 'total'
     OptionParser.new do |opt|
