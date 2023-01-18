@@ -9,4 +9,5 @@ module LucaSalary
   autoload :Payment, 'luca_salary/payment'
   autoload :Profile, 'luca_salary/profile'
   autoload :State, 'luca_salary/state'
+  autoload :Total, 'luca_salary/total'
 end

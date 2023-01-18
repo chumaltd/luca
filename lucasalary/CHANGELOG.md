@@ -1,3 +1,7 @@
+## LucaSalary 0.1.27
+
+* Implement LucaSalary::Total for Year totaling.
+
 ## LucaSalary 0.1.26
 
 * Add `luca-salary payments report`: monthly statement by code.
