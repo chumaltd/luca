@@ -1,3 +1,7 @@
+## LucaRecord 0.5.3
+
+* add `find_secure()` for partial data encryption.
+
 ## LucaRecord 0.5.2
 
 * add `update_record()` by `open_records()` id_set.

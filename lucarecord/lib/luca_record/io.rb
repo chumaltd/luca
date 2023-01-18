@@ -46,6 +46,37 @@ module LucaRecord # :nodoc:
         end
       end
 
+      # Merge 2 files under plain & prefixed dirs.
+      # prefixed contents will override duplicated keys.
+      # This function does not provide encryption/decryption.
+      #
+      def find_secure(id, basedir = @dirname, prefix = 's_')
+        if id.length >= 40
+          plain = open_hashed(basedir, id) do |f|
+            load_data(f)
+          end
+          secure = begin
+                     open_hashed("#{prefix}#{basedir}", id) do |f|
+                       load_data(f)
+                     end
+                   rescue
+                     # No file exists, and so on.
+                     {}
+                   end
+        elsif id.length >= 7
+          parts = id.split('/')
+          plain = open_records(basedir, parts[0], parts[1]) do |f|
+            load_data(f)
+          end
+          secure = open_records("#{prefix}#{basedir}", parts[0], parts[1]) do |f|
+            load_data(f)
+          end
+        else
+          raise 'specified id length is too short'
+        end
+        plain.merge(secure)
+      end
+
       # search date based record.
       #
       # * data hash
