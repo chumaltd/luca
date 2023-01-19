@@ -16,7 +16,7 @@ module LucaSalary
     def initialize(year)
       @date = Date.new(year.to_i, 12, -1)
       @slips = Total.all("payments/total/#{encode_dirname(@date)}").map do |slip|
-        slip['profile'] = parse_current(Profile.find_secure(slip['profile_id']))
+        slip['profile'] = parse_current(Profile.find_secure(slip['id']))
         slip
       end
       @dict = LucaRecord::Dict.load_tsv_dict(Pathname(LucaSupport::PJDIR) / 'dict' / 'code.tsv')
@@ -28,7 +28,6 @@ module LucaSalary
         slips = term(year, 1, year, 12, id, 'payments')
         payment, _count = accumulate(slips)
         payment['id'] = id
-        payment['profile_id'] = id
         date = Date.new(year, 12, 31)
         payment = local_convert(payment, date)
         upsert(payment, basedir: "payments/total/#{year}#{LucaSupport::Code.encode_month(12)}")
