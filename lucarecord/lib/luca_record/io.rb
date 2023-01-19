@@ -148,6 +148,26 @@ module LucaRecord # :nodoc:
         end
       end
 
+      # update uuid keyed record based on 'id' field.
+      # If not found, just create
+      #
+      def upsert(obj, basedir: @dirname)
+        return nil if obj['id'].nil?
+
+        validate_keys(obj)
+        merged = begin
+                    open_hashed(basedir, obj['id'], 'r') do |f|
+                      load_data(f).merge(obj)
+                    end
+                  rescue
+                    obj
+                  end
+        open_hashed(basedir, obj['id'], 'w') do |f|
+          f.write(YAML.dump(LucaSupport::Code.readable(merged.sort.to_h)))
+        end
+        obj['id']
+      end
+
       # If multiple ID matched, return short ID and human readable label.
       #
       def id_completion(phrase, label: 'name', basedir: @dirname)

@@ -51,10 +51,11 @@ module LucaSalary
         id = profile.dig('id')
         slips = term(year, 1, year, 12, id)
         payment, _count = accumulate(slips)
+        payment['id'] = id
         payment['profile_id'] = id
         date = Date.new(year, 12, 31)
         payment = local_convert(payment, date)
-        create(payment, date: date, codes: [id], basedir: 'payments/total')
+        upsert(payment, basedir: "payments/total/#{year}#{LucaSupport::Code.encode_month(12)}")
       end
     end
 

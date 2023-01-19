@@ -1,3 +1,7 @@
+## LucaRecord master
+
+* add `upsert()`
+
 ## LucaRecord 0.5.3
 
 * add `find_secure()` for partial data encryption.
