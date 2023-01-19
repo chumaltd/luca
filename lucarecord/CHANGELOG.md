@@ -1,6 +1,7 @@
 ## LucaRecord master
 
 * add `upsert()`
+* Regard zero-prefixed code like '00123' as not BigDecimal but String on YAML load
 
 ## LucaRecord 0.5.3
 

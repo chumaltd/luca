@@ -47,9 +47,9 @@ module LucaCmd
 
     def self.total(args = nil, params = nil)
       if params['mode'] == 'adjust'
-        LucaSalary::Payment.year_adjust(args[0].to_i, args[1].to_i)
+        LucaSalary::Total.year_adjust(args[0].to_i, args[1].to_i)
       else
-        LucaSalary::Payment.year_total(args.first.to_i)
+        LucaSalary::Total.accumulator(args.first.to_i)
       end
     end
 

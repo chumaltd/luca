@@ -1,6 +1,7 @@
 ## LucaSalary master
 
 * BREAKING: `luca-salary payments total` directory structure changed. Upsert 1 record per 1 profile.
+* move yearly totale methods to LucaSalary::Total
 
 ## LucaSalary 0.1.27
 

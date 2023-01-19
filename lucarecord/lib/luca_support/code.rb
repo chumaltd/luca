@@ -153,6 +153,7 @@ module LucaSupport # :nodoc:
       when 'Integer'
         BigDecimal(obj.to_s)
       when 'String'
+        return obj if /^0[0-9]+$/.match(obj) # zero-prefixed code
         /^[0-9\.]+$/.match(obj) ? BigDecimal(obj) : obj
       when 'Float'
         raise 'already float'
