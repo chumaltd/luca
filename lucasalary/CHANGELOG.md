@@ -2,6 +2,7 @@
 
 * BREAKING: `luca-salary payments total` directory structure changed. Upsert 1 record per 1 profile.
 * move yearly totale methods to LucaSalary::Total
+* add `luca-salary pay[ments]` short hand.
 
 ## LucaSalary 0.1.27
 

@@ -88,7 +88,7 @@ when /profiles?/
   end
 when 'export'
   LucaCmd::Payment.export(ARGV)
-when /payments?/
+when 'pay', /payments?/
   subcmd = ARGV.shift
   case subcmd
   when 'create'
