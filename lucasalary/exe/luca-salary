@@ -5,6 +5,7 @@ require 'json'
 require 'optparse'
 require 'luca_salary'
 require 'luca_salary/monthly'
+require 'luca_support' #TODO: test use only
 
 module LucaCmd
   class Profile
@@ -86,6 +87,20 @@ when /profiles?/
     puts 'Usage: luca-salary profile[s] create Name'
     exit 1
   end
+when 'enc', 'encrypt'
+  # TODO: proxy encrypt/decrypt
+  OptionParser.new do |opt|
+    opt.banner = 'Usage: luca-salary enc|encrypt'
+    opt.on('--clean', 'remove plain directory') { |_v| params[:clean] = true }
+    args = opt.parse(ARGV)
+    LucaSupport::Enc.encrypt("s_profiles", cleanup: params[:clean])
+  end
+when 'dec', 'decrypt'
+  OptionParser.new do |opt|
+    opt.banner = 'Usage: luca-salary dec|decrypt'
+    args = opt.parse(ARGV)
+    LucaSupport::Enc.decrypt("s_profiles")
+  end
 when 'export'
   LucaCmd::Payment.export(ARGV)
 when 'pay', /payments?/
@@ -131,5 +146,7 @@ else
   puts '        profiles'
   puts '        payments'
   puts '        export: puts payment data for LucaBook import'
+  puts '        encrypt: encrypt secure profiles'
+  puts '        decrypt: decrypt secure profiles'
   exit 1
 end
