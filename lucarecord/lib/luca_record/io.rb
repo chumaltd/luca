@@ -353,7 +353,16 @@ module LucaRecord # :nodoc:
         file_pattern = filename.nil? ? '*' : "#{filename}*"
         Dir.chdir(abs_path(basedir)) do
           FileUtils.mkdir_p(subdir) if mode == 'w' && !Dir.exist?(subdir)
-          Dir.glob("#{subdir}*/#{file_pattern}").sort.each do |subpath|
+          records = Dir.glob("#{subdir}*/#{file_pattern}", sort: false)
+          records = case records.find_index { |path| FileTest.file?(path) }
+                    when nil
+                      # TODO: file_pattern is not valid
+                      Dir.glob("#{subdir}*/*/#{file_pattern}", sort: false)
+                    else
+                      records.sort
+                    end
+          records.each do |subpath|
+            next if FileTest.directory?(subpath)
             next if skip_on_unmatch_code(subpath, code)
 
             id_set = subpath.split('/').map { |str| str.split('-') }.flatten

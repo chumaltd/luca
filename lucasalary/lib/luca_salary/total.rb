@@ -15,7 +15,7 @@ module LucaSalary
 
     def initialize(year)
       @date = Date.new(year.to_i, 12, -1)
-      @slips = Total.all("payments/total/#{encode_dirname(@date)}").map do |slip|
+      @slips = Total.search(year, 12).map do |slip|
         slip['profile'] = parse_current(Profile.find_secure(slip['id']))
         slip
       end
