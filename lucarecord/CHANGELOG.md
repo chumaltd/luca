@@ -1,8 +1,10 @@
-## LucaRecord master
+## LucaRecord 0.5.4
 
 * add `upsert()`
 * `open_records()` supports git-like id sub directories
 * Regard zero-prefixed code like '00123' as not BigDecimal but String on YAML load
+* Add support table columns order to `LucaSupport::View.nushell()`
+* Breaking change: `LucaSupport::View.nushell()` takes Ruby Array. YAML is not accepted anymore.
 
 ## LucaRecord 0.5.3
 

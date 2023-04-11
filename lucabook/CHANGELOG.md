@@ -1,6 +1,7 @@
 ## LucaBook master
 
 * Returns 1 line message on empty results for `luca-book journals list --nu`.
+* Fix columns order for `luca-book journals list --nu`.
 
 ## LucaBook 0.4.3
 

@@ -274,7 +274,7 @@ class LucaCmd
     when 'json'
       puts JSON.dump(dat)
     when 'nu'
-      LucaSupport::View.nushell(YAML.dump(dat))
+      LucaSupport::View.nushell(dat)
     when 'csv'
       str = CSV.generate(String.new, col_sep: "\t") do |row|
         row << dat.first.keys

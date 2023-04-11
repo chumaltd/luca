@@ -31,7 +31,7 @@ Gem::Specification.new do |spec|
   spec.executables   = ['luca-book']
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'lucarecord'
+  spec.add_dependency 'lucarecord', '>= 0.5.4'
 
   spec.add_development_dependency 'bundler', '>= 1.17'
   spec.add_development_dependency 'minitest', '~> 5.0'

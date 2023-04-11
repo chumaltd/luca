@@ -140,7 +140,8 @@ class LucaCmd
       if dat.length == 1 and dat.first['balance'] == 0
         puts 'ⓘ Initial balance & records empty in the specified term.'
       else
-        LucaSupport::View.nushell(YAML.dump(dat))
+        column_ord = %w(date diff balance counter_code note code id no)
+        LucaSupport::View.nushell(dat, column_ord)
       end
     else
       puts YAML.dump(dat)

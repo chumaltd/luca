@@ -59,7 +59,7 @@ module LucaCmd
       when 'json'
         puts JSON.dump(dat)
       when 'nu'
-        LucaSupport::View.nushell(YAML.dump(dat))
+        LucaSupport::View.nushell(dat)
       else
         puts YAML.dump(dat)
       end

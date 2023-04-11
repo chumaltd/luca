@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'erb'
+require 'json'
 require 'open3'
 require 'pathname'
 
@@ -47,9 +48,16 @@ module LucaSupport
       nil
     end
 
-    def nushell(yml)
+    def nushell(records, columns=[])
+      return nil if records.is_a?(String)
+
       require 'open3'
-      Open3.pipeline_w(%(nu -c 'cat - | from yaml')) { |stdin| stdin.puts yml }
+      select = if columns.empty?
+                 ''
+               else
+                 '| select --ignore-errors ' + columns.map { |col| col.gsub(/[^a-zA-Z0-9_-]/, '') }.join(' ')
+               end
+      Open3.pipeline_w(%(nu -c 'cat - | from json #{select}')) { |stdin| stdin.puts JSON.dump(records) }
     end
   end
 end
