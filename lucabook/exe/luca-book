@@ -137,7 +137,11 @@ class LucaCmd
     when 'json'
       puts JSON.dump(dat)
     when 'nu'
-      LucaSupport::View.nushell(YAML.dump(dat))
+      if dat.length == 1 and dat.first['balance'] == 0
+        puts 'ⓘ Initial balance & records empty in the specified term.'
+      else
+        LucaSupport::View.nushell(YAML.dump(dat))
+      end
     else
       puts YAML.dump(dat)
     end
