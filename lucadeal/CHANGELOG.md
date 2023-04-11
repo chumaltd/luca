@@ -1,3 +1,7 @@
+## LucaDeal 0.4.1
+
+* Limit LucaRecord dependency '>= 0.5.4'
+
 ## LucaDeal 0.4.0
 
 * implement `luca-deal invoices print` for local HTML/PDF rendering.

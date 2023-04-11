@@ -36,9 +36,9 @@ module LucaCmd
     def self.list(args = nil, params = nil)
       if args
         args << 28 if args.length == 2 # specify safe last day
-        LucaSalary::Monthly.new(args.join('-')).report(params.dig('mode'))
+        render(LucaSalary::Monthly.new(args.join('-')).report(params.dig('mode')), params)
       else
-        LucaSalary::Monthly.new.report(params.dig('mode'))
+        render(LucaSalary::Monthly.new.report(params.dig('mode')), params)
       end
     end
 
@@ -114,8 +114,9 @@ when 'pay', /payments?/
     end
   when 'list'
     OptionParser.new do |opt|
-      opt.banner = 'Usage: luca-salary payments list [--mail] year month [date]'
+      opt.banner = 'Usage: luca-salary payments list [--mail|--nu] year month [date]'
       opt.on('--mail', 'send to managers') { |_v| params['mode'] = 'mail' }
+      opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
       args = opt.parse(ARGV)
       LucaCmd::Payment.list(args, params)
     end

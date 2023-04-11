@@ -48,7 +48,7 @@ module LucaSalary
         mail.text_part = YAML.dump(LucaSupport::Code.readable(data))
         LucaSupport::Mail.new(mail, @pjdir).deliver
       else
-        puts YAML.dump(LucaSupport::Code.readable(data))
+        LucaSupport::Code.readable(data)
       end
     end
 
