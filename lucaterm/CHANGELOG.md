@@ -1,3 +1,7 @@
+## LucaTerm 0.2.2
+
+* `luca book`: Basic Note edit('c' on detail screen).
+
 ## LucaTerm 0.2.1
 
 * `luca book` Fix: proper account code selection

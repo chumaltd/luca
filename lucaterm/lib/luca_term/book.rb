@@ -190,6 +190,11 @@ module LucaTerm
           record[position] << { code: new_code, amount: new_amount }
           debit_length = Array(record[:debit]).length
           credit_length = Array(record[:credit]).length
+        when 'c'
+          new_note = edit_note(record[:note])
+          next if new_note.nil?
+
+          record[:note] = new_note
         when KEY_CTRL_J
           position, counter = [0,1].include?(@d_h) ? [:debit, :credit] : [:credit, :debit]
           if [0, 2].include? @d_h
@@ -211,7 +216,7 @@ module LucaTerm
             LucaBook::Journal.create record
           end
           break
-        when 'q'
+        when 'q', 27
           break
         end
       end
@@ -226,6 +231,19 @@ module LucaTerm
         return nil if scmd.length == 0
         # TODO: guard from not number
         return scmd.to_i
+      rescue
+        return nil
+      end
+    end
+
+    # returns note after edit
+    #
+    def edit_note(current = nil)
+      msg = ''
+      begin
+        scmd = edit_dialog "Current: #{current&.to_s}", msg, title: 'Edit Note'
+        return nil if scmd.length == 0
+        return scmd
       rescue
         return nil
       end
@@ -322,7 +340,7 @@ module LucaTerm
           @active = active_dup
           sub.close
           return selected
-        when 'q'
+        when 'q', 27
           @visible = visible_dup
           @index = index_dup
           @active = active_dup
