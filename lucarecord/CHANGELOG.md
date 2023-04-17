@@ -1,3 +1,7 @@
+## LucaRecord 0.5.5
+
+* support JSON for `LucaRecord::Base.load_data()` w/ `@record_type = 'json'`
+
 ## LucaRecord 0.5.4
 
 * add `upsert()`

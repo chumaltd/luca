@@ -4,6 +4,7 @@ require 'bigdecimal'
 require 'csv'
 require 'date'
 require 'fileutils'
+require 'json'
 require 'yaml'
 require 'pathname'
 require 'luca_support/code'
@@ -427,14 +428,16 @@ module LucaRecord # :nodoc:
       # If specific decode is needed, override this method in each class.
       #
       def load_data(io, path = nil)
-        if @record_type
-          case @record_type
-          when 'json'
-            # TODO: implement JSON parse
-          end
-        else
-          LucaSupport::Code.decimalize(YAML.safe_load(io.read, permitted_classes: [Date])).tap { |obj| validate_keys(obj) }
-        end
+        raw_obj = if @record_type
+                    case @record_type
+                    when 'json'
+                      JSON.parse(io.read)
+                    end
+                  else
+                    YAML.safe_load(io.read, permitted_classes: [Date])
+                  end
+        LucaSupport::Code.decimalize(raw_obj)
+          .tap { |obj| validate_keys(obj) }
       end
 
       def validate_keys(obj)

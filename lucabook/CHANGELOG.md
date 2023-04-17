@@ -1,3 +1,7 @@
+## LucaBook master
+
+* Fix: Empty list on `--nu` option. Column order limited to journal list subcommand.
+
 ## LucaBook 0.4.4
 
 * Returns 1 line message on empty results for `luca-book journals list --nu`.

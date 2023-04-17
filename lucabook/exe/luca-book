@@ -20,6 +20,7 @@ class LucaCmd
 
     def self.list(args, params)
       args = gen_range(params[:n]) if args.empty?
+      params[:col_order] = %w(date diff balance counter_code note code id no)
       if params['code']
         if params['headers']
           render(LucaBook::ListByHeader.term(*args, code: params['code'], header: params['headers']).list_by_code, params)
@@ -140,8 +141,7 @@ class LucaCmd
       if dat.length == 1 and dat.first['balance'] == 0
         puts 'ⓘ Initial balance & records empty in the specified term.'
       else
-        column_ord = %w(date diff balance counter_code note code id no)
-        LucaSupport::View.nushell(dat, column_ord)
+        LucaSupport::View.nushell(dat, params[:col_order] || [])
       end
     else
       puts YAML.dump(dat)
