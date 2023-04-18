@@ -141,8 +141,10 @@ class LucaCmd
       if dat.length == 1 and dat.first['balance'] == 0
         puts 'ⓘ Initial balance & records empty in the specified term.'
       else
-        LucaSupport::View.nushell(dat, params[:col_order] || [])
+        LucaSupport::View.nushell(dat, :expand, params[:col_order] || [])
       end
+    when 'explore'
+      LucaSupport::View.nushell(dat, :explore, params[:col_order] || [])
     else
       puts YAML.dump(dat)
     end
@@ -189,6 +191,7 @@ when /journals?/, 'j'
       opt.on('--customer', 'categorize by x-customer header') { |_v| params['headers'] = 'x-customer' }
       opt.on('-n VAL', 'report count') { |v| params[:n] = v.to_i }
       opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
+      opt.on('--explore', 'explore table in nushell') { |_v| params[:output] = 'explore' }
       opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }
       opt.on('--html', 'output journals html') { |_v| params['render'] = :html }
       opt.on('--pdf', 'output journals PDF') { |_v| params['render'] = :pdf }
@@ -214,6 +217,7 @@ when /journals?/, 'j'
       opt.on('-r', '--recursive', 'include subaccounts') { |_v| params[:recursive] = true }
       opt.on('-n VAL', 'report count') { |v| params[:n] = v.to_i }
       opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
+      opt.on('--explore', 'explore table in nushell') { |_v| params[:output] = 'explore' }
       opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }
       args = opt.parse!(ARGV)
       LucaCmd::Journal.stats(args, params)

@@ -48,7 +48,10 @@ module LucaSupport
       nil
     end
 
-    def nushell(records, columns=[])
+    # render mode swithes nushell Viewer
+    # https://www.nushell.sh/commands/categories/viewers.html
+    #
+    def nushell(records, mode=:expand, columns=[])
       return nil if records.is_a?(String)
 
       require 'open3'
@@ -57,7 +60,15 @@ module LucaSupport
                else
                  '| select --ignore-errors ' + columns.map { |col| col.gsub(/[^a-zA-Z0-9_-]/, '') }.join(' ')
                end
-      Open3.pipeline_w(%(nu -c 'cat - | from json #{select}')) { |stdin| stdin.puts JSON.dump(records) }
+      render = case mode
+               when :explore
+                 'explore'
+               when :collapse
+                 'table -c'
+               else
+                 'table -e'
+               end
+      Open3.pipeline_w(%(nu -c 'cat - | from json #{select} | #{render}')) { |stdin| stdin.puts JSON.dump(records) }
     end
   end
 end

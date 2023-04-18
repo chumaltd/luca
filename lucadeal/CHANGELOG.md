@@ -1,3 +1,7 @@
+## LucaDeal master
+
+* `luca-deal custoer|invoice|fee list`, `luca-deal reports balance` supports interactive `--explore` w/nushell.
+
 ## LucaDeal 0.4.1
 
 * Limit LucaRecord dependency '>= 0.5.4'

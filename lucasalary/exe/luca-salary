@@ -60,6 +60,8 @@ module LucaCmd
         puts JSON.dump(dat)
       when 'nu'
         LucaSupport::View.nushell(dat)
+      when 'explore'
+        LucaSupport::View.nushell(dat, :explore)
       else
         puts YAML.dump(dat)
       end
@@ -114,9 +116,10 @@ when 'pay', /payments?/
     end
   when 'list'
     OptionParser.new do |opt|
-      opt.banner = 'Usage: luca-salary payments list [--mail|--nu] year month [date]'
+      opt.banner = 'Usage: luca-salary payments list [--mail|--nu|--explore] year month [date]'
       opt.on('--mail', 'send to managers') { |_v| params['mode'] = 'mail' }
       opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
+      opt.on('--explore', 'explore table in nushell') { |_v| params[:output] = 'explore' }
       args = opt.parse(ARGV)
       LucaCmd::Payment.list(args, params)
     end

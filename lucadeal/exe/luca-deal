@@ -274,7 +274,9 @@ class LucaCmd
     when 'json'
       puts JSON.dump(dat)
     when 'nu'
-      LucaSupport::View.nushell(dat)
+      LucaSupport::View.nushell(dat, :expand)
+    when 'explore'
+      LucaSupport::View.nushell(dat, :explore)
     when 'csv'
       str = CSV.generate(String.new, col_sep: "\t") do |row|
         row << dat.first.keys
@@ -309,6 +311,7 @@ when /customers?/
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-deal customers list [options]'
       opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
+      opt.on('--explore', 'explore table in nushell') { |_v| params[:output] = 'explore' }
       opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }
       args = opt.parse(ARGV)
       LucaCmd::Customer.list(args, params)
@@ -384,6 +387,7 @@ when /invoices?/, 'i'
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-deal invoices list [options] year month [date]'
       opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
+      opt.on('--explore', 'explore table in nushell') { |_v| params[:output] = 'explore' }
       opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }
       opt.on('--mail', 'send payment list by email') { |_v| params[:mail] = true }
       args = opt.parse(ARGV)
@@ -432,6 +436,7 @@ when /reports?/, 'r'
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-deal r[eports] balance [options] [year month]'
       opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
+      opt.on('--explore', 'explore table in nushell') { |_v| params[:output] = 'explore' }
       opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }
       opt.on('--detail', 'show detail info') { |_v| params[:detail] = true }
       opt.on('--force-due', 'respect due date over actual payment') { |_v| params[:due] = true }
@@ -470,6 +475,7 @@ when /fee/
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-deal fee list [options] year month [date]'
       opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
+      opt.on('--explore', 'explore table in nushell') { |_v| params[:output] = 'explore' }
       opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }
       opt.on('--html', 'output html invoices') { |_v| params[:html] = 'monthly' }
       args = opt.parse(ARGV)

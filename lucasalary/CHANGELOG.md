@@ -1,3 +1,7 @@
+## LucaSalary master
+
+* `luca-salary payment list` supports interactive `--explore` w/nushell.
+
 ## LucaSalary 0.1.28
 
 * BREAKING: `luca-salary payments total` directory structure changed. Upsert 1 record per 1 profile.

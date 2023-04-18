@@ -1,3 +1,7 @@
+## LucaRecord master
+
+* add Nushell render mode: expand(default) | collapse | explore(`less` like)
+
 ## LucaRecord 0.5.5
 
 * support JSON for `LucaRecord::Base.load_data()` w/ `@record_type = 'json'`
