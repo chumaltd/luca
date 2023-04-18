@@ -1,4 +1,4 @@
-## LucaSalary master
+## LucaSalary 0.1.29
 
 * `luca-salary payment list` supports interactive `--explore` w/nushell.
 

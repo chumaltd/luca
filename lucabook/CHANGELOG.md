@@ -1,4 +1,4 @@
-## LucaBook master
+## LucaBook 0.4.5
 
 * `luca-book journals list|stats` supports interactive `--explore` w/nushell.
 * Fix: Empty list on `--nu` option. Column order limited to journal list subcommand.

@@ -1,6 +1,7 @@
-## LucaRecord master
+## LucaRecord 0.5.6
 
 * add Nushell render mode: expand(default) | collapse | explore(`less` like)
+* add `LucaSupport::Code.take_history()`, listing all effective/defunct values.
 
 ## LucaRecord 0.5.5
 

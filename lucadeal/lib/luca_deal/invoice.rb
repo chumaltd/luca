@@ -150,7 +150,11 @@ module LucaDeal
     #
     def self.settle(io, payment_terms = 1)
       customers = {}.tap do |h|
-        Customer.all.each { |c| h[c['name']] = c }
+        Customer.all.each do |c|
+          LucaSupport::Code.take_history(c, 'name').each do |name|
+            h[name] = c
+          end
+        end
       end
       contracts = {}.tap do |h|
         Contract.all.each { |c| h[c['customer_id']] ||= []; h[c['customer_id']] << c }
@@ -181,6 +185,11 @@ module LucaDeal
               if Regexp.new("^LucaBook/#{j['id']}").match invoice.dig('settled', 'id')||''
                 break
               end
+              next if 0 >= [
+                  invoice.dig('subtotal', 0, 'items'),
+                  invoice.dig('subtotal', 0, 'tax'),
+                  invoice.dig('settled', 'amount')
+                ].compact.sum
 
               invoice['settled'] = {
                 'id' => "LucaBook/#{j['id']}",

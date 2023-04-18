@@ -1,6 +1,7 @@
-## LucaDeal master
+## LucaDeal 0.4.2
 
 * `luca-deal custoer|invoice|fee list`, `luca-deal reports balance` supports interactive `--explore` w/nushell.
+* `luca-deal invoices settle` checks already settled invoices and renamed customer.
 
 ## LucaDeal 0.4.1
 

@@ -180,7 +180,6 @@ module LucaSupport # :nodoc:
       end
     end
 
-    #
     # convert effective/defunct data into current hash on @date.
     # not parse nested children.
     #
@@ -219,6 +218,18 @@ module LucaSupport # :nodoc:
                  .max { |a, b| Date.parse(a['effective'].to_s) <=> Date.parse(b['effective'].to_s) }
 
       latest&.dig('val') || latest
+    end
+
+    # convert all effective/defunct data into Array
+    # not parse nested children.
+    #
+    def take_history(dat, item)
+      target = dat&.dig(item)
+      return Array(target) unless target.is_a?(Array)
+
+      target
+        .sort { |a, b| Date.parse(a['effective'].to_s) <=> Date.parse(b['effective'].to_s) }
+        .map { |a| a['val'] }
     end
 
     def has_status?(dat, status)
