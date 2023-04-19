@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 # frozen_string_literal: true
 
-unless Dir.exists?('data') || ARGV[0] == 'new'
+unless Dir.exist?('data') || ARGV[0] == 'new'
   target = 'customers'
   Dir.glob('*').reject { |f| File.symlink?(f) }
     .find { |f| File.directory?("#{f}/data/#{target}") }.tap do |d|
