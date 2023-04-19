@@ -1,3 +1,7 @@
+## LucaBook master
+
+* `luca-book` command now searches valid sub directory.
+
 ## LucaBook 0.4.5
 
 * `luca-book journals list|stats` supports interactive `--explore` w/nushell.

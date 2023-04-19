@@ -1,5 +1,6 @@
 ## LucaDeal master
 
+* `luca-deal` command now searches valid sub directory.
 * `luca-deal invoices list` has `--full` option with additional settlement info.
   * `--mail --full` lists unsettled table.
 
