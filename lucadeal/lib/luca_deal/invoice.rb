@@ -221,7 +221,7 @@ module LucaDeal
     #     total: 100000
     #     tax: 10000
     #
-    def stats(count = 1)
+    def stats(count = 1, mode: nil)
       [].tap do |collection|
         scan_date = @date.next_month
         count.times do
@@ -235,8 +235,13 @@ module LucaDeal
                 'subtotal' => amount,
                 'tax' => tax,
                 'due' => invoice.dig('due_date'),
-                'mail' => invoice.dig('status')&.select { |a| a.keys.include?('mail_delivered') }&.first
-              }
+                'mail' => invoice.dig('status')&.select { |a| a.keys.include?('mail_delivered') }&.first,
+              }.tap do |r|
+                if mode == 'full'
+                  r['settled'] = invoice.dig('settled', 'amount')
+                  r['settle_date'] = invoice.dig('settled', 'date')
+                end
+              end
             end
             stat['issue_date'] = scan_date.to_s
             stat['count'] = stat['records'].count
@@ -250,14 +255,25 @@ module LucaDeal
 
     # send payment list to preview address or from address.
     #
-    def stats_email
+    def stats_email(count = 3, mode: nil)
       {}.tap do |res|
-        stats(3).each.with_index(1) do |stat, i|
+        stats(count, mode: mode).each.with_index(1) do |stat, i|
           stat['records'].each do |record|
             res[record['customer']] ||= {}
             res[record['customer']]['customer_name'] ||= record['customer']
-            res[record['customer']]["amount#{i}"] ||= record['subtotal']
+            res[record['customer']]["amount#{i}"] ||= record['subtotal'].to_s
             res[record['customer']]["tax#{i}"] ||= record['tax']
+            next if mode != 'full' || ! record['settled']
+
+            diff = ['subtotal', 'tax', 'settled'].map { |k| record[k] }.compact.sum
+            mark = if diff == 0
+                     '[S]'
+                   elsif diff > 0
+                     '[P]'
+                   else
+                     '[O]'
+                   end
+            res[record['customer']]["amount#{i}"].insert(0, mark)
           end
           if i == 1
             @issue_date = stat['issue_date']
@@ -269,6 +285,16 @@ module LucaDeal
         @invoices = res.values
       end
       @company = CONFIG.dig('company', 'name')
+      @legend = if mode == 'full'
+                  '[S] Settled, [P] Partially settled, [O] Overpaid'
+                else
+                  ''
+                end
+      @unsettled = if mode == 'full'
+                     self.class.report(@date)
+                   else
+                     []
+                   end
 
       mail = Mail.new
       mail.to = CONFIG.dig('mail', 'preview') || CONFIG.dig('mail', 'from')

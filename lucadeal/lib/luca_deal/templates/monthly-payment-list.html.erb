@@ -50,5 +50,28 @@
                 </tr>
             </tbody>
         </table>
+        <div style="margin: 1em 0"><%= @legend %></div>
+
+        <% if ! @unsettled.empty? %>
+            <h3 style="margin: 1em 0">Unsettled</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Customer</th>
+                        <th>Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% @unsettled.each.with_index(1) do |record, i| %>
+                        <tr>
+                            <th><%= i %></th>
+                            <td><%= record['customer'] %></td>
+                            <td><%= record['unsettled'] %></td>
+                        </tr>
+                    <% end %>
+                </tbody>
+            </table>
+        <% end %>
     </body>
 </html>

@@ -1,3 +1,8 @@
+## LucaDeal master
+
+* `luca-deal invoices list` has `--full` option with additional settlement info.
+  * `--mail --full` lists unsettled table.
+
 ## LucaDeal 0.4.2
 
 * `luca-deal custoer|invoice|fee list`, `luca-deal reports balance` supports interactive `--explore` w/nushell.
