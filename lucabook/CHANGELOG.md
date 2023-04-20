@@ -1,4 +1,4 @@
-## LucaBook master
+## LucaBook 0.5.0
 
 * `luca-book` command now searches valid sub directory.
 

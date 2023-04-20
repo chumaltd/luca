@@ -1,4 +1,4 @@
-## LucaDeal master
+## LucaDeal 0.5.0
 
 * `luca-deal` command now searches valid sub directory.
 * `luca-deal invoices list` has `--full` option with additional settlement info.

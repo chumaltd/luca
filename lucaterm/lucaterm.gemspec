@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Chuma Takahiro']
   spec.email         = ['co.chuma@gmail.com']
 
-  spec.required_ruby_version = '>= 2.6.0'
+  spec.required_ruby_version = '>= 3.0.0'
 
   spec.summary       = %q{Terminal frontend for Luca Suite}
   spec.description   =<<~DESC
@@ -35,7 +35,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'curses'
   spec.add_dependency 'mb_string'
   spec.add_dependency 'lucabook'
-  spec.add_dependency 'lucarecord', '>= 0.3'
+  spec.add_dependency 'lucarecord', '>= 0.6'
 
   spec.add_development_dependency 'bundler', '>= 1.17'
   spec.add_development_dependency 'minitest', '~> 5.0'

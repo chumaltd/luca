@@ -1,4 +1,4 @@
-## LucaSalary master
+## LucaSalary 0.5.0
 
 * `luca-salary` command now searches valid sub directory.
 
