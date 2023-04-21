@@ -6,4 +6,5 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-RUN gem install lucasuite lucaterm mail
+# TODO: lucaterm requires native gem including curses.
+RUN gem install lucasuite mail
