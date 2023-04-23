@@ -1,3 +1,7 @@
+## LucaDeal master
+
+* Refine `luca-deal customer list` output: Limit columns to name, address and id.
+
 ## LucaDeal 0.5.0
 
 * `luca-deal` command now searches valid sub directory.

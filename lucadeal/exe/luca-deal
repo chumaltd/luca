@@ -67,6 +67,7 @@ class LucaCmd
     end
 
     def self.list(args = nil, params = {})
+      params[:col_order] = %w(name address id)
       render(LucaDeal::Customer.new.list_name, params)
     end
   end
@@ -284,7 +285,7 @@ class LucaCmd
     when 'json'
       puts JSON.dump(dat)
     when 'nu'
-      LucaSupport::View.nushell(dat, :expand)
+      LucaSupport::View.nushell(dat, :expand, params[:col_order] || [])
     when 'explore'
       LucaSupport::View.nushell(dat, :explore)
     when 'csv'
