@@ -1,3 +1,7 @@
+## LucaBook master
+
+* Abort on counter balance code not found when journal import.
+
 ## LucaBook 0.5.0
 
 * `luca-book` command now searches valid sub directory.

@@ -90,6 +90,8 @@ module LucaBook
       default_label = debit ? @config[:default_debit] : @config[:default_credit]
       code, options = search_code(row[@config[:label]], default_label, amount)
       counter_code = @code_map.dig(@config[:counter_label])
+      raise "No valid counter code found for label: #{@config[:counter_label] || 'No label specified'}" if counter_code.nil?
+
       if options
         x_customer = options[:'x-customer'] if options[:'x-customer']
         data, data_c = tax_extension(code, counter_code, amount, options) if respond_to? :tax_extension
