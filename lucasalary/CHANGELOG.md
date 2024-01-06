@@ -1,3 +1,8 @@
+## LucaSalary 0.6.0
+
+* BREAKING: monthly payment now passes calculation date to local modules.
+* BREAKING: year total calculation now passes profiles to local modules.
+
 ## LucaSalary 0.5.0
 
 * `luca-salary` command now searches valid sub directory.

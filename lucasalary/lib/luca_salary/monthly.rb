@@ -25,12 +25,12 @@ module LucaSalary
       country = @driver.new(@pjdir, @config, @date)
       # TODO: handle retirement
       LucaSalary::Profile.all do |profile|
-        current_profile = parse_current(profile)
+        current_profile = parse_current(Profile.find_secure(profile['id']))
         if self.class.search(@date.year, @date.month, @date.day, current_profile['id']).count > 0
           puts "payment record already exists: #{current_profile['id']}"
           return nil
         end
-        h = country.calc_payment(current_profile)
+        h = country.calc_payment(current_profile, @date)
         h['profile_id'] = current_profile['id']
         self.class.create(h, date: @date, codes: Array(current_profile['id']))
       end

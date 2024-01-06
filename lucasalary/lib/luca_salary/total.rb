@@ -29,17 +29,17 @@ module LucaSalary
         payment, _count = accumulate(slips)
         payment['id'] = id
         date = Date.new(year, 12, 31)
-        payment = local_convert(payment, date)
+        payment = local_convert(Profile.find_secure(id), payment, date)
         upsert(payment, basedir: "payments/total/#{year}#{LucaSupport::Code.encode_month(12)}")
       end
     end
 
-    def self.local_convert(payment, date)
+    def self.local_convert(profile, payment, date)
       return payment if CONFIG['country'].nil?
 
       require "luca_salary/#{CONFIG['country'].downcase}"
       klass = Kernel.const_get("LucaSalary::#{CONFIG['country'].capitalize}")
-      klass.year_total(payment, date)
+      klass.year_total(profile, payment, date)
     rescue NameError
       return payment
     end
