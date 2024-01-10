@@ -8,7 +8,7 @@ require 'json'
 require 'yaml'
 require 'pathname'
 require 'luca_support/code'
-require 'luca_support/config'
+require 'luca_support/const'
 
 module LucaRecord # :nodoc:
   # == IO
@@ -292,8 +292,20 @@ module LucaRecord # :nodoc:
         end
       end
 
+      def load_project(path)
+        CONST.set_pjdir(path)
+        begin
+          config = {
+            'decimal_separator' => '.',
+            'thousands_separator' => ','
+          }.merge(YAML.safe_load(File.read(Pathname(CONST.pjdir) / 'config.yml'), permitted_classes: [Date]))
+        end
+        config['decimal_num'] ||= config['country'] == 'jp' ? 0 : 2
+        CONST.set_config(config)
+      end
+
       # test if having required dirs/files under exec path
-      def valid_project?(path = LucaSupport::PJDIR)
+      def valid_project?(path = CONST.pjdir)
         project_dir = Pathname(path)
         FileTest.file?((project_dir + 'config.yml').to_s) and FileTest.directory?( (project_dir + 'data').to_s)
       end
@@ -452,7 +464,7 @@ module LucaRecord # :nodoc:
 
       # TODO: replace with data_dir method
       def abs_path(base_dir)
-        Pathname(LucaSupport::PJDIR) / 'data' / base_dir
+        Pathname(CONST.pjdir) / 'data' / base_dir
       end
 
       # True when file doesn't have record on code.

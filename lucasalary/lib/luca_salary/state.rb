@@ -14,7 +14,7 @@ module LucaSalary
       @count = count
       @start_date = start_d
       @end_date = end_d
-      @dict = LucaRecord::Dict.load_tsv_dict(Pathname(LucaSupport::PJDIR) / 'dict' / 'code.tsv')
+      @dict = LucaRecord::Dict.load_tsv_dict(Pathname(LucaRecord::CONST.pjdir) / 'dict' / 'code.tsv')
     end
 
     def self.range(from_year, from_month, to_year = from_year, to_month = from_month)

@@ -15,7 +15,7 @@ module LucaSalary
 
     def initialize(date = nil)
       @date = Date.parse(date)
-      @pjdir = Pathname(LucaSupport::PJDIR)
+      @pjdir = Pathname(LucaRecord::CONST.pjdir)
       @dict = LucaRecord::Dict.load_tsv_dict(@pjdir / 'dict' / 'code.tsv')
     end
 
@@ -51,8 +51,8 @@ module LucaSalary
     # `payment_term: 1` means payment on the next month of calculation target.
     #
     def export_json
-      accrual_date = if LucaSupport::CONFIG['payment_term']
-                       pt = LucaSupport::CONFIG['payment_term']
+      accrual_date = if LucaRecord::CONST.config['payment_term']
+                       pt = LucaRecord::CONST.config['payment_term']
                        Date.new(@date.prev_month(pt).year, @date.prev_month(pt).month, -1)
                      else
                        Date.new(@date.year, @date.month, -1)

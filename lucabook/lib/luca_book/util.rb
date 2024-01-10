@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'bigdecimal'
-require 'luca_support/config'
 
 module LucaBook
   module Util
@@ -45,7 +44,7 @@ module LucaBook
 
     def current_fy(date = nil, to: nil)
       date ||= Date.today
-      start_month = LucaSupport::CONFIG['fy_start']
+      start_month = CONST.config['fy_start']
       start_year = date.month >= start_month ? date.year : date.year - 1
       @start_date = Date.new(start_year, start_month, 1)
       @end_date = Date.new(start_year + 1, start_month - 1, -1)

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'luca_book/util'
-require 'luca_support/config'
+require 'luca_support/const'
 
 module LucaBook
   module Accumulator
@@ -38,7 +38,7 @@ module LucaBook
           res['10'] = sum_matched(report, /^[12][0-9A-Z]{2,}/)
           jp_4v = sum_matched(report, /^[4][V]{2,}/) # deferred assets for JP GAAP
           res['30'] = sum_matched(report, /^[34][0-9A-Z]{2,}/) - jp_4v
-          res['4V'] = jp_4v if LucaSupport::CONFIG['country'] == 'jp'
+          res['4V'] = jp_4v if LucaSupport::CONST.config['country'] == 'jp'
           res['50'] = sum_matched(report, /^[56][0-9A-Z]{2,}/)
           res['70'] = sum_matched(report, /^[78][0-9A-Z]{2,}/)
           res['91'] = sum_matched(report, /^91[0-9A-Z]{1,}/)

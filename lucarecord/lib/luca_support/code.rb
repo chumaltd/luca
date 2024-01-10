@@ -3,7 +3,7 @@
 require 'date'
 require 'securerandom'
 require 'digest/sha1'
-require 'luca_support/config'
+require 'luca_support/const'
 
 module LucaSupport # :nodoc:
   # implement Luca IDs convention
@@ -55,8 +55,8 @@ module LucaSupport # :nodoc:
     def delimit_num(num, decimal: nil, delimiter: nil)
       return nil if num.nil?
 
-      decimal ||= LucaSupport::CONFIG['decimal_num']
-      delimiter ||= LucaSupport::CONFIG['thousands_separator']
+      decimal ||= CONST.config['decimal_num']
+      delimiter ||= CONST.config['thousands_separator']
       case num
       when BigDecimal
         if decimal == 0
@@ -67,7 +67,7 @@ module LucaSupport # :nodoc:
           fragments[0].reverse!.gsub!(/(\d{3})(?=\d)/, '\1 ')
           fragments[0].reverse!.gsub!(/\s/, delimiter)
           fragments[1].gsub!(/(\d{3})(?=\d)/, '\1 ')
-          fragments.join(LucaSupport::CONFIG['decimal_separator'])
+          fragments.join(CONST.config['decimal_separator'])
         end
       else
         num.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\1 ').reverse!
@@ -162,7 +162,7 @@ module LucaSupport # :nodoc:
       end
     end
 
-    def readable(obj, len = LucaSupport::CONFIG['decimal_num'])
+    def readable(obj, len = CONST.config['decimal_num'])
       case obj
       when Array
         obj.map { |i| readable(i) }

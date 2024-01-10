@@ -3,8 +3,6 @@
 module LucaSupport
   autoload :Code, 'luca_support/code'
   autoload :Enc, 'luca_support/enc'
-  autoload :CONFIG, 'luca_support/config'
-  autoload :Config, 'luca_support/config'
   autoload :Mail, 'luca_support/mail'
   autoload :View, 'luca_support/view'
 end

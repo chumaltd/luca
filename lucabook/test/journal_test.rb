@@ -6,8 +6,8 @@ class LucaBook::JournalTest < Minitest::Test
   include LucaRecord::IO
 
   def setup
-    FileUtils.chdir(LucaSupport::PJDIR)
-    LucaBook::Setup.create_project(LucaSupport::PJDIR)
+    FileUtils.chdir(LucaSupport::CONST.pjdir)
+    LucaBook::Setup.create_project(LucaSupport::CONST.pjdir)
   end
 
   def teardown

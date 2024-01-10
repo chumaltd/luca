@@ -7,7 +7,7 @@ require 'luca_support'
 require 'luca_record'
 
 begin
-  require "luca_book/import_#{LucaSupport::CONFIG['country']}"
+  require "luca_book/import_#{LucaSupport::CONST.config['country']}"
 rescue LoadError => e
   e.message
 end

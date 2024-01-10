@@ -126,7 +126,7 @@ module LucaRecord
     end
 
     def self.dict_path(filename)
-      Pathname(LucaSupport::PJDIR) / 'dict' / filename
+      Pathname(CONST.pjdir) / 'dict' / filename
     end
 
     def self.reverse(dict)

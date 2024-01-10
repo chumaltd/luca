@@ -1,19 +1,12 @@
 #!/usr/bin/ruby
 # frozen_string_literal: true
 
-unless Dir.exist?('data') || ARGV[0] == 'new'
-  target = 'customers'
-  Dir.glob('*').reject { |f| File.symlink?(f) }
-    .find { |f| File.directory?("#{f}/data/#{target}") }.tap do |d|
-    abort "No valid data directory, exit..." if d.nil?
-
-    Dir.chdir(d)
-  end
-end
+REQUIRED_DIR='customers'
 
 require 'date'
 require 'optparse'
 require 'luca_deal'
+require 'luca_cmd'
 
 class LucaCmd
   class Customer < LucaCmd
@@ -304,7 +297,6 @@ def new_pj(args = nil, params = {})
   LucaDeal::Setup.create_project args[0]
 end
 
-LucaRecord::Base.valid_project?
 cmd = ARGV.shift
 params = {}
 
@@ -316,7 +308,9 @@ when /customers?/
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-deal customers create CustomerName'
       args = opt.parse(ARGV)
-      LucaCmd::Customer.create(args, params)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Customer.create(args, params)
+      end
     end
   when 'list'
     OptionParser.new do |opt|
@@ -325,7 +319,9 @@ when /customers?/
       opt.on('--explore', 'explore table in nushell') { |_v| params[:output] = 'explore' }
       opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }
       args = opt.parse(ARGV)
-      LucaCmd::Customer.list(args, params)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Customer.list(args, params)
+      end
     end
   when 'describe'
     OptionParser.new do |opt|
@@ -333,10 +329,14 @@ when /customers?/
       opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
       opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }
       args = opt.parse(ARGV)
-      LucaCmd::Customer.describe(args, params)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Customer.describe(args, params)
+      end
     end
   when 'delete'
-    LucaCmd::Customer.delete(ARGV)
+    LucaCmd.check_dir(REQUIRED_DIR) do
+      LucaCmd::Customer.delete(ARGV)
+    end
   else
     puts 'Proper subcommand needed.'
     puts
@@ -357,7 +357,9 @@ when /contracts?/
         params['category'] = 'sales_fee'
       end
       args = opt.parse(ARGV)
-      LucaCmd::Contract.create(args, params)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Contract.create(args, params)
+      end
     end
   when 'describe'
     OptionParser.new do |opt|
@@ -365,10 +367,14 @@ when /contracts?/
       opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
       opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }
       args = opt.parse(ARGV)
-      LucaCmd::Contract.describe(args, params)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Contract.describe(args, params)
+      end
     end
   when 'delete'
-    LucaCmd::Contract.delete(ARGV)
+    LucaCmd.check_dir(REQUIRED_DIR) do
+      LucaCmd::Contract.delete(ARGV)
+    end
   else
     puts 'Proper subcommand needed.'
     puts
@@ -379,7 +385,9 @@ when /contracts?/
     exit 1
   end
 when 'export'
-  LucaCmd::Invoice.export(ARGV)
+  LucaCmd.check_dir(REQUIRED_DIR) do
+    LucaCmd::Invoice.export(ARGV)
+  end
 when /invoices?/, 'i'
   subcmd = ARGV.shift
   case subcmd
@@ -390,10 +398,14 @@ when /invoices?/, 'i'
       opt.on('--monthly', 'generate monthly data') { |_v| params[:mode] = 'monthly' }
       opt.on('--with-fee', 'generate sales fee data after monthly invoice creation') { |_v| params[:fee] = true }
       args = opt.parse(ARGV)
-      LucaCmd::Invoice.create(args, params)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Invoice.create(args, params)
+      end
     end
   when 'delete'
-    LucaCmd::Invoice.delete(ARGV)
+    LucaCmd.check_dir(REQUIRED_DIR) do
+      LucaCmd::Invoice.delete(ARGV)
+    end
   when 'list'
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-deal invoices list [options] year month [date]'
@@ -403,7 +415,9 @@ when /invoices?/, 'i'
       opt.on('--mail', 'send payment list by email') { |_v| params[:mail] = true }
       opt.on('--full', 'add settlement info') { |_v| params[:mode] = 'full' }
       args = opt.parse(ARGV)
-      LucaCmd::Invoice.list(args, params)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Invoice.list(args, params)
+      end
     end
   when 'mail'
     OptionParser.new do |opt|
@@ -417,7 +431,9 @@ when /invoices?/, 'i'
       opt.banner = 'Usage: luca-deal invoices print [options] <invoice_id | year month>'
       opt.on('--pdf', 'output PDF invoices. wkhtmlpdf is required') { |_v| params[:output] = :pdf }
       args = opt.parse(ARGV)
-      LucaCmd::Invoice.print(args, params)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Invoice.print(args, params)
+      end
     end
   when 'settle'
     params[:term] = 1
@@ -425,7 +441,9 @@ when /invoices?/, 'i'
       opt.banner = 'Usage: luca-deal invoices settle [filepath]'
       opt.on('--search-term VAL', 'search invoice N months before payment date. default: 1') { |v| params[:term] = v.to_i }
       args = opt.parse(ARGV)
-      LucaCmd::Invoice.settle(args, params)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Invoice.settle(args, params)
+      end
     end
   else
     puts 'Proper subcommand needed.'
@@ -453,7 +471,9 @@ when /reports?/, 'r'
       opt.on('--detail', 'show detail info') { |_v| params[:detail] = true }
       opt.on('--force-due', 'respect due date over actual payment') { |_v| params[:due] = true }
       args = opt.parse(ARGV)
-      LucaCmd::Invoice.report(args, params)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Invoice.report(args, params)
+      end
     end
   else
     puts 'Proper subcommand needed.'
@@ -477,12 +497,18 @@ when /fee/
       opt.banner = 'Usage: luca-deal fee create [options] year month [date]'
       opt.on('--monthly', 'generate monthly data') { |_v| params[:mode] = 'monthly' }
       args = opt.parse(ARGV)
-      LucaCmd::Fee.create(args, params)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Fee.create(args, params)
+      end
     end
   when 'delete'
-    LucaCmd::Fee.delete(ARGV)
+    LucaCmd.check_dir(REQUIRED_DIR) do
+      LucaCmd::Fee.delete(ARGV)
+    end
   when 'export'
-    LucaCmd::Fee.export(ARGV)
+    LucaCmd.check_dir(REQUIRED_DIR) do
+      LucaCmd::Fee.export(ARGV)
+    end
   when 'list'
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-deal fee list [options] year month [date]'
@@ -491,14 +517,18 @@ when /fee/
       opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }
       opt.on('--html', 'output html invoices') { |_v| params[:html] = 'monthly' }
       args = opt.parse(ARGV)
-      LucaCmd::Fee.list(args, params)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Fee.list(args, params)
+      end
     end
   when 'mail'
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-deal fee mail [options] year month [date]'
       opt.on('--preview', 'send to preview user') { |_v| params['mode'] = 'preview' }
       args = opt.parse(ARGV)
-      LucaCmd::Fee.mail(args, params)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Fee.mail(args, params)
+      end
     end
   else
     puts 'Proper subcommand needed.'
@@ -510,6 +540,9 @@ when /fee/
     puts '  mail: send mail with report'
     exit 1
   end
+when 'version'
+  puts "luca-deal: version #{LucaDeal::VERSION}"
+  exit 0
 else
   puts 'Proper subcommand needed.'
   puts

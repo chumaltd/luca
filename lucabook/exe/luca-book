@@ -1,19 +1,12 @@
 #!/usr/bin/ruby
 # frozen_string_literal: true
 
-unless Dir.exist?('data') || ARGV[0] == 'new'
-  target = 'journals'
-  Dir.glob('*').reject { |f| File.symlink?(f) }
-    .find { |f| File.directory?("#{f}/data/#{target}") }.tap do |d|
-    abort "No valid data directory, exit..." if d.nil?
-
-    Dir.chdir(d)
-  end
-end
+REQUIRED_DIR='journals'
 
 require 'json'
 require 'optparse'
 require 'luca_book'
+require 'luca_cmd'
 
 class LucaCmd
   class Journal < LucaCmd
@@ -135,12 +128,12 @@ class LucaCmd
       start = today.prev_month(count - 1)
       [start.year, start.month, today.year, today.month]
     else
-      start_year = if today.month >= LucaSupport::CONFIG['fy_start'].to_i
+      start_year = if today.month >= LucaSupport::CONST.config['fy_start'].to_i
                      today.year
                    else
                      today.year - 1
                    end
-      [start_year, LucaSupport::CONFIG['fy_start'], start_year + 1, LucaSupport::CONFIG['fy_start'].to_i - 1]
+      [start_year, LucaSupport::CONST.config['fy_start'], start_year + 1, LucaSupport::CONST.config['fy_start'].to_i - 1]
     end
   end
 
@@ -177,7 +170,7 @@ def new_pj(args = nil, params = {})
   LucaBook::Setup.create_project params['country'], args[0]
 end
 
-LucaRecord::Base.valid_project?
+#LucaRecord::Base.valid_project?
 cmd = ARGV.shift
 params = {}
 
@@ -191,7 +184,9 @@ when /journals?/, 'j'
       opt.on('-c', '--config VAL', 'import definition'){ |v| params['config'] = v }
       opt.on('-j', '--json', 'import via json format'){ |_v| params['json'] = true }
       args = opt.parse!(ARGV)
-      LucaCmd::Journal.import(args, params)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Journal.import(args, params)
+      end
     end
   when 'list'
     params[:recursive] = false
@@ -208,7 +203,9 @@ when /journals?/, 'j'
       opt.on('--pdf', 'output journals PDF') { |_v| params['render'] = :pdf }
       opt.on_tail('List records. If you specify code and/or month, search on each criteria.')
       args = opt.parse!(ARGV)
-      LucaCmd::Journal.list(args, params)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Journal.list(args, params)
+      end
     end
   when 'set'
     OptionParser.new do |opt|
@@ -218,7 +215,9 @@ when /journals?/, 'j'
       opt.on('--val VAL', 'header value') { |v| params[:value] = v }
       opt.on_tail('set header to journals on specified code.')
       args = opt.parse!(ARGV)
-      LucaCmd::Journal.add_header(args, params)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Journal.add_header(args, params)
+      end
     end
   when 'stats'
     params[:recursive] = false
@@ -231,7 +230,9 @@ when /journals?/, 'j'
       opt.on('--explore', 'explore table in nushell') { |_v| params[:output] = 'explore' }
       opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }
       args = opt.parse!(ARGV)
-      LucaCmd::Journal.stats(args, params)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Journal.stats(args, params)
+      end
     end
   else
     puts 'Proper subcommand needed.'
@@ -259,7 +260,9 @@ when /reports?/, 'r'
       opt.on('-o VAL', '--output VAL', 'specify file name') { |v| params[:output] = v }
       opt.on('--lastyear', 'report last Financial Year') { |_v| params[:lastyear] = true }
       args = opt.parse!(ARGV)
-      LucaCmd::Report.xbrl(args, params)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Report.xbrl(args, params)
+      end
     end
   when 'bs'
     OptionParser.new do |opt|
@@ -270,7 +273,9 @@ when /reports?/, 'r'
       opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
       opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }
       args = opt.parse!(ARGV)
-      LucaCmd::Report.balancesheet(args, params)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Report.balancesheet(args, params)
+      end
     end
   when 'pl'
     OptionParser.new do |opt|
@@ -281,7 +286,9 @@ when /reports?/, 'r'
       opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
       opt.on('-o', '--output VAL', 'output serialized data') { |v| params[:output] = v }
       args = opt.parse!(ARGV)
-      LucaCmd::Report.profitloss(args, params)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Report.profitloss(args, params)
+      end
     end
   when 'mail'
     OptionParser.new do |opt|
@@ -290,7 +297,9 @@ when /reports?/, 'r'
       opt.on('--fy', 'adjust start date to Financial Year') { |_v| params[:financialyear] = true }
       opt.on('-n VAL', 'report count') { |v| params[:n] = v.to_i }
       args = opt.parse!(ARGV)
-      LucaCmd::Report.report_mail(args, params)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Report.report_mail(args, params)
+      end
     end
   else
     puts 'Proper subcommand needed.'
@@ -309,15 +318,22 @@ when /balance/
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-book balance update YYYY [M]'
       args = opt.parse!(ARGV)
-      LucaCmd::Dict.update_balance(args, params)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Dict.update_balance(args, params)
+      end
     end
   when 'export'
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-book balance export YYYY M d'
       args = opt.parse!(ARGV)
-      LucaCmd::Dict.export_balance(args, params)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Dict.export_balance(args, params)
+      end
     end
   end
+when 'version'
+  puts "luca-book: version #{LucaBook::VERSION}"
+  exit 0
 else
   puts 'Proper subcommand needed.'
   puts

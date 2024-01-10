@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'test_helper'
+require 'luca_support/const'
 
 class SampleRecord < LucaRecord::Base
   @dirname = 'samples'
@@ -10,8 +11,8 @@ class LucaRecord::IoWriteTest < Minitest::Test
   include LucaRecord::IO
 
   def setup
-    FileUtils.chdir(LucaSupport::PJDIR)
-    LucaDeal::Setup.create_project(LucaSupport::PJDIR)
+    FileUtils.chdir(LucaSupport::CONST.pjdir)
+    create_project(LucaSupport::CONST.pjdir)
   end
 
   def teardown

@@ -1,23 +1,16 @@
 #!/usr/bin/ruby
 # frozen_string_literal: true
 
-unless Dir.exist?('data') || ARGV[0] == 'new'
-  target = 'profiles'
-  Dir.glob('*').reject { |f| File.symlink?(f) }
-    .find { |f| File.directory?("#{f}/data/#{target}") }.tap do |d|
-    abort "No valid data directory, exit..." if d.nil?
-
-    Dir.chdir(d)
-  end
-end
+REQUIRED_DIR='profiles'
 
 require 'json'
 require 'optparse'
 require 'luca_salary'
 require 'luca_salary/monthly'
 require 'luca_support' #TODO: test use only
+require 'luca_cmd'
 
-module LucaCmd
+class LucaCmd
   class Profile
     def self.create(args = nil, _params = nil)
       LucaSalary::Profile.gen_profile!(args.first)
@@ -79,7 +72,6 @@ module LucaCmd
   end
 end
 
-LucaRecord::Base.valid_project?
 cmd = ARGV.shift
 params = {}
 
@@ -91,7 +83,9 @@ when /profiles?/
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-salary profiles create Name'
       args = opt.parse(ARGV)
-      LucaCmd::Profile.create(args)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Profile.create(args)
+      end
     end
   else
     puts 'Proper subcommand needed.'
@@ -105,16 +99,22 @@ when 'enc', 'encrypt'
     opt.banner = 'Usage: luca-salary enc|encrypt'
     opt.on('--clean', 'remove plain directory') { |_v| params[:clean] = true }
     args = opt.parse(ARGV)
-    LucaSupport::Enc.encrypt("s_profiles", cleanup: params[:clean])
+    LucaCmd.check_dir(REQUIRED_DIR) do
+      LucaSupport::Enc.encrypt("s_profiles", cleanup: params[:clean])
+    end
   end
 when 'dec', 'decrypt'
   OptionParser.new do |opt|
     opt.banner = 'Usage: luca-salary dec|decrypt'
     args = opt.parse(ARGV)
-    LucaSupport::Enc.decrypt("s_profiles")
+    LucaCmd.check_dir(REQUIRED_DIR) do
+      LucaSupport::Enc.decrypt("s_profiles")
+    end
   end
 when 'export'
-  LucaCmd::Payment.export(ARGV)
+  LucaCmd.check_dir(REQUIRED_DIR) do
+    LucaCmd::Payment.export(ARGV)
+  end
 when 'pay', /payments?/
   subcmd = ARGV.shift
   case subcmd
@@ -122,7 +122,9 @@ when 'pay', /payments?/
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-salary payments create year month [date]'
       args = opt.parse(ARGV)
-      LucaCmd::Payment.create(args)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Payment.create(args)
+      end
     end
   when 'list'
     OptionParser.new do |opt|
@@ -131,21 +133,27 @@ when 'pay', /payments?/
       opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
       opt.on('--explore', 'explore table in nushell') { |_v| params[:output] = 'explore' }
       args = opt.parse(ARGV)
-      LucaCmd::Payment.list(args, params)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Payment.list(args, params)
+      end
     end
   when 'report'
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-salary payments report [--nu] year month [year month]'
       opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
       args = opt.parse(ARGV)
-      LucaCmd::Payment.report(args, params)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Payment.report(args, params)
+      end
     end
   when 'total'
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-salary payments total [--adjust] year [month]'
       opt.on('--adjust', 'Apply year total adjustment to payslip of year/month') { |_v| params['mode'] = 'adjust' }
       args = opt.parse(ARGV)
-      LucaCmd::Payment.total(args, params)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Payment.total(args, params)
+      end
     end
   else
     puts 'Proper subcommand needed.'
@@ -153,6 +161,9 @@ when 'pay', /payments?/
     puts 'Usage: luca-salary payment[s] (create|list) [--help|options]'
     exit 1
   end
+when 'version'
+  puts "luca-salary: version #{LucaSalary::VERSION}"
+  exit 0
 else
   puts 'Proper subcommand needed.'
   puts

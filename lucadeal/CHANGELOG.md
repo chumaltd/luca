@@ -1,6 +1,9 @@
-## LucaDeal master
+## LucaDeal 0.5.1
 
 * Refine `luca-deal customer list` output: Limit columns to name, address and id.
+* Reworked global constants w/LucaRecord v0.7
+* Removed bundler from test suite avoiding casual native build
+* add `luca-deal version` subcommand
 
 ## LucaDeal 0.5.0
 

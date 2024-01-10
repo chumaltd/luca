@@ -1,3 +1,7 @@
+## LucaTerm master
+
+* Removed bundler from test suite avoiding casual native build
+
 ## LucaTerm 0.2.2
 
 * `luca book`: Basic Note edit('c' on detail screen).

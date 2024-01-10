@@ -54,11 +54,11 @@ module LucaSalary
     private
 
     def load_dict
-      LucaRecord::Dict.load_tsv_dict(Pathname(PJDIR) / 'dict' / 'code.tsv')
+      LucaRecord::Dict.load_tsv_dict(Pathname(LucaRecord::CONST.pjdir) / 'dict' / 'code.tsv')
     end
 
     def set_driver
-      code = CONFIG['country']
+      code = LucaRecord::CONST.config['country']
       if code
         require "luca_salary/#{code.downcase}"
         Kernel.const_get "LucaSalary::#{code.capitalize}"

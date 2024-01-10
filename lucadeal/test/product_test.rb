@@ -6,8 +6,8 @@ class LucaDeal::ProductTest < Minitest::Test
   include LucaRecord::IO
 
   def setup
-    FileUtils.chdir(LucaSupport::PJDIR)
-    LucaDeal::Setup.create_project(LucaSupport::PJDIR)
+    FileUtils.chdir(LucaSupport::CONST.pjdir)
+    LucaDeal::Setup.create_project(LucaSupport::CONST.pjdir)
   end
 
   def teardown

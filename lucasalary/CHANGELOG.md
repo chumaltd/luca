@@ -1,3 +1,9 @@
+## LucaSalary 0.6.1
+
+* Reworked global constants w/LucaRecord v0.7
+* Removed bundler from test suite avoiding casual native build
+* add `luca-salary version` subcommand
+
 ## LucaSalary 0.6.0
 
 * BREAKING: monthly payment now passes calculation date to local modules.

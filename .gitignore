@@ -6,7 +6,7 @@ Gemfile.lock
 /.bundle/
 /.yardoc
 /_yardoc/
-/coverage/
+coverage/
 /InstalledFiles
 /pkg/
 /spec/reports/

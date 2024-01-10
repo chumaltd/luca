@@ -6,8 +6,8 @@ class LucaBook::DictTest < Minitest::Test
   include LucaRecord::IO
 
   def setup
-    FileUtils.chdir(LucaSupport::PJDIR)
-    LucaBook::Setup.create_project(LucaSupport::PJDIR)
+    FileUtils.chdir(LucaSupport::CONST.pjdir)
+    LucaBook::Setup.create_project(LucaSupport::CONST.pjdir)
     deploy('import-bank1.yaml', 'dict')
     deploy('sample-bankstatement.csv')
   end

@@ -6,7 +6,6 @@ require 'yaml'
 require 'pathname'
 require 'bigdecimal'
 require 'luca_support/code'
-require 'luca_support/config'
 require 'luca_support/mail'
 require 'luca_deal/contract'
 require 'luca_record'
@@ -69,9 +68,9 @@ module LucaDeal
 
       mail = Mail.new
       mail.to = dat.dig('customer', 'to') if mode.nil?
-      mail.subject = CONFIG.dig('invoice', 'mail_subject') || 'Your Invoice is available'
+      mail.subject = LucaRecord::CONST.config.dig('invoice', 'mail_subject') || 'Your Invoice is available'
       if mode == :preview
-        mail.cc = CONFIG.dig('mail', 'preview') || CONFIG.dig('mail', 'from')
+        mail.cc = LucaRecord::CONST.config.dig('mail', 'preview') || LucaRecord::CONST.config.dig('mail', 'from')
         mail.subject = '[preview] ' + mail.subject
       end
       mail.text_part = Mail::Part.new(body: render_erb(search_template('invoice-mail.txt.erb')), charset: 'UTF-8')
@@ -284,7 +283,7 @@ module LucaDeal
         end
         @invoices = res.values
       end
-      @company = CONFIG.dig('company', 'name')
+      @company = LucaRecord::CONST.config.dig('company', 'name')
       @legend = if mode == 'full'
                   '[S] Settled, [P] Partially settled, [O] Overpaid'
                 else
@@ -297,10 +296,10 @@ module LucaDeal
                    end
 
       mail = Mail.new
-      mail.to = CONFIG.dig('mail', 'preview') || CONFIG.dig('mail', 'from')
+      mail.to = LucaRecord::CONST.config.dig('mail', 'preview') || LucaRecord::CONST.config.dig('mail', 'from')
       mail.subject = 'Check monthly payment list'
       mail.html_part = Mail::Part.new(body: render_erb(search_template('monthly-payment-list.html.erb')), content_type: 'text/html; charset=UTF-8')
-      LucaSupport::Mail.new(mail, PJDIR).deliver
+      LucaSupport::Mail.new(mail, LucaRecord::CONST.pjdir).deliver
     end
 
     def export_json
@@ -421,9 +420,9 @@ module LucaDeal
     end
 
     def deliver_one(invoice, path, mode: nil, attachment_type: nil)
-      attachment_type ||= CONFIG.dig('invoice', 'attachment') || :html
+      attachment_type ||= LucaRecord::CONST.config.dig('invoice', 'attachment') || :html
       mail = compose_mail(invoice, mode: mode, attachment: attachment_type.to_sym)
-      LucaSupport::Mail.new(mail, PJDIR).deliver
+      LucaSupport::Mail.new(mail, LucaRecord::CONST.pjdir).deliver
       self.class.add_status!(path, 'mail_delivered') if mode.nil?
     end
 
@@ -431,10 +430,10 @@ module LucaDeal
       __dir__
     end
 
-    # TODO: load labels from CONFIG before country defaults
+    # TODO: load labels from LucaRecord::CONST.config before country defaults
     #
     def export_labels
-      case CONFIG['country']
+      case LucaRecord::CONST.config['country']
       when 'jp'
         {
           debit: { items: '売掛金', tax: '売掛金' },
@@ -452,9 +451,9 @@ module LucaDeal
     #
     def set_company
       {}.tap do |h|
-        h['name'] = CONFIG.dig('company', 'name')
-        h['address'] = CONFIG.dig('company', 'address')
-        h['address2'] = CONFIG.dig('company', 'address2')
+        h['name'] = LucaRecord::CONST.config.dig('company', 'name')
+        h['address'] = LucaRecord::CONST.config.dig('company', 'address')
+        h['address2'] = LucaRecord::CONST.config.dig('company', 'address2')
       end
     end
 
@@ -477,9 +476,9 @@ module LucaDeal
     # load Tax Rate from config.
     #
     def load_tax_rate(name)
-      return 0 if CONFIG.dig('tax_rate', name).nil?
+      return 0 if LucaRecord::CONST.config.dig('tax_rate', name).nil?
 
-      BigDecimal(take_current(CONFIG['tax_rate'], name).to_s)
+      BigDecimal(take_current(LucaRecord::CONST.config['tax_rate'], name).to_s)
     end
 
     def attachment_name(dat, type)

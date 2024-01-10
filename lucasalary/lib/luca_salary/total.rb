@@ -19,7 +19,7 @@ module LucaSalary
         slip['profile'] = parse_current(Profile.find_secure(slip['id']))
         slip
       end
-      @dict = LucaRecord::Dict.load_tsv_dict(Pathname(LucaSupport::PJDIR) / 'dict' / 'code.tsv')
+      @dict = LucaRecord::Dict.load_tsv_dict(Pathname(LucaRecord::CONST.pjdir) / 'dict' / 'code.tsv')
     end
 
     def self.accumulator(year)
@@ -35,10 +35,10 @@ module LucaSalary
     end
 
     def self.local_convert(profile, payment, date)
-      return payment if CONFIG['country'].nil?
+      return payment if LucaRecord::CONST.config['country'].nil?
 
-      require "luca_salary/#{CONFIG['country'].downcase}"
-      klass = Kernel.const_get("LucaSalary::#{CONFIG['country'].capitalize}")
+      require "luca_salary/#{LucaRecord::CONST.config['country'].downcase}"
+      klass = Kernel.const_get("LucaSalary::#{LucaRecord::CONST.config['country'].capitalize}")
       klass.year_total(profile, payment, date)
     rescue NameError
       return payment

@@ -6,7 +6,7 @@ require 'fileutils'
 module LucaBook
   class Setup
     # create project skeleton under specified directory
-    def self.create_project(country = nil, dir = LucaSupport::PJDIR)
+    def self.create_project(country = nil, dir = LucaSupport::CONST.pjdir)
       FileUtils.mkdir_p(dir) unless Dir.exist?(dir)
       Dir.chdir(dir) do
         %w[data/journals data/balance dict].each do |subdir|

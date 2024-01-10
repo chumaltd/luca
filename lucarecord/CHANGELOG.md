@@ -1,3 +1,11 @@
+## LucaRecord 0.7.0
+
+Reworked global constants to be singleton Class instance:
+
+* Breaking change: LucaSupport::CONFIG is now LucaSupport::CONST.config
+* Breaking change: LucaSupport::PJDIR is now LucaSupport::CONST.pjdir
+* Removed bundler from test suite avoiding casual native build
+
 ## LucaRecord 0.5.6
 
 * add Nushell render mode: expand(default) | collapse | explore(`less` like)

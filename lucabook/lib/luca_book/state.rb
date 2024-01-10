@@ -116,7 +116,7 @@ module LucaBook
 
     # TODO: pl/bs may not be immutable
     def report_mail(level = 3)
-      @company = CONFIG.dig('company', 'name')
+      @company = LucaSupport::CONST.config.dig('company', 'name')
       {}.tap do |res|
         pl(level).reverse.each do |month|
           month.each do |k, v|
@@ -130,10 +130,10 @@ module LucaBook
       @bs = bs
 
       mail = Mail.new
-      mail.to = CONFIG.dig('mail', 'preview') || CONFIG.dig('mail', 'from')
+      mail.to = LucaSupport::CONST.config.dig('mail', 'preview') || LucaSupport.CONST.config.dig('mail', 'from')
       mail.subject = 'Financial Report available'
       mail.html_part = Mail::Part.new(body: render_erb(search_template('monthly-report.html.erb')), content_type: 'text/html; charset=UTF-8')
-      LucaSupport::Mail.new(mail, PJDIR).deliver
+      LucaSupport::Mail.new(mail, LucaSupport.CONST.pjdir).deliver
     end
 
     def bs(level = 3, legal: false)
@@ -217,13 +217,13 @@ module LucaBook
         h[k] = BigDecimal(v[:balance].to_s) if v[:balance]
         h[k] ||= BigDecimal('0') if k.length == 2
       end
-      if month == CONFIG['fy_start'].to_i
+      if month == LucaSupport::CONST.config['fy_start'].to_i
         return recursive ? total_subaccount(base) : base
       end
 
       pre_last = start_date.prev_month
-      year -= 1 if month <= CONFIG['fy_start'].to_i
-      pre = accumulate_term(year, CONFIG['fy_start'], pre_last.year, pre_last.month)
+      year -= 1 if month <= LucaSupport::CONST.config['fy_start'].to_i
+      pre = accumulate_term(year, LucaSupport::CONST.config['fy_start'], pre_last.year, pre_last.month)
       total = {}.tap do |h|
         (pre.keys + base.keys).uniq.each do |k|
           h[k] = (base[k] || BigDecimal('0')) + (pre[k] || BigDecimal('0'))
@@ -235,8 +235,8 @@ module LucaBook
     def render_xbrl(filename = nil)
       set_bs(3, legal: true)
       set_pl(3)
-      country_suffix = CONFIG['country'] || 'en'
-      @company = CGI.escapeHTML(CONFIG.dig('company', 'name'))
+      country_suffix = LucaSupport::CONST.config['country'] || 'en'
+      @company = CGI.escapeHTML(LucaSupport::CONST.config.dig('company', 'name'))
       @balance_sheet_selected = 'true'
       @pl_selected = 'true'
       @capital_change_selected = 'true'
@@ -263,11 +263,11 @@ module LucaBook
       return nil if readable(amount).zero? && prior_amount.nil?
 
       prior = if prior_amount.nil?
-                /^[9]/.match(code) ? "<#{tag} decimals=\"0\" unitRef=\"#{Code.currency_code(CONFIG['country'])}\" contextRef=\"Prior1YearNonConsolidatedInstant\">0</#{tag}>\n" : ''
+                /^[9]/.match(code) ? "<#{tag} decimals=\"0\" unitRef=\"#{Code.currency_code(LucaSupport::CONST.config['country'])}\" contextRef=\"Prior1YearNonConsolidatedInstant\">0</#{tag}>\n" : ''
               else
-                "<#{tag} decimals=\"0\" unitRef=\"#{Code.currency_code(CONFIG['country'])}\" contextRef=\"Prior1YearNonConsolidatedInstant\">#{readable(prior_amount)}</#{tag}>\n"
+                "<#{tag} decimals=\"0\" unitRef=\"#{Code.currency_code(LucaSupport::CONST.config['country'])}\" contextRef=\"Prior1YearNonConsolidatedInstant\">#{readable(prior_amount)}</#{tag}>\n"
               end
-      current = "<#{tag} decimals=\"0\" unitRef=\"#{Code.currency_code(CONFIG['country'])}\" contextRef=\"#{context}\">#{readable(amount)}</#{tag}>"
+      current = "<#{tag} decimals=\"0\" unitRef=\"#{Code.currency_code(LucaSupport::CONST.config['country'])}\" contextRef=\"#{context}\">#{readable(amount)}</#{tag}>"
 
       prior + current
     end
@@ -318,9 +318,9 @@ module LucaBook
     end
 
     def legal_items
-      return [] unless CONFIG['country']
+      return [] unless LucaSupport::CONST.config['country']
 
-      case CONFIG['country']
+      case LucaSupport::CONST.config['country']
       when 'jp'
         ['31', '32', '33', '91', '911', '912', '913', '9131', '9132', '914', '9141', '9142', '915', '916', '92', '93']
       end
@@ -374,7 +374,7 @@ module LucaBook
         tag = ex_dict.dig("#{code}:#{code}")&.dig(:xbrl_id)
         changes << [tag, readable(diff)] if tag
       end
-      currency = %Q(unitRef="#{Code.currency_code(CONFIG['country'])}")
+      currency = %Q(unitRef="#{Code.currency_code(LucaSupport::CONST.config['country'])}")
       context = 'contextRef="CurrentYearNonConsolidatedDuration"'
       changes.map { |tag, amount| %Q(<#{tag} decimals="0" #{currency} #{context}>#{amount}</#{tag}>) }
     end

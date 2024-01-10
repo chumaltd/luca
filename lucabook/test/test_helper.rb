@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'bundler'
-Bundler.require
-
 require 'simplecov'
 SimpleCov.start
 
@@ -15,8 +12,8 @@ require 'minitest/autorun'
 
 def deploy(filename, subdir = nil)
   if subdir
-    FileUtils.cp("#{__dir__}/#{filename}", Pathname(LucaSupport::PJDIR) / subdir / filename)
+    FileUtils.cp("#{__dir__}/#{filename}", Pathname(LucaSupport::CONST.pjdir) / subdir / filename)
   else
-    FileUtils.cp("#{__dir__}/#{filename}", Pathname(LucaSupport::PJDIR) / filename)
+    FileUtils.cp("#{__dir__}/#{filename}", Pathname(LucaSupport::CONST.pjdir) / filename)
   end
 end

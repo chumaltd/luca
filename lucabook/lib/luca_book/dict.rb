@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'luca_support/code'
-require 'luca_support/config'
+require 'luca_support/const'
 require 'luca_support/range'
 require 'luca_record/dict'
 require 'luca_record/io'
@@ -102,9 +102,9 @@ module LucaBook
     end
 
     def self.latest_balance_path(date)
-      start_year = date.month >= LucaSupport::CONFIG['fy_start'] ? date.year : date.year - 1
-      latest = Date.new(start_year, LucaSupport::CONFIG['fy_start'], 1).prev_month
-      dict_dir = Pathname(LucaSupport::PJDIR) / 'data' / 'balance'
+      start_year = date.month >= LucaSupport::CONST.config['fy_start'] ? date.year : date.year - 1
+      latest = Date.new(start_year, LucaSupport::CONST.config['fy_start'], 1).prev_month
+      dict_dir = Pathname(LucaSupport::CONST.pjdir) / 'data' / 'balance'
       fileglob = %Q(start-#{latest.year}-#{format("%02d", latest.month)}-*)
       path = Dir.glob(fileglob, base: dict_dir)[0] || 'start.tsv'
       dict_dir / path
@@ -115,8 +115,8 @@ module LucaBook
     end
 
     def self.generate_balance(year, month = nil)
-      start_date = Date.new((year.to_i - 1), LucaSupport::CONFIG['fy_start'], 1)
-      month ||= LucaSupport::CONFIG['fy_start'] - 1
+      start_date = Date.new((year.to_i - 1), LucaSupport::CONST.config['fy_start'], 1)
+      month ||= LucaSupport::CONST.config['fy_start'] - 1
       end_date = Date.new(year.to_i, month, -1)
       labels = load('base.tsv')
       bs = load_balance(start_date, end_date)
@@ -133,7 +133,7 @@ module LucaBook
           f << [code, labels.dig(code, :label), LucaSupport::Code.readable(balance)]
         end
       end
-      dict_dir = Pathname(LucaSupport::PJDIR) / 'data' / 'balance'
+      dict_dir = Pathname(LucaSupport::CONST.pjdir) / 'data' / 'balance'
       filepath = dict_dir / "start-#{end_date.to_s}.tsv"
 
       File.open(filepath, 'w') { |f| f.write csv }

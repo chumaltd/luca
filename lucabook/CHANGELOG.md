@@ -1,6 +1,8 @@
-## LucaBook master
+## LucaBook 0.5.1
 
 * Abort on counter balance code not found when journal import.
+* Reworked global constants w/LucaRecord v0.7
+* add `luca-book version` subcommand
 
 ## LucaBook 0.5.0
 
