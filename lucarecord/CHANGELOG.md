@@ -1,3 +1,7 @@
+## LucaRecord 0.7.2
+
+* `LucaCmd.check_dir()` accepts optional `ext_conf:` keyword.
+
 ## LucaRecord 0.7.1
 
 * `LucaRecord::IO.load_project()` supports optional `ext_conf:` keyword for an extra config file.
