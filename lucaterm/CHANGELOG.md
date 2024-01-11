@@ -1,5 +1,6 @@
-## LucaTerm master
+## LucaTerm 0.3.1
 
+* `luca book`: Supports monorepo project including multi-app data.
 * Removed bundler from test suite avoiding casual native build
 
 ## LucaTerm 0.2.2

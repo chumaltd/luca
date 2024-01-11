@@ -4,6 +4,7 @@
 require 'optparse'
 require 'curses'
 require 'luca_book/journal'
+require 'luca_cmd'
 require 'luca_term'
 
 include Curses
@@ -30,5 +31,7 @@ params = {}
 
 case cmd
 when /book/, 'b'
-  LucaCmd.book(cmd, params)
+  LucaCmd.check_dir('journals') do
+    LucaCmd.book(cmd, params)
+  end
 end
