@@ -294,29 +294,36 @@ module LucaRecord # :nodoc:
 
       def load_project(path, ext_conf: nil)
         CONST.set_pjdir(path)
+        config = {
+          'decimal_separator' => '.',
+          'thousands_separator' => ','
+        }
         begin
-          config = {
-            'decimal_separator' => '.',
-            'thousands_separator' => ','
-          }.merge(YAML.safe_load(
-              File.read(Pathname(CONST.pjdir) / 'config.yml'),
-              permitted_classes: [Date]
-            ))
-          config['decimal_num'] ||= config['country'] == 'jp' ? 0 : 2
-          if ext_conf
-            config.merge(YAML.safe_load(
-              File.read(Pathname(CONST.pjdir) / ext_conf),
-              permitted_classes: [Date]
-            ))
-          end
-          CONST.set_config(config)
+          config.merge!(YAML.safe_load(
+          File.read(Pathname(CONST.configdir) / 'config.yml'),
+            permitted_classes: [Date]
+          ))
+        rescue Errno::ENOENT
+          STDERR.puts "INFO: config.yml not found. Continue with default settings."
         end
+        if ext_conf
+          begin
+            config.merge!(YAML.safe_load(
+              File.read(Pathname(CONST.configdir) / ext_conf),
+              permitted_classes: [Date]
+            ))
+          rescue Errno::ENOENT
+            STDERR.puts "WARN: #{ext_conf} not found. Extended options are not effective."
+          end
+        end
+        config['decimal_num'] ||= config['country'] == 'jp' ? 0 : 2
+        CONST.set_config(config)
       end
 
       # test if having required dirs/files under exec path
       def valid_project?(path = CONST.pjdir)
         project_dir = Pathname(path)
-        FileTest.file?((project_dir + 'config.yml').to_s) and FileTest.directory?( (project_dir + 'data').to_s)
+        FileTest.directory?( (project_dir / 'data').to_s)
       end
 
       def new_record_id(basedir, date_obj)

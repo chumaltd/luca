@@ -1,3 +1,8 @@
+## LucaRecord 0.7.3
+
+* 'config/' inside the project data dir is now used as a primary configuration dir.
+* Without config files, it continues to work with warnings instead of aborts.
+
 ## LucaRecord 0.7.2
 
 * `LucaCmd.check_dir()` accepts optional `ext_conf:` keyword.
