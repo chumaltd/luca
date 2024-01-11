@@ -292,16 +292,25 @@ module LucaRecord # :nodoc:
         end
       end
 
-      def load_project(path)
+      def load_project(path, ext_conf: nil)
         CONST.set_pjdir(path)
         begin
           config = {
             'decimal_separator' => '.',
             'thousands_separator' => ','
-          }.merge(YAML.safe_load(File.read(Pathname(CONST.pjdir) / 'config.yml'), permitted_classes: [Date]))
+          }.merge(YAML.safe_load(
+              File.read(Pathname(CONST.pjdir) / 'config.yml'),
+              permitted_classes: [Date]
+            ))
+          config['decimal_num'] ||= config['country'] == 'jp' ? 0 : 2
+          if ext_conf
+            config.merge(YAML.safe_load(
+              File.read(Pathname(CONST.pjdir) / ext_conf),
+              permitted_classes: [Date]
+            ))
+          end
+          CONST.set_config(config)
         end
-        config['decimal_num'] ||= config['country'] == 'jp' ? 0 : 2
-        CONST.set_config(config)
       end
 
       # test if having required dirs/files under exec path

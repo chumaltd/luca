@@ -1,3 +1,7 @@
+## LucaRecord 0.7.1
+
+* `LucaRecord::IO.load_project()` supports optional `ext_conf:` keyword for an extra config file.
+
 ## LucaRecord 0.7.0
 
 Reworked global constants to be singleton Class instance:
