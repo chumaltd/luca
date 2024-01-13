@@ -1,3 +1,7 @@
+## LucaRecord 0.7.4
+
+* `LucaSupport::ENC.encrypt() / decrypt()` use env `LUCA_ENC_PASSWORD` for automation.
+
 ## LucaRecord 0.7.3
 
 * 'config/' inside the project data dir is now used as a primary configuration dir.
