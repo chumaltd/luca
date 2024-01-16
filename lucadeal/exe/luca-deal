@@ -424,7 +424,9 @@ when /invoices?/, 'i'
       opt.banner = 'Usage: luca-deal invoices mail [options] year month [date]'
       opt.on('--preview', 'send to preview user') { |_v| params['mode'] = 'preview' }
       args = opt.parse(ARGV)
-      LucaCmd::Invoice.mail(args, params)
+      LucaCmd.check_dir(REQUIRED_DIR) do
+        LucaCmd::Invoice.mail(args, params)
+      end
     end
   when 'print'
     OptionParser.new do |opt|

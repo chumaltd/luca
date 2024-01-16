@@ -1,3 +1,7 @@
+## LucaDeal 0.5.2
+
+* Fix: Setup project dir for `luca-deal invoice mail`
+
 ## LucaDeal 0.5.1
 
 * Refine `luca-deal customer list` output: Limit columns to name, address and id.
