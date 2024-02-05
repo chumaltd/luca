@@ -1,3 +1,7 @@
+## LucaBook 0.5.2
+
+* Fix: Financial Year settings
+
 ## LucaBook 0.5.1
 
 * Abort on counter balance code not found when journal import.
