@@ -1,3 +1,7 @@
+## LucaDeal 0.5.3
+
+* Implement `luca-deal invoices print --sample` option.
+
 ## LucaDeal 0.5.2
 
 * Fix: Setup project dir for `luca-deal invoice mail`

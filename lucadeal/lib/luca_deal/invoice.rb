@@ -47,14 +47,14 @@ module LucaDeal
       if id
         dat = self.class.find(id)
         @company = set_company
-        invoice_vars(dat)
+        invoice_vars(dat, params[:sample])
         File.open(attachment_name(dat, filetype), 'w') do |f|
           f.puts render_invoice(filetype)
         end
       else
         self.class.asof(@date.year, @date.month) do |dat, _|
           @company = set_company
-          invoice_vars(dat)
+          invoice_vars(dat, params[:sample])
           File.open(attachment_name(dat, filetype), 'w') do |f|
             f.puts render_invoice(filetype)
           end
@@ -410,8 +410,8 @@ module LucaDeal
 
     # set variables for ERB template
     #
-    def invoice_vars(invoice_dat)
-      @customer = invoice_dat['customer']
+    def invoice_vars(invoice_dat, sample = false)
+      @customer = sample ? @company : invoice_dat['customer']
       @items = readable(invoice_dat['items'])
       @subtotal = readable(invoice_dat['subtotal'])
       @issue_date = invoice_dat['issue_date']

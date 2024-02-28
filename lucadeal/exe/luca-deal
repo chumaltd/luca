@@ -432,6 +432,7 @@ when /invoices?/, 'i'
     OptionParser.new do |opt|
       opt.banner = 'Usage: luca-deal invoices print [options] <invoice_id | year month>'
       opt.on('--pdf', 'output PDF invoices. wkhtmlpdf is required') { |_v| params[:output] = :pdf }
+      opt.on('--sample', 'Replace recepient info with issuer info') { |_v| params[:sample] = true }
       args = opt.parse(ARGV)
       LucaCmd.check_dir(REQUIRED_DIR) do
         LucaCmd::Invoice.print(args, params)
