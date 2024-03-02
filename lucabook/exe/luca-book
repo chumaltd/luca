@@ -27,9 +27,9 @@ class LucaCmd
       params[:col_order] = %w(date diff balance counter_code note code id no)
       if params['code']
         if params['headers']
-          render(LucaBook::ListByHeader.term(*args, code: params['code'], header: params['headers']).list_by_code, params)
+          render(LucaBook::ListByHeader.term(*parse_range_args(args, params), code: params['code'], header: params['headers']).list_by_code, params)
         else
-          render(LucaBook::List.term(*args, code: params['code'], recursive: params[:recursive]).list_by_code(params[:recursive]), params)
+          render(LucaBook::List.term(*parse_range_args(args, params), code: params['code'], recursive: params[:recursive]).list_by_code(params[:recursive]), params)
         end
       elsif params['render']
         puts LucaBook::List.term(*args).render_html(params['render'])
@@ -195,6 +195,7 @@ when /journals?/, 'j'
       opt.on('-c', '--code VAL', 'filter with code or label') { |v| params['code'] = v }
       opt.on('-r', '--recursive', 'include subaccounts') { |_v| params[:recursive] = true }
       opt.on('--customer', 'categorize by x-customer header') { |_v| params['headers'] = 'x-customer' }
+      opt.on('--fy', 'adjust start date to Financial Year') { |_v| params[:financialyear] = true }
       opt.on('-n VAL', 'report count') { |v| params[:n] = v.to_i }
       opt.on('--nu', 'show table in nushell') { |_v| params[:output] = 'nu' }
       opt.on('--explore', 'explore table in nushell') { |_v| params[:output] = 'explore' }

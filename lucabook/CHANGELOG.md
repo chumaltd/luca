@@ -1,3 +1,7 @@
+## LucaBook master
+
+* `luca-book journals list` supports `--fy` option.
+
 ## LucaBook 0.5.2
 
 * Fix: Financial Year settings
