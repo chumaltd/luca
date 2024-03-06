@@ -66,14 +66,14 @@ module LucaTerm
           @index = 0
           @active = 0
           @visible = set_visible(@data)
-        when '<'
+        when '<', 'h'
           target = Date.parse("#{@year}-#{@month}-1").prev_month
           @data = LucaSupport::Code.readable(LucaBook::List.term(target.year, target.month).data)
           @year, @month = target.year, target.month
           @index = 0
           @active = 0
           @visible = set_visible(@data)
-        when '>'
+        when '>', 'l'
           target = Date.parse("#{@year}-#{@month}-1").next_month
           @data = LucaSupport::Code.readable(LucaBook::List.term(target.year, target.month).data)
           @year, @month = target.year, target.month
@@ -327,9 +327,9 @@ module LucaTerm
           cursor_up list
         when KEY_PPAGE
           cursor_pageup list, sub.maxy - 2
-        when KEY_LEFT
+        when KEY_LEFT, 'h'
           cursor_jump tabstop, list, rev: true
-        when KEY_RIGHT
+        when KEY_RIGHT, 'l'
           cursor_jump tabstop, list
         when 'G'
           cursor_last list, sub.maxy - 2

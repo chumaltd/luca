@@ -1,3 +1,7 @@
+## LucaTerm 0.3.2
+
+* `luca book`: Add 'h'/'l' move as Prev/Next for monthly journals and code selection.
+
 ## LucaTerm 0.3.1
 
 * `luca book`: Supports monorepo project including multi-app data.
