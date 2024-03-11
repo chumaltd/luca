@@ -41,8 +41,10 @@ code	label	xbrl_id	consumption_tax	income_tax
 1858	仮払地方税付加価値割			
 1859	仮払地方税法人税割			
 185A	仮払地方税均等割			
-185B	仮払消費税
+185B	仮払消費税			
 185C	仮払地方消費税
+185D	仮払市民税法人税割			
+185E	仮払市民税均等割			
 30	固定資産	jpfr-t-cte:NoncurrentAssets		
 31	有形固定資産	jpfr-t-cte:PropertyPlantAndEquipment		
 311	建物	jpfr-t-cte:Buildings		

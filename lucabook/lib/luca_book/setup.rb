@@ -38,7 +38,7 @@ module LucaBook
         csv << ['code', 'label', 'balance']
         csv << ['_date', '2020-1-1']
         CSV.open("#{__dir__}/templates/#{dict}", 'r', col_sep: "\t", encoding: 'UTF-8').each do |row|
-          csv << row if /^[1-9]/.match(row[0])
+          csv << row[0, 1] if /^[1-9]/.match(row[0])
         end
       end
     end

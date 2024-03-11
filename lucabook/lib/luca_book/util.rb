@@ -48,7 +48,7 @@ module LucaBook
       start_month = LucaSupport::CONST.config['fy_start']
       start_year = date.month >= start_month ? date.year : date.year - 1
       @start_date = Date.new(start_year, start_month, 1)
-      @end_date = Date.new(start_year + 1, start_month - 1, -1)
+      @end_date = @start_date.next_year.prev_day
       @end_date = [to, @end_date].min if to
       [@start_date, @end_date]
     end
