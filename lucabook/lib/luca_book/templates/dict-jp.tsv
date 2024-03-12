@@ -166,7 +166,9 @@ C1S	支払報酬	jpfr-t-cte:CompensationsSGA
 C1T	研修費	jpfr-etax-t-cte:RecruitmentEducationExpense		
 C1U	採用費			
 C1V	業務委託費			
-C1W	会議費			
+C1W	会議費	jpfr-etax-t-cte:ConventionExpense		
+C1X	寄付金	jpfr-etax-t-cte:Donation		
+C1X1	指定寄付金			
 CA	営業利益	jpfr-t-cte:OperatingIncome		
 D0	営業外収益	jpfr-t-cte:NonOperatingIncome		
 D11	受取利息	jpfr-t-cte:InterestIncomeNOI		
