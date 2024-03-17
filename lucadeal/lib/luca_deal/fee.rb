@@ -66,7 +66,7 @@ module LucaDeal
     end
 
     def deliver_mail(attachment_type = nil, mode: nil, skip_no_item: true)
-      attachment_type = CONST.config.dig('fee', 'attachment') || :html
+      attachment_type = LucaRecord::CONST.config.dig('fee', 'attachment') || :html
       fees = self.class.asof(@date.year, @date.month)
       raise "No report for #{@date.year}/#{@date.month}" if fees.count.zero?
 
@@ -75,7 +75,7 @@ module LucaDeal
         next if skip_no_item && dat['items'].empty?
 
         mail = compose_mail(dat, mode: mode, attachment: attachment_type.to_sym)
-        LucaSupport::Mail.new(mail, CONST.pjdir).deliver
+        LucaSupport::Mail.new(mail, LucaRecord::CONST.pjdir).deliver
         self.class.add_status!(path, 'mail_delivered') if mode.nil?
       end
     end
@@ -100,9 +100,9 @@ module LucaDeal
 
       mail = Mail.new
       mail.to = dat.dig('customer', 'to') if mode.nil?
-      mail.subject = CONST.config.dig('fee', 'mail_subject') || 'Your Report is available'
+      mail.subject = LucaRecord::CONST.config.dig('fee', 'mail_subject') || 'Your Report is available'
       if mode == :preview
-        mail.cc = CONST.config.dig('mail', 'preview') || CONST.config.dig('mail', 'from')
+        mail.cc = LucaRecord::CONST.config.dig('mail', 'preview') || LucaRecord::CONST.config.dig('mail', 'from')
         mail.subject = '[preview] ' + mail.subject
       end
       mail.text_part = Mail::Part.new(body: render_erb(search_template('fee-report-mail.txt.erb')), charset: 'UTF-8')
@@ -226,7 +226,7 @@ module LucaDeal
     # TODO: load labels from CONST.config before country defaults
     #
     def export_labels
-      case CONST.confg['country']
+      case LucaRecord::CONST.confg['country']
       when 'jp'
         {
           debit: { fee: '支払手数料', tax: '支払手数料', deduction: '未払費用' },
@@ -244,9 +244,9 @@ module LucaDeal
     #
     def set_company
       {}.tap do |h|
-        h['name'] = CONST.config.dig('company', 'name')
-        h['address'] = CONST.config.dig('company', 'address')
-        h['address2'] = CONST.config.dig('company', 'address2')
+        h['name'] = LucaRecord::CONST.config.dig('company', 'name')
+        h['address'] = LucaRecord::CONST.config.dig('company', 'address')
+        h['address2'] = LucaRecord::CONST.config.dig('company', 'address2')
       end
     end
 
@@ -280,9 +280,9 @@ module LucaDeal
     # load Tax Rate from config.
     #
     def load_tax_rate(name)
-      return 0 if CONST.config.dig('tax_rate', name).nil?
+      return 0 if LucaRecord::CONST.config.dig('tax_rate', name).nil?
 
-      BigDecimal(take_current(CONST.config['tax_rate'], name).to_s)
+      BigDecimal(take_current(LucaRecord::CONST.config['tax_rate'], name).to_s)
     end
 
     # Fees are unique contract_id in each month

@@ -1,3 +1,7 @@
+## LucaDeal 0.5.4
+
+* Fix: missing CONST visibility.
+
 ## LucaDeal 0.5.3
 
 * Implement `luca-deal invoices print --sample` option.
