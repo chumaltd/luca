@@ -78,7 +78,7 @@ module LucaRecord
       end
     end
 
-    # generate dictionary from TSV file. Minimum assumption is as bellows:
+    # generate dictionary from TSV file. Minimum assumption is:
     # 1st row is converted symbol.
     #
     # * row[0] is 'code'. Converted hash keys

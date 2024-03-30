@@ -17,7 +17,7 @@ module LucaDeal
       YAML.dump(list).tap { |l| puts l }
     end
 
-    # Save data with hash in Product format. Simple format is also available as bellows:
+    # Save data with hash in Product format. Simple format is also available as follows:
     #   {
     #      name: 'item_name(required)', price: 'item_price', qty: 'item_qty',
     #      initial: { name: 'item_name', price: 'item_price', qty: 'item_qty' }

@@ -190,7 +190,7 @@ module LucaSupport # :nodoc:
     end
 
     # return current value with effective/defunct on target @date
-    # For multiple attribues, return hash on other than 'val'. Examples are as bellows:
+    # For multiple attribues, return hash on other than 'val'. Examples:
     #
     #   - effective: 2020-1-1
     #     val: 3000

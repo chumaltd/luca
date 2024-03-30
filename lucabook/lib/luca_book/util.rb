@@ -15,7 +15,7 @@ module LucaBook
       [d - c, { debit: d, credit: c }]
     end
 
-    # items assumed as bellows:
+    # items assumed:
     #   [{ code: '113', amount: 1000 }, ... ]
     #
     def diff_by_code(items, code)

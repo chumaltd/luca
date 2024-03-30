@@ -76,7 +76,7 @@ Invoice conditions are defined by contracts.
 ### Send Invoice
 
 Invoice is implemented with HTML & ERB. Copy [default template](lib/luca_deal/templates/invoice.html.erb) to `templates/` in the data directory, and customize.  
-If you want to send invoices in PDF, you need to install `wkhtmltopdf command separately. Send mail command is as bellows:`
+If you want to send invoices in PDF, you need to install `wkhtmltopdf` command separately. Send mail command is:
 
 ```
 $ luca-deal invoice mail yyyy m
@@ -133,7 +133,7 @@ Contract is core object for calculation. Common fields are as follows:
 |             | effective     | must     |            | Start date of the contract.                                                                          |
 |             | defunct       |          |            | End date of the contract.                                                                            |
 
-Fields for subscription customers are as bellows:
+Fields for subscription customers are:
 
 | Top level | Second level  |          | historical | Description                                                                                          |
 |-----------|---------------|----------|------------|------------------------------------------------------------------------------------------------------|
@@ -151,7 +151,7 @@ Fields for subscription customers are as bellows:
 |           | id            |          |            | contract id of fee with sales partner.                                                               |
 
 
-Fields for sales fee are as bellows:
+Fields for sales fee:
 
 | Top level | Second level |          | historical | Description                                                                         |
 |-----------|--------------|----------|------------|-------------------------------------------------------------------------------------|

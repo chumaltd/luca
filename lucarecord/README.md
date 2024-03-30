@@ -8,7 +8,7 @@ LucaRecord is Git-aware ERP app framework.
 
 ## Historical Field
 
-LucaRecord supports historically changing field. Attributes of ERP data often change. For instance, `price` as bellows is always 300.
+LucaRecord supports historically changing field. Attributes of ERP data often change. For instance, `price` is always 300 with the next:
 
 ```yaml
 price: 300

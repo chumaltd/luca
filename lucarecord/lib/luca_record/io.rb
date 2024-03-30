@@ -372,7 +372,7 @@ module LucaRecord # :nodoc:
       #   '2020': All month of 2020
       #   '2020[FG]': June & July of 2020
       #
-      # Block will receive code fragments as 2nd parameter. Array format is as bellows:
+      # Block will receive code fragments as 2nd parameter. Array format is:
       # 1. encoded month
       # 2. encoded day + record number of the day
       # 3. codes. More than 3 are all code set except first 2 parameters.

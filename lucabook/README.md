@@ -34,7 +34,7 @@ $ luca-book journals list --nu
 ```
 
 Default list shows the journals of this month. With `-n` option, multiple month can be specified.
-If you search for a specific month, args in `YYYY M` format is available. Or, multiple month list is also supported as bellows:
+If you search for a specific month, args in `YYYY M` format is available. Or, multiple month list is also supported as follows:
 
 ```bash
 $ luca-book journals list --nu 2020 3
@@ -76,7 +76,7 @@ $ luca-book reports xbrl yyyy mm yyyy mm
 
 ## CSV import
 
-Journals can be generated from CSV like online banking statement. CSV loading is controlled by `dict/import-CONFIG.yaml`([sample config](./test/import-bank1.yaml) and [sample CSV](./test/sample-bankstatement.csv)). Command for import is as bellows:
+Journals can be generated from CSV like online banking statement. CSV loading is controlled by `dict/import-CONFIG.yaml`([sample config](./test/import-bank1.yaml) and [sample CSV](./test/sample-bankstatement.csv)). Command for import is:
 
 ```
 $ luca-book journals import -c bank1 bank-statement.csv
@@ -98,7 +98,7 @@ This example will import bank-statement.csv with `-c` option for config YAML(dic
 
 CSV label is matched with n-gram, and converted to mostly like account. If no code matched, `10XX/50XX UNSETTLED_IMPORT` will be assigned.
 
-Example setting as bellows will convert CSV record with 'CandSCompany' into 'Account payable - trade'.
+Following example setting will convert CSV record with 'CandSCompany' into 'Account payable - trade'.
 
 ```
 definitions:
@@ -197,7 +197,7 @@ Accounting requires full scan on journals. LucaBook journal format gathers code 
 
 * Base coding is Tab separated value(TSV) text file, encoded with UTF-8.
 * Like HTTP, each file consists of header and body, separated empty row. Header is used for calculation, and body is for human readable doc.
-* First 4 rows are required header, defined as bellows:
+* First 4 rows are required header, defined as follows:
     1. debit code list
     2. debit amount list. Each column corresponds to the debit code above.
     3. credit code list
