@@ -1,4 +1,4 @@
-## LucaBook master
+## LucaBook 0.5.3
 
 * `luca-book journals list` supports `--fy` option.
 * accumulator supports `:date_range` option for specific term by date.
