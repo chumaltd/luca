@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'luca_book/util'
+require 'luca_support/code'
 require 'luca_support/const'
 
 module LucaBook
@@ -79,7 +80,21 @@ module LucaBook
       def gross(start_year, start_month, end_year = nil, end_month = nil, code:  nil, date_range: nil, rows: 4, recursive: false, header: nil)
         if ! date_range.nil?
           raise if date_range.class != Range
-          # TODO: date based range search
+
+          start_year = date_range.first.year
+          start_month = date_range.first.month
+          end_year = date_range.last.year
+          end_month = date_range.last.month
+          date_bound = {
+            start: {
+              month: "#{start_year}#{LucaSupport::Code.encode_month(start_month)}",
+              day: LucaSupport::Code.encode_date(date_range.first)
+            },
+            end: {
+              month: "#{end_year}#{LucaSupport::Code.encode_month(end_month)}",
+              day: LucaSupport::Code.encode_date(date_range.last)
+            }
+          }
         end
         scan_headers = header&.map { |k, v|
           [:customer, :editor].include?(k) ? [ "x-#{k.to_s}", v ] : nil
@@ -108,7 +123,15 @@ module LucaBook
                   end
                 end
               end
-        enm.each do |f, _path|
+        enm.each do |f, path|
+          if date_bound
+            if path[0] == date_bound[:start][:month]
+              next if path[1][0] < date_bound[:start][:day]
+            elsif path[0] == date_bound[:end][:month]
+              next if path[1][0] > date_bound[:end][:day]
+            end
+          end
+
           CSV.new(f, headers: false, col_sep: "\t", encoding: 'UTF-8')
             .each_with_index do |row, i|
             break if i >= rows
@@ -183,7 +206,7 @@ module LucaBook
       # Override LucaRecord::IO.load_data
       #
       def load_data(io, path = nil)
-        io
+        [io, path]
       end
     end
 
