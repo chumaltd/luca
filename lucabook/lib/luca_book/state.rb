@@ -213,7 +213,8 @@ module LucaBook
 
     def self.start_balance(year, month, recursive: true)
       start_date = Date.new(year, month, 1)
-      base = Dict.latest_balance(start_date).each_with_object({}) do |(k, v), h|
+      balance = Dict.latest_balance(start_date)
+      base = balance.each_with_object({}) do |(k, v), h|
         h[k] = BigDecimal(v[:balance].to_s) if v[:balance]
         h[k] ||= BigDecimal('0') if k.length == 2
       end
@@ -221,9 +222,9 @@ module LucaBook
         return recursive ? total_subaccount(base) : base
       end
 
+      pre_first = Date.parse(balance[:_date]).next_month
       pre_last = start_date.prev_month
-      year -= 1 if month <= LucaSupport::CONST.config['fy_start'].to_i
-      pre = accumulate_term(year, LucaSupport::CONST.config['fy_start'], pre_last.year, pre_last.month)
+      pre = accumulate_term(pre_first.year, pre_first.month, pre_last.year, pre_last.month)
       total = {}.tap do |h|
         (pre.keys + base.keys).uniq.each do |k|
           h[k] = (base[k] || BigDecimal('0')) + (pre[k] || BigDecimal('0'))

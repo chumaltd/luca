@@ -102,12 +102,13 @@ module LucaBook
     end
 
     def self.latest_balance_path(date)
-      start_year = date.month >= LucaSupport::CONST.config['fy_start'] ? date.year : date.year - 1
-      latest = Date.new(start_year, LucaSupport::CONST.config['fy_start'], 1).prev_month
+      start_date, _ = LucaBook::Util.current_fy(date)
       dict_dir = Pathname(LucaSupport::CONST.pjdir) / 'data' / 'balance'
-      fileglob = %Q(start-#{latest.year}-#{format("%02d", latest.month)}-*)
-      path = Dir.glob(fileglob, base: dict_dir)[0] || 'start.tsv'
-      dict_dir / path
+      paths = Dir.glob(%Q(start-*-*-*), base: dict_dir, sort: true)
+                .reject {|path| path > %Q(start-#{start_date.year}-#{format("%02d", start_date.month)}-) }
+      return dict_dir / 'start.tsv' if paths.empty?
+
+      dict_dir / paths.reverse.first
     end
 
     def self.issue_date(obj)

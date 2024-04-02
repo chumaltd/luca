@@ -1,3 +1,8 @@
+## LucaBook master
+
+* `luca-book journals list` now referes to the latest balance over 1yr based on filenname.
+
+
 ## LucaBook 0.5.3
 
 * `luca-book journals list` supports `--fy` option.
