@@ -218,11 +218,11 @@ module LucaBook
         h[k] = BigDecimal(v[:balance].to_s) if v[:balance]
         h[k] ||= BigDecimal('0') if k.length == 2
       end
-      if month == LucaSupport::CONST.config['fy_start'].to_i
+      pre_first = Date.parse(balance.dig("_date", :label)).next_month
+      if year == pre_first.year && month == pre_first.month
         return recursive ? total_subaccount(base) : base
       end
 
-      pre_first = Date.parse(balance[:_date]).next_month
       pre_last = start_date.prev_month
       pre = accumulate_term(pre_first.year, pre_first.month, pre_last.year, pre_last.month)
       total = {}.tap do |h|
