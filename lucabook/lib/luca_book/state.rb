@@ -219,7 +219,7 @@ module LucaBook
         h[k] ||= BigDecimal('0') if k.length == 2
       end
       pre_first = Date.parse(balance.dig("_date", :label)).next_month
-      if year == pre_first.year && month == pre_first.month
+      if start_date <= pre_first
         return recursive ? total_subaccount(base) : base
       end
 
@@ -337,7 +337,7 @@ module LucaBook
       changes = []
       LucaBook::Journal.filter_by_code(@start_date.year, @start_date.month, @end_date.year, @end_date.month, '9').each do |dat|
         debit_str = 'ASET' if dat[:debit].find { |e| /^[124]/.match(e[:code]) }
-        debit_str ||= '33' if dat[:debit].find { |e| /^[33]/.match(e[:code]) }
+        debit_str ||= '33' if dat[:debit].find { |e| /^33/.match(e[:code]) }
         debit_str ||= 'ASET' if dat[:debit].find { |e| /^[3]/.match(e[:code]) }
         credit_str = 'DEBT' if dat[:credit].find { |e| /^[57]/.match(e[:code]) }
         credit_str ||= 'ASET' if dat[:credit].find { |e| /^[12]/.match(e[:code]) }
