@@ -183,9 +183,9 @@ module LucaSupport # :nodoc:
     # convert effective/defunct data into current hash on @date.
     # not parse nested children.
     #
-    def parse_current(dat)
+    def parse_current(dat, date = @date)
       {}.tap do |processed|
-        dat.each { |k, _v| processed[k] = take_current(dat, k) }
+        dat.each { |k, _v| processed[k] = take_current(dat, k, date) }
       end
     end
 
@@ -205,7 +205,7 @@ module LucaSupport # :nodoc:
     #     val: 3000
     #   => nil
     #
-    def take_current(dat, item)
+    def take_current(dat, item, date = @date)
       target = dat&.dig(item)
       return target unless target.is_a?(Array)
 
@@ -213,8 +213,8 @@ module LucaSupport # :nodoc:
       return target if !keys.include?('effective') && !keys.include?('defunct')
 
       latest = target
-                 .reject { |a| a['defunct'] && Date.parse(a['defunct'].to_s) < @date  }
-                 .filter { |a| a['effective'] && Date.parse(a['effective'].to_s) < @date }
+                 .reject { |a| a['defunct'] && Date.parse(a['defunct'].to_s) < date  }
+                 .filter { |a| a['effective'] && Date.parse(a['effective'].to_s) < date }
                  .max { |a, b| Date.parse(a['effective'].to_s) <=> Date.parse(b['effective'].to_s) }
 
       latest&.dig('val') || latest

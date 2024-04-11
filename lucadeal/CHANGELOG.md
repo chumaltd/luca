@@ -1,3 +1,7 @@
+## LucaDeal 0.5.5
+
+* `luca-deal report balance --detail` now correctly handles historical Customer attributes.
+
 ## LucaDeal 0.5.4
 
 * Fix: missing CONST visibility.

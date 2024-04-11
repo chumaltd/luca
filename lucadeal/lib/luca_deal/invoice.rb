@@ -93,7 +93,7 @@ module LucaDeal
       fy_end = Date.new(date.year, date.month, -1)
       if detail
         customers = {}.tap do |h|
-          Customer.all.each { |c| h[c['name']] = c }
+          Customer.all.each { |c| h[c['name']] = LucaSupport::Code.parse_current(c, fy_end) }
         end
       end
       [].tap do |res|

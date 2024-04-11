@@ -1,3 +1,7 @@
+## LucaRecord 0.7.5
+
+* `LucaSupport::Code.parse_current() / take_current()` now accepts Date object.
+
 ## LucaRecord 0.7.4
 
 * `LucaSupport::ENC.encrypt() / decrypt()` use env `LUCA_ENC_PASSWORD` for automation.
