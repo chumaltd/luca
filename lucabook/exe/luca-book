@@ -77,7 +77,7 @@ class LucaCmd
                   [r[0].year, r[0].month, r[1].year, r[1].month]
                 end
               end
-      LucaBook::State.range(*range).render_xbrl(params[:output])
+      LucaBook::State.range(*range).write_xbrl(params[:output])
     end
 
     def self.balancesheet(args, params)

@@ -1,7 +1,7 @@
-## LucaBook master
+## LucaBook 0.5.4
 
-* `luca-book journals list` now referes to the latest balance over 1yr based on filenname.
-
+* separate `render_xbrl()` from `write_xbrl()` for embedding into composite docs.
+* `luca-book journals list` now referes to the latest balance over 1yr based on filename.
 
 ## LucaBook 0.5.3
 

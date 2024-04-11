@@ -233,6 +233,14 @@ module LucaBook
       recursive ? total_subaccount(total) : total
     end
 
+    def write_xbrl(filename = nil)
+      xbrl, xsd = render_xbrl(filename)
+      doctype = %Q(<?xml version="1.0" encoding="UTF-8"?>)
+
+      File.open("#{@filename}.xbrl", 'w') { |f| f.write [doctype, xbrl].join("\n") }
+      File.open("#{@filename}.xsd", 'w') { |f| f.write [doctype, xsd].join("\n") }
+    end
+
     def render_xbrl(filename = nil)
       set_bs(3, legal: true)
       set_pl(3)
@@ -249,8 +257,7 @@ module LucaBook
       @xbrl_entries += equity_change.join("\n")
       @filename = filename || "statement-#{@issue_date}"
 
-      File.open("#{@filename}.xbrl", 'w') { |f| f.write render_erb(search_template("base-#{country_suffix}.xbrl.erb")) }
-      File.open("#{@filename}.xsd", 'w') { |f| f.write render_erb(search_template("base-#{country_suffix}.xsd.erb")) }
+      [render_erb(search_template("base-#{country_suffix}.xbrl.erb")), render_erb(search_template("base-#{country_suffix}.xsd.erb"))]
     end
 
     # TODO: proper decimals attr for each currency
