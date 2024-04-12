@@ -91,10 +91,8 @@ module LucaDeal
 
     def self.report(date, scan_years = 10, detail: false, due: false)
       fy_end = Date.new(date.year, date.month, -1)
-      if detail
-        customers = {}.tap do |h|
-          Customer.all.each { |c| h[c['name']] = LucaSupport::Code.parse_current(c, fy_end) }
-        end
+      customers = {}.tap do |h|
+        Customer.all.each { |c| h[c['id']] = LucaSupport::Code.parse_current(c, fy_end) }
       end
       [].tap do |res|
         items = {}
@@ -113,7 +111,7 @@ module LucaDeal
               next if (settle_date && settle_date <= fy_end)
             end
 
-            customer = invoice.dig('customer', 'name')
+            customer = invoice.dig('customer', 'id')
             items[customer] ||= { 'unsettled' => BigDecimal('0'), 'invoices' => [] }
             items[customer]['unsettled'] += (invoice.dig('subtotal', 0, 'items') + invoice.dig('subtotal', 0, 'tax')||0)
             items[customer]['invoices'] << invoice
@@ -121,7 +119,8 @@ module LucaDeal
         end
         items.each do |k, item|
           row = {
-            'customer' => k,
+            'id' => k,
+            'customer' => customers.dig(k, 'name'),
             'unsettled' => LucaSupport::Code.readable(item['unsettled']),
           }
           if detail

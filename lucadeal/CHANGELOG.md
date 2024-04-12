@@ -1,3 +1,7 @@
+## LucaDeal 0.5.6
+
+* `luca-deal report balance` now prints customer ID.
+
 ## LucaDeal 0.5.5
 
 * `luca-deal report balance --detail` now correctly handles historical Customer attributes.
