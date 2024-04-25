@@ -130,10 +130,10 @@ module LucaBook
       @bs = bs
 
       mail = Mail.new
-      mail.to = LucaSupport::CONST.config.dig('mail', 'preview') || LucaSupport.CONST.config.dig('mail', 'from')
+      mail.to = LucaSupport::CONST.config.dig('mail', 'preview') || LucaSupport::CONST.config.dig('mail', 'from')
       mail.subject = 'Financial Report available'
       mail.html_part = Mail::Part.new(body: render_erb(search_template('monthly-report.html.erb')), content_type: 'text/html; charset=UTF-8')
-      LucaSupport::Mail.new(mail, LucaSupport.CONST.pjdir).deliver
+      LucaSupport::Mail.new(mail, LucaSupport::CONST.pjdir).deliver
     end
 
     def bs(level = 3, legal: false)

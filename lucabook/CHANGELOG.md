@@ -1,3 +1,7 @@
+## LucaBook 0.5.5
+
+* Fix: CONST reference
+
 ## LucaBook 0.5.4
 
 * separate `render_xbrl()` from `write_xbrl()` for embedding into composite docs.
