@@ -1,3 +1,7 @@
+## LucaDeal 0.5.7
+
+* `luca-deal fee export` now skips no transaction customer.
+
 ## LucaDeal 0.5.6
 
 * `luca-deal report balance` now prints customer ID.

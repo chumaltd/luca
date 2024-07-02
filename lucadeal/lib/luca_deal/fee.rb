@@ -155,11 +155,14 @@ module LucaDeal
       labels = export_labels
       [].tap do |res|
         self.class.asof(@date.year, @date.month) do |dat|
-          item = {}
-          item['date'] = dat['issue_date']
-          item['debit'] = []
-          item['credit'] = []
           sub = dat['sales_fee']
+          next if readable(sub['fee']) == 0 and readable(sub['deduction']) == 0
+
+          item = {
+            'date' => dat['issue_date'],
+            'debit' => [],
+            'credit' => []
+          }
           if readable(sub['fee']) != 0
             item['debit'] << { 'label' => labels[:debit][:fee], 'amount' => readable(sub['fee']) }
             item['credit'] << { 'label' => labels[:credit][:fee], 'amount' => readable(sub['fee']) }
@@ -226,7 +229,7 @@ module LucaDeal
     # TODO: load labels from CONST.config before country defaults
     #
     def export_labels
-      case LucaRecord::CONST.confg['country']
+      case LucaRecord::CONST.config['country']
       when 'jp'
         {
           debit: { fee: '支払手数料', tax: '支払手数料', deduction: '未払費用' },
