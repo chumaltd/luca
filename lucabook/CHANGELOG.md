@@ -1,3 +1,7 @@
+## LucaBook 0.5.6
+
+* add `LucaBook::Util.previous_fy()`
+
 ## LucaBook 0.5.5
 
 * Fix: CONST reference

@@ -52,5 +52,12 @@ module LucaBook
       @end_date = [to, @end_date].min if to
       [@start_date, @end_date]
     end
+
+    def previous_fy(date = nil)
+      current_start, current_end = current_fy(date)
+      @start_date = current_start.prev_year
+      @end_date = current_start.prev_day
+      [@start_date, @end_date]
+    end
   end
 end
