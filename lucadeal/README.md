@@ -99,6 +99,7 @@ Customer consists of label information.
 | Top level | Second level |      | historical | Description                    |
 |-----------|--------------|------|------------|--------------------------------|
 | id        |              | auto |            | uuid                           |
+| tax_id    |              |      |            | taxpayer ID for each contry    |
 | name      |              | must | x          | customer's name                |
 | address   |              |      | x          |                                |
 | address2  |              |      | x          |                                |
@@ -170,7 +171,7 @@ Fields for sales fee:
 Invoice is basically auto generated from Customer and Contract objects.
 
 | Top level  | Second level | Description                              |
-|------------+--------------+------------------------------------------|
+|------------|--------------|------------------------------------------|
 | id         |              | uuid                                     |
 | issue_date |              |                                          |
 | due_date   |              |                                          |

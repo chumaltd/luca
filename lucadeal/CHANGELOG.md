@@ -1,3 +1,8 @@
+## LucaDeal 0.5.8
+
+* Customer has tax ID
+* `luca-deal report balance` now prints tax ID
+
 ## LucaDeal 0.5.7
 
 * `luca-deal fee export` now skips no transaction customer.

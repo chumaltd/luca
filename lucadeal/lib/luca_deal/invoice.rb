@@ -121,6 +121,7 @@ module LucaDeal
           row = {
             'id' => k,
             'customer' => customers.dig(k, 'name'),
+            'tax_id' => customers.dig(k, 'tax_id'),
             'unsettled' => LucaSupport::Code.readable(item['unsettled']),
           }
           if detail
