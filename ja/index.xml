@@ -6,7 +6,14 @@
     <description>Recent content on LucaSuite</description>
     <generator>Hugo</generator>
     <language>ja</language>
-    <lastBuildDate></lastBuildDate>
+    <lastBuildDate>Tue, 22 Apr 2025 17:46:32 +0900</lastBuildDate>
     <atom:link href="https://chumaltd.github.io/luca/ja/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>共通アーキテクチャ</title>
+      <link>https://chumaltd.github.io/luca/ja/architecture/</link>
+      <pubDate>Tue, 22 Apr 2025 17:46:32 +0900</pubDate>
+      <guid>https://chumaltd.github.io/luca/ja/architecture/</guid>
+      <description>&lt;h2 id=&#34;動作環境&#34;&gt;動作環境&lt;/h2&gt;&#xA;&lt;p&gt;LucaSuiteの各アプリケーションは次の環境で動作する。&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;Ruby 3.0&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;Linuxのコンソール環境をプライマリターゲットとしているが、Rubyが動くUnix-likeな他のOSでも動作する。&lt;/p&gt;</description>
+    </item>
   </channel>
 </rss>

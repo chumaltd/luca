@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html data-color-mode="dark" data-light-theme="light" data-dark-theme="dark">
+    <head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>共通アーキテクチャ | LucaSuite</title>
+
+<meta name="theme-color" content="rgb(38, 29, 32)">
+<link rel='stylesheet' href='//fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block'>
+
+<link rel='stylesheet' href='/luca/lib/cm.css'>
+<link rel="stylesheet" href='/luca/lib/base.css' />
+
+<meta name="twitter:card" content="summary" />
+<meta property="og:url" content="https://chumaltd.github.io/luca/ja/architecture/" />
+<meta property="og:title" content="共通アーキテクチャ" />
+<meta property="og:description" content="動作環境 LucaSuiteの各アプリケーションは次の環境で動作する。
+Ruby 3.0 Linuxのコンソール環境をプライマリターゲットとしているが、Rubyが動くUnix-likeな他のOSでも動作する。
+データ管理 LucaSuiteが管理する会計書類は、gitリポジトリ内のディレクトリ構成と …" />
+<meta property="og:image" content='https://chumaltd.github.io/common/social-logo.png' />
+<link rel="canonical" href=https://chumaltd.github.io/luca/ja/architecture/ />
+
+
+    </head>
+    <body class="ja "><header id="global-nav" class="navbar" role="navigation" aria-label="main navigation">
+  <section class="container-xl d-flex" style="width: 100%">
+  <div class="navbar-brand" style="width: 64px; justify-content: center">
+	  <span class="navbar-item"><cm-drawer></cm-drawer></span>
+  </div>
+  <div class="navbar-brand">
+    <a href='/luca/' class="navbar-item" style="display: inline-flex">
+	    
+	    <img id="footer_logo" src="/common/civilis.svg">
+	    
+    </a>
+    </span>
+ </div>
+  <div class="navbar-menu">
+    <div class="navbar-start">
+    </div>
+  </div>
+  </section>
+</header>
+
+<div id ="o" class="o">
+<nav class="container-xl" style="overflow: hidden">
+  <div class="d-sm-flex">
+    <div class="quarter hide-sm"></div>
+    <div class="p-3 three-quarter">
+        <nav id="breadcrumb" class="breadcrumb is-small px-4 py-3">
+<ul>
+  <li><a href="/luca/ja/">HOME</a></li>
+  <li class="current">&nbsp;共通アーキテクチャ</li></ul>
+<script type="application/ld+json">
+{"@context":"http://schema.org", "@graph":[
+	{"@type":"WebSite","id":"https:\/\/chumaltd.github.io\/luca\/ja\/","name":"LucaSuite"},
+	{"@type":"BreadcrumbList","itemListElement":[
+{"@type": "ListItem","position":1,"item":{"@id":"https://chumaltd.github.io/luca/ja/","name": "LucaSuite" }},
+{"@type": "ListItem","position":4,"item":{"@id": "https://chumaltd.github.io/luca/ja/architecture/","name": "共通アーキテクチャ" }
+}]}
+]}
+</script>
+</nav>
+
+    </div>
+  </div>
+</nav>
+<div class="coverart" style="
+      
+      ">
+<main class="container-xl">
+    <div class="d-sm-flex" style="padding: calc(min(10vw, 1340px)) 0">
+    <div class="quarter hide-sm"></div>
+    <div id="pagetitle" class="three-quarter px-3">
+	<div class="mb-4">
+        <h1 class="idx py-5">
+          共通アーキテクチャ
+        </h1></div>
+    </div>
+  </div>
+  <div class="d-sm-flex">
+    <nav class="quarter layered"><aside class="toc sticky" style="position: sticky; top: 3em">
+        <div class="header"><i class="material-symbols-outlined">toc</i>&nbsp;共通アーキテクチャ</div>
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#動作環境">動作環境</a></li>
+    <li><a href="#データ管理">データ管理</a>
+      <ul>
+        <li><a href="#用途の制約">用途の制約</a></li>
+        <li><a href="#ファイルフォーマット">ファイルフォーマット</a></li>
+        <li><a href="#git操作シナリオの例">git操作シナリオの例</a></li>
+        <li><a href="#データバックアップリストア">データバックアップ・リストア</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+      </aside>
+    </nav>
+    <div id="content" class="three-quarter">
+      <article>
+        <h2 id="動作環境">動作環境</h2>
+<p>LucaSuiteの各アプリケーションは次の環境で動作する。</p>
+<ul>
+<li>Ruby 3.0</li>
+</ul>
+<p>Linuxのコンソール環境をプライマリターゲットとしているが、Rubyが動くUnix-likeな他のOSでも動作する。</p>
+<h2 id="データ管理">データ管理</h2>
+<p>LucaSuiteが管理する会計書類は、<a href="https://git-scm.com/">git</a>リポジトリ内のディレクトリ構成とフラットファイル群のセットを想定している。</p>
+<p>gitの機能により、次のようなデータ管理を実現している。</p>
+<ul>
+<li>gitコミットによる変更履歴の記録</li>
+<li>コンフリクト検出による同一ファイルの変更衝突の調停</li>
+<li>鍵認証によるセキュアなリモート転送</li>
+<li>リポジトリ読み書き権限による更新プロセスの限定</li>
+<li>CIツールを利用した自動処理のカスタム実装</li>
+</ul>
+<p>LucaSuiteの各種ツールは、機器のローカルディレクトリ内のファイル編集機能に特化している。</p>
+<h3 id="用途の制約">用途の制約</h3>
+<p>マルチユーザーの利用を全般的に想定していない。</p>
+<p>RDBMSを使用しないため、自動バッチ処理には適している一方、複数ユーザーが同時に編集する用途をサポートしていない。<br>
+参照のみの使い方であれば、一般的なgitリポジトリのクローン操作で矛盾なくサポートできる。</p>
+<p>また、認証はgitリポジトリ単位のアクセス制御であるため、リポジトリの利用権限がある場合にはその範囲でデータにフルアクセスできる。<br>
+ユーザーの権限に応じて書類の一部だけアクセスするような認可制御も実装しない。</p>
+<h3 id="ファイルフォーマット">ファイルフォーマット</h3>
+<p>取引記録や設定などは、おもにCSVまたはYAMLのフラットファイルとしてコードしているため、低レベル操作を行いたい場合には、テキストエディタでも編集できる。<br>
+項目定義などのセマンティクスはアプリケーションごとに独自定義しており、日常操作ではコマンドラインツールを用いて操作する前提。</p>
+<h3 id="git操作シナリオの例">git操作シナリオの例</h3>
+<p>LucaSuiteはgitの理解と習熟を前提としている。</p>
+<p>データディレクトリのリモート操作全般についてはLucaSuiteはツールを提供せず、gitを直接実行する。<br>
+セットアップ完了しているディレクトリ内の日常操作は、典型的には次のようなコマンドによる。</p>
+<pre><code class="language-bash"># 最新の更新内容を取得する
+$ git pull origin master
+
+# データ操作履歴をリスト表示する
+$ git log
+
+# 編集操作後にメインのデータ保管サーバーに反映する
+$ git push origin master
+</code></pre>
+<p>gitリポジトリ操作にはLucaSuiteに特化した点はないため、一般的なGUIソフトを用いても同じ操作が可能だろう。<br>
+データ保管サーバーなどのセットアップは、gitそのもののセットアップである。</p>
+<h3 id="データバックアップリストア">データバックアップ・リストア</h3>
+<p>gitは分散リポジトリであり、ネットワーク経由のバックアップ・リストアを標準提供している。</p>
+
+
+	<div class="my-4" style="text-align: right; font-style: italic">
+	<span>⁋ 2025/04/22</span></div>
+      </article><div class="related_articles p-4">
+            <h4 id="related" class="idx"></h4>
+            
+            
+<a href="/luca/ja/architecture/" class="compbox bordered py-2">
+        <picture>
+        </picture>
+        <div>
+            <div class="h4 idx mb-2" href="/luca/ja/architecture/">共通アーキテクチャ</div>
+            <div class="f6">動作環境 LucaSuiteの各アプリケーションは次の環境で動作する。
+Ruby 3.0 Linuxのコンソール環境をプライマリターゲットとしているが、Rubyが動くUnix-likeな他のOSでも動 …</div>
+	</div>
+</a>
+
+        </div>
+
+    </div>
+  </div>
+</main>
+</div>
+</div>
+<footer class="footer lazy-block"><div class="container-xl">
+      <div>
+          <img id="footer_logo" src="/common/civilis.svg" loading="lazy">
+          
+      </div>
+  </div>
+</footer><script type="module" src='/luca/lib/cm.js' ></script>
+</body>
+</html>
