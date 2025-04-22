@@ -1,0 +1,325 @@
+@charset "UTF-8";
+:root {
+		--dk-surface: rgb(244, 143, 177);
+	--dk-alpha-main: 0.94;
+	--dk-alpha-sub: 0.65;
+	--dk-alpha-disable: 0.38;
+	--bg-0dp: var(--bgColor-default, var(--color-canvas-default));
+	--bg-1dp: rgb(29, 24, 25);
+      --bg-1dp-nt: rgb(29, 29, 29);
+--bg-2dp: rgb(33, 26, 29);
+      --bg-2dp-nt: rgb(34, 34, 34);
+--bg-3dp: rgb(36, 28, 30);
+      --bg-3dp-nt: rgb(36, 36, 36);
+--bg-4dp: rgb(38, 29, 32);
+      --bg-4dp-nt: rgb(39, 39, 39);
+--bg-6dp: rgb(42, 31, 35);
+      --bg-6dp-nt: rgb(44, 44, 44);
+--bg-8dp: rgb(45, 33, 37);
+      --bg-8dp-nt: rgb(46, 46, 46);
+--bg-12dp: rgb(49, 35, 40);
+      --bg-12dp-nt: rgb(51, 51, 51);
+--bg-16dp: rgb(51, 36, 41);
+      --bg-16dp-nt: rgb(53, 53, 53);
+--bg-24dp: rgb(54, 38, 43);
+      --bg-24dp-nt: rgb(55, 55, 55);
+	--float-ui-bg: var(--overlay-bgColor, var(--color-canvas-overlay, var(--bg-6bp)));
+
+	--sub-font: var(--fgColor-muted, var(--color-fg-muted, #888));
+	        --drawer-bg: var(--bg-6dp);
+
+	
+        --primary-color: rgb(150, 79, 76);
+        --bgColor-primary: rgb(150, 79, 76);
+        --primary-color-dk: var(--dk-surface);
+        --navbar-bg: var(--primary-color);
+        --semi-transparent-bg: rgba(240,240,240,.6);
+	--bgColor-thumbnail: #ccc;
+
+	
+	--fgColor-saira-link: rgb(255, 255, 255);
+	--link-color: rgb(255, 255, 255);
+	--link-color-dk: rgba(143, 244, 210, var(--dk-alpha-main));
+}
+
+[data-color-mode="dark"] {
+	--fgColor-saira-link: rgba(143, 244, 210, var(--dk-alpha-main));
+        --bgColor-primary: var(--dk-surface);
+	--bgColor-thumbnail: #aaa;
+}
+@media screen and not (prefers-color-scheme: dark) {
+    [data-color-mode=auto] {
+	--fgColor-saira-link: rgba(143, 244, 210, var(--dk-alpha-main));
+        --bgColor-primary: var(--dk-surface);
+	--bgColor-thumbnail: #aaa;
+    }
+}
+
+header { z-index: 5 }
+main { z-index: 0 }
+.o .coverart {
+	padding: 0 1.5rem;
+	background-size: contain;
+	background-repeat: no-repeat;
+}
+#pagetitle {
+    color: #f5f5f5;
+    text-shadow: 2px 2px #555;
+    background: linear-gradient(60deg, rgba(70,70,70,0.4), rgba(10,10,10,.6), rgba(50,50,50,0.1));
+    mix-blend-mode: luminosity;
+}
+.copyright {
+	margin: auto; text-align: center;
+	font-size: .8em;
+	color: #888;
+  font-family: 'Cinzel Decorative','Lato','Marcellus',"Hiragino Sans","BIZ UDPGothic",sans-serif;
+}
+.ja .idx {
+	font-weight: 700;
+	font-family: 'Futura Condensed Medium',"Hiragino Sans",YuGothic,sans-serif;
+	transform: scale(0.8, 1);
+	transform-origin: top left;
+	width: 125%;
+	display: inline-block;
+	letter-spacing: .03rem;
+}
+main.no-nav {
+	max-width: 1000px;
+	margin: auto;
+}
+
+.inscription { font-family: 'Cinzel Decorative',"Hiragino Sans","BIZ UDPGothic",sans-serif; font-weight: 700 }
+.humanist { font-family: 'Marcellus','Lato',"Hiragino Sans","BIZ UDPGothic",sans-serif; font-weight: 500, letter-spacing: .1em }
+
+a.box, a .box,
+.o header#genre,
+.o .pages-label a,
+.o .pages-tile a {
+	color: var(--fgColor-default, hsl(0, 0%, 29%));
+}
+@media print {
+  .o header { background: var(--bgColor-primary); }
+  .o .layered {
+	background-color: var(--bgColor-inset, white);
+	opacity: .95;
+  }
+  .o #content, article>h2, .o header#genre {
+	background-color: var(--bgColor-default, var(--color-canvas-default, white));
+  }
+  article>h2::before {
+    color: var(--bgColor-default, white);
+  }
+  .o .pages-label {
+	border-bottom: solid 1px #ccc;
+  }
+}
+
+@media screen {
+  body.o {
+	background-color: var(--bg-2dp);
+  }
+  .o .layered {
+	background-color: var(--bg-2dp);
+	opacity: .95;
+  }
+  .gray-on-dark, .o #content img { filter: grayscale(55%); }
+  .o #content, article>h2, .o header#genre {
+	background: var(--bg-4dp-nt);
+  }
+  article>h2::before {
+    color: var(--bg-4dp-nt);
+  }
+  .o .pages-label {
+	border-bottom: solid 1px #444;
+  }
+  .o .page-thumbnail img {
+	filter: grayscale(30%);
+  }
+}
+
+header#global-nav { background-color: var(--bgColor-primary); }
+@media screen {
+  [data-color-mode=dark] {
+        --navbar-bg: var(--bg-1dp);
+        --semi-transparent-bg: rgba(30,30,30,.6);
+        --button-color: #000;
+        --button-background: #ddeeff;
+  }
+}
+
+.o .toc { font-size: .9em; margin: 2.5em .5em }
+.o .toc li { padding-top: .6em }
+.o .toc li>ul { padding-left: .8em; font-size: .9em }
+article>h2, article>h3 {
+	color: var(--fgColor-emphasis);
+}
+article {
+	letter-spacing: .05rem;
+	line-height: 2.2em;
+	padding-top: 2.5rem;
+	text-underline-offset: 0.3em;
+	text-wrap: pretty;
+}
+article>* { margin-left: 2.5em; margin-right: 2.5em }
+article>pre { line-height: 1.5em; }
+article>div.reveal { margin-left: 0; margin-right: 0 }
+article>p { padding: .5rem }
+article>h2 { padding: .8rem 0;
+                margin-top: 1.2em;
+                margin-left: 0; margin-right: 0;
+		font-size: 22px;
+                letter-spacing: 2px }
+article>h2::before, article>h3::before {
+  content: "§";
+  display: inline-block;
+  margin-right: 14px;
+}
+article>h2::before {
+  background: var(--bgColor-primary, var(--fgColor-muted, gray));
+  opacity: .6;
+  padding: 3px 0;
+}
+article>h3::before {
+  color: var(--bgColor-primary, var(--fgColor-muted, gray));
+  border-right: solid 1px var(--bgColor-primary, var(--fgColor-muted, gray));
+  opacity: .6;
+  padding: 0 3px;
+}
+article>h3 { font-size: 18px; padding: 0; margin-top: 1.5em; margin-left: 0; }
+article #related { margin-top: 4.5em; margin-bottom: 1em }
+article ul li {
+	  list-style-type: disc;
+}
+article ul li:not(:last-child) {
+	  padding-bottom: .6rem;
+}
+article ul,
+article ol {
+	list-style-position: outside;
+	padding: 0.6em 1.5rem 0;
+	padding-left: 2rem;
+	text-align: justify;
+}
+article>ol {
+    border-right: dotted 1px var(--borderColor-default);
+}
+article>ul, article>ol {
+    margin-top: 1.7em;
+    margin-bottom: 1.7em;
+}
+article>ul:has(>li>ol),
+article>ul:has(>li>ul) {
+    border-top: dotted 1px var(--borderColor-default);
+}
+article>ul:has(>li>ol),
+article>ul:has(>li>ul) {
+    padding: 0;
+}
+article>ul:has(>li>ol)>li,
+article>ul:has(>li>ul)>li {
+    border-bottom: dotted 1px var(--borderColor-default);
+    display: block;
+    list-style: none;
+    padding: .8em .5em;
+}
+article code {
+    background: var(--bgColor-muted);
+    padding: .1em .2em;
+    margin: 0 .2em;
+}
+article a:not([class]), article a:hover {
+    text-decoration: underline;
+    color: var(--fgColor-link);
+    text-decoration-color: color-mix(in srgb, var(--fgColor-link) 50%, var(--fgColor-neutral));
+    text-decoration-thickness: 1px;
+}
+.serif h1, .serif h2, .serif h3, .serif h4, .serif h5 {
+	  font-family: 'Lora','Noto Serif JP','Hiragino Mincho ProN',"BIZ UDPMincho",serif;
+	font-weight: 700;
+}
+
+article>h2, header#genre {
+	position: sticky;
+	top: 0px;
+	white-space: nowrap;
+	overflow-x: auto;
+	overflow-y: hidden;
+	z-index: 10;
+}
+
+@media screen and (max-width:543px) {
+	body.o { font-size: 15px }
+	.o main.section { padding: 3rem .75rem }
+	.o #pagetitle h1 { font-size: 1.8em }
+	article>* { margin: .5em; }
+	article>h2 { font-size: 18px; padding: 1.3rem 0; }
+	article>h3 { font-size: 16px }
+	article>p {
+		padding: .5rem;
+		margin: 0;
+		letter-spacing: .09rem;
+	}
+	.o .coverart { padding: 0; }
+}
+
+@media screen and (max-width:767px) {
+        article>pre { margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0 }
+}
+
+.pages-label {
+	display: flex;
+	padding: 10px 0;
+}
+
+.pages-label .page-thumbnail {
+	width: 100px;
+	height: 100px;
+	margin-right: 15px;
+}
+
+.page-thumbnail {
+	width:100%;
+	height: 200px;
+	background-color: var(--bgColor-thumbnail, #ccc);
+	position: relative;
+}
+
+.page-thumbnail.circle::after {
+	content: "";
+	display: block;
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	bottom: 0;
+	background-image: radial-gradient(#000 10%, transparent 90%);
+	background-color: #fff;
+	background-position: 0 0;
+	background-size: 8px 8px;
+	mix-blend-mode: screen;
+}
+
+.page-thumbnail img {
+	object-fit: cover;
+	width: 100%;
+	height: 100%;
+}
+
+.page-thumbnail .page-title {
+	display: block;
+	position:absolute;
+	bottom: 0; left: 0; right: 0;
+	background-color: var(--semi-transparent-bg);
+	backdrop-filter: blur(3px);
+	overflow: hidden;
+}
+
+.page-title>.page-date {
+	text-align: right;
+	font-weight: 500;
+	font-style: italic;
+	font-size: .8em
+}
+
+@media screen and (min-width:500px) and (max-width:768px) {
+  .page-thumbnail { height: 220px; }
+}
