@@ -210,10 +210,17 @@ module LucaTerm
             record[position][@d_v][:amount] = new_amount
           end
         when 's', KEY_CTRL_S
-          if record[:id]
-            LucaBook::Journal.save record
-          else
-            LucaBook::Journal.create record
+          begin
+            if record[:id]
+              LucaBook::Journal.save record
+            else
+              LucaBook::Journal.create record
+            end
+          rescue RuntimeError => e
+            if e.message == 'BalanceUnmatch'
+              alert_dialog("Error\n  Debit/Credit balance not meet.")
+              next
+            end
           end
           break
         when 'q', 27
@@ -346,6 +353,25 @@ module LucaTerm
           @active = active_dup
           sub.close
           return nil
+        end
+      end
+    end
+
+    def alert_dialog(msg)
+      top = window.maxy >= 25 ? 5 : 2
+      sub = window.subwin(6, 35, (window.maxy-6)/2, (window.maxx - 35)/2)
+      sub.box(?|, ?-)
+      sub.setpos(2, 2)
+      sub << msg
+      sub.clrtoeol
+      sub.refresh
+
+      loop do
+        cmd = window.getch
+        case cmd
+        when ' ', 'q', KEY_CTRL_J
+          sub.close
+          return
         end
       end
     end

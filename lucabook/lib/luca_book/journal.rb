@@ -31,7 +31,8 @@ module LucaBook #:nodoc:
       # codes = (debit_code + credit_code).uniq
       codes = nil
 
-      create_record(nil, date, codes) { |f| f.write journal2csv(d) }
+      serialized = journal2csv(d)
+      create_record(nil, date, codes) { |f| f.write serialized }
     end
 
     # update journal with hash.
@@ -46,7 +47,8 @@ module LucaBook #:nodoc:
       raise 'invalid ID' if parts.length != 2
 
       codes = nil
-      open_records(@dirname, parts[0], parts[1], codes, 'w') { |f, _path| f.write journal2csv(d) }
+      serialized = journal2csv(d)
+      open_records(@dirname, parts[0], parts[1], codes, 'w') { |f, _path| f.write serialized }
     end
 
     # Convert journal object to TSV format.

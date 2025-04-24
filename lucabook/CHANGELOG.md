@@ -1,3 +1,7 @@
+## LucaBook 0.5.7
+
+* Avoid file open on BalanceUnmatch error.
+
 ## LucaBook 0.5.6
 
 * add `LucaBook::Util.previous_fy()`

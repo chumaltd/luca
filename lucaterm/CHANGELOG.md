@@ -1,3 +1,7 @@
+## LucaTerm 0.3.3
+
+* `luca book`: Now handle BalanceUnmatch error on save.
+
 ## LucaTerm 0.3.2
 
 * `luca book`: Add 'h'/'l' move as Prev/Next for monthly journals and code selection.
