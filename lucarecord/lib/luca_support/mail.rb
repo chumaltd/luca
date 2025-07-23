@@ -22,12 +22,16 @@ module LucaSupport
 
     def set_host
       {
-        authentication: :plain,
         address: mail_config("address"),
         port: mail_config("port"),
-        doomain: mail_config("domain"),
+        domain: mail_config("domain"),
         user_name: mail_config("user_name"),
-        password: mail_config("password")
+        password: mail_config("password"),
+        authentication: mail_config("authentication"),
+        enable_starttls: mail_config("enable_starttls"),
+        openssl_verify_mode: mail_config("openssl_verify_mode"),
+        ssl: mail_config("ssl"),
+        tls: mail_config("tls"),
       }
     end
 

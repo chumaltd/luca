@@ -1,3 +1,7 @@
+## LucaRecord 0.8.0
+
+* Expand SMTP options aligning with mail gem.
+
 ## LucaRecord 0.7.5
 
 * `LucaSupport::Code.parse_current() / take_current()` now accepts Date object.
