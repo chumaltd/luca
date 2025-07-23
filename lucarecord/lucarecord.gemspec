@@ -6,7 +6,7 @@ require 'luca_record/version'
 Gem::Specification.new do |spec|
   spec.name          = 'lucarecord'
   spec.version       = LucaRecord::VERSION
-  spec.license       = 'GPL'
+  spec.license       = 'GPL-3.0-or-later'
   spec.authors       = ['Chuma Takahiro']
   spec.email         = ['co.chuma@gmail.com']
 

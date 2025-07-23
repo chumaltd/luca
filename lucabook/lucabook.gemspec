@@ -6,7 +6,7 @@ require 'luca_book/version'
 Gem::Specification.new do |spec|
   spec.name          = 'lucabook'
   spec.version       = LucaBook::VERSION
-  spec.license       = 'GPL'
+  spec.license       = 'GPL-3.0-or-later'
   spec.authors       = ['Chuma Takahiro']
   spec.email         = ['co.chuma@gmail.com']
 

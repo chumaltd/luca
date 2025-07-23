@@ -5,7 +5,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 Gem::Specification.new do |spec|
   spec.name          = 'lucasuite'
   spec.version       = '0.5.0'
-  spec.license       = 'GPL'
+  spec.license       = 'GPL-3.0-or-later'
   spec.authors       = ['Chuma Takahiro']
   spec.email         = ['co.chuma@gmail.com']
 
