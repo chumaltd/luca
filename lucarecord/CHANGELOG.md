@@ -1,6 +1,7 @@
 ## LucaRecord master
 
 * Merge config in parent directory, when the parent is git repo root.
+* initial mTLS support for SMTP.
 
 ## LucaRecord 0.8.0
 
