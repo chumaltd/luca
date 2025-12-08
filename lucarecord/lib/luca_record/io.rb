@@ -345,21 +345,35 @@ module LucaRecord # :nodoc:
             end
           end
           begin
-            config.merge!(YAML.safe_load(
-                            file.read,
-                            permitted_classes: [Date]
-                          ))
+            part = YAML.safe_load(
+              file.read,
+              permitted_classes: [Date]
+            )
+            config.merge!(part) do |_k, v_self, v_new|
+              if v_self.is_a? Hash
+                v_self.merge(v_new)
+              else
+                v_new
+              end
+            end
           rescue Errno::ENOENT
             STDERR.puts "INFO: #{file} not found. Continue with default settings."
           end
           if ext_conf
             begin
-              config.merge!(YAML.safe_load(
-                              (Pathname(CONST.configdir) / ext_conf).read,
-                              permitted_classes: [Date]
-                            ))
-            rescue Errno::ENOENT
-              STDERR.puts "WARN: #{ext_conf} not found. Extended options are not effective."
+              part = YAML.safe_load(
+                (Pathname(CONST.configdir) / ext_conf).read,
+                permitted_classes: [Date]
+              )
+              config.merge!(part) do |_k, v_self, v_new|
+                if v_self.is_a? Hash
+                  v_self.merge(v_new)
+                else
+                  v_new
+                end
+              rescue Errno::ENOENT
+                STDERR.puts "WARN: #{ext_conf} not found. Extended options are not effective."
+              end
             end
           end
         end
