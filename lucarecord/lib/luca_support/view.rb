@@ -58,7 +58,7 @@ module LucaSupport
       select = if columns.empty?
                  ''
                else
-                 '| select --ignore-errors ' + columns.map { |col| col.gsub(/[^a-zA-Z0-9_-]/, '') }.join(' ')
+                 '| select --optional ' + columns.map { |col| col.gsub(/[^a-zA-Z0-9_-]/, '') }.join(' ')
                end
       render = case mode
                when :explore

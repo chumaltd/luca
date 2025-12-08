@@ -1,7 +1,8 @@
-## LucaRecord master
+## LucaRecord 0.8.1
 
 * Merge config in parent directory, when the parent is git repo root.
 * initial mTLS support for SMTP.
+* change deprecated nushell option `--ignore-errors` -> `--optional`.
 
 ## LucaRecord 0.8.0
 
