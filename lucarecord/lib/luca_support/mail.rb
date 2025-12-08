@@ -8,7 +8,7 @@ module LucaSupport
 
     def initialize(mail=nil, pjdir=nil)
       @pjdir = pjdir || Dir.pwd
-      @config = load_config( Pathname(@pjdir) + "config.yml" )
+      @config = load_config(@pjdir)
       @mail = mail
       set_message_default
       @host = set_host

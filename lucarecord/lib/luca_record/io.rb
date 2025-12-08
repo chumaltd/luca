@@ -297,35 +297,7 @@ module LucaRecord # :nodoc:
         config = {
           'decimal_separator' => '.',
           'thousands_separator' => ','
-        }
-        begin
-          if ! Pathname(CONST.configdir).join('.git').exist? \
-             && (parent = Pathname(CONST.configdir).parent).join('.git/objects').directory? \
-             && (parent_config = parent.join('config.yml')).file?
-            config.merge!(YAML.safe_load(
-                            parent_config.read,
-                            permitted_classes: [Date]
-                          ))
-          end
-        end
-        begin
-          config.merge!(YAML.safe_load(
-                          (Pathname(CONST.configdir) / 'config.yml').read,
-                          permitted_classes: [Date]
-                        ))
-        rescue Errno::ENOENT
-          STDERR.puts "INFO: config.yml not found. Continue with default settings."
-        end
-        if ext_conf
-          begin
-            config.merge!(YAML.safe_load(
-                            (Pathname(CONST.configdir) / ext_conf).read,
-                            permitted_classes: [Date]
-                          ))
-          rescue Errno::ENOENT
-            STDERR.puts "WARN: #{ext_conf} not found. Extended options are not effective."
-          end
-        end
+        }.merge!(load_config(CONST.configdir, ext_conf: ext_conf))
         config['decimal_num'] ||= config['country'] == 'jp' ? 0 : 2
         CONST.set_config(config)
       end
@@ -349,6 +321,48 @@ module LucaRecord # :nodoc:
           digest = update_digest(digest, f.read, path[1])
         end
         digest
+      end
+
+      def load_config(path = nil, ext_conf: nil)
+        dir, file = if (filepath = Pathname(path)).file?
+                      [filepath.dirname, filepath]
+                    elsif filepath.directory?
+                      [filepath, filepath / 'config.yml']
+                    else
+                      nil
+                    end
+        return {} if dir.nil?
+
+        {}.tap do |config|
+          begin
+            if ! dir.join('.git').exist? \
+               && (parent = dir.parent).join('.git/objects').directory? \
+               && (parent_config = parent.join('config.yml')).file?
+              config.merge!(YAML.safe_load(
+                              parent_config.read,
+                              permitted_classes: [Date]
+                            ))
+            end
+          end
+          begin
+            config.merge!(YAML.safe_load(
+                            file.read,
+                            permitted_classes: [Date]
+                          ))
+          rescue Errno::ENOENT
+            STDERR.puts "INFO: #{file} not found. Continue with default settings."
+          end
+          if ext_conf
+            begin
+              config.merge!(YAML.safe_load(
+                              (Pathname(CONST.configdir) / ext_conf).read,
+                              permitted_classes: [Date]
+                            ))
+            rescue Errno::ENOENT
+              STDERR.puts "WARN: #{ext_conf} not found. Extended options are not effective."
+            end
+          end
+        end
       end
 
       private
@@ -540,15 +554,6 @@ module LucaRecord # :nodoc:
           processed = parse_current(data)
           yield processed if v == processed.dig(key.to_s, label.to_s)
         end
-      end
-    end
-
-    def load_config(path = nil)
-      path = path.to_s
-      if File.exist?(path)
-        YAML.safe_load(File.read(path), permitted_classes: [Date])
-      else
-        {}
       end
     end
   end
