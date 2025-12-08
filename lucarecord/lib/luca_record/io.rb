@@ -299,19 +299,29 @@ module LucaRecord # :nodoc:
           'thousands_separator' => ','
         }
         begin
+          if ! Pathname(CONST.configdir).join('.git').exist? \
+             && (parent = Pathname(CONST.configdir).parent).join('.git/objects').directory? \
+             && (parent_config = parent.join('config.yml')).file?
+            config.merge!(YAML.safe_load(
+                            parent_config.read,
+                            permitted_classes: [Date]
+                          ))
+          end
+        end
+        begin
           config.merge!(YAML.safe_load(
-          File.read(Pathname(CONST.configdir) / 'config.yml'),
-            permitted_classes: [Date]
-          ))
+                          (Pathname(CONST.configdir) / 'config.yml').read,
+                          permitted_classes: [Date]
+                        ))
         rescue Errno::ENOENT
           STDERR.puts "INFO: config.yml not found. Continue with default settings."
         end
         if ext_conf
           begin
             config.merge!(YAML.safe_load(
-              File.read(Pathname(CONST.configdir) / ext_conf),
-              permitted_classes: [Date]
-            ))
+                            (Pathname(CONST.configdir) / ext_conf).read,
+                            permitted_classes: [Date]
+                          ))
           rescue Errno::ENOENT
             STDERR.puts "WARN: #{ext_conf} not found. Extended options are not effective."
           end

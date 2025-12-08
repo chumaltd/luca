@@ -1,3 +1,7 @@
+## LucaRecord master
+
+* Merge config in parent directory, when the parent is git repo root.
+
 ## LucaRecord 0.8.0
 
 * Expand SMTP options aligning with mail gem.
