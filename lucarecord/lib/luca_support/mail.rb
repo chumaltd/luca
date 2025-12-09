@@ -60,10 +60,17 @@ module LucaSupport
       return nil if ca_file.nil? && c_cert_path.nil? && c_key_path.nil?
 
       tls_ctx = OpenSSL::SSL::SSLContext.new
-      tls_ctx.cert = c_cert_path ?
-                       OpenSSL::X509::Certificate.new(File.read(c_cert_path)) : nil
       tls_ctx.key = c_key_path ?
                       OpenSSL::PKey::RSA.new(File.read(c_key_path)) : nil
+      certs = if c_cert_path
+                File.read(c_cert_path)
+                  .scan(/-----BEGIN CERTIFICATE-----(?:.|\n)*?-----END CERTIFICATE-----/)
+                  .map { |pem| OpenSSL::X509::Certificate.new(pem) }
+              else
+                nil
+              end
+      tls_ctx.cert = certs.shift if certs&.any?
+      tls_ctx.extra_chain_cert = certs if certs&.any?
       tls_ctx.ca_file = ca_file
       tls_ctx.verify_mode = OpenSSL::SSL::VERIFY_PEER if ca_file || @host[:openssl_verify_mode]
 

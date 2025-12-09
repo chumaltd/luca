@@ -1,3 +1,7 @@
+## LucaRecord 0.8.2
+
+* setup CA cert chain for mTLS.
+
 ## LucaRecord 0.8.1
 
 * Merge config in parent directory, when the parent is git repo root.
