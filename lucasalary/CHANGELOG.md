@@ -1,3 +1,7 @@
+## LucaSalary 0.6.2
+
+* use `load_config()` by LucaRecord v0.8.2
+
 ## LucaSalary 0.6.1
 
 * Reworked global constants w/LucaRecord v0.7
