@@ -214,7 +214,7 @@ module LucaSupport # :nodoc:
 
       latest = target
                  .reject { |a| a['defunct'] && Date.parse(a['defunct'].to_s) < date  }
-                 .filter { |a| a['effective'] && Date.parse(a['effective'].to_s) < date }
+                 .reject { |a| a['effective'] && Date.parse(a['effective'].to_s) > date }
                  .max { |a, b| Date.parse(a['effective'].to_s) <=> Date.parse(b['effective'].to_s) }
 
       latest&.dig('val') || latest

@@ -1,3 +1,7 @@
+## LucaRecord 0.8.3
+
+* Fix: over-filtering `parse_current()`
+
 ## LucaRecord 0.8.2
 
 * setup CA cert chain for mTLS.
