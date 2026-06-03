@@ -212,9 +212,14 @@ module LucaSupport # :nodoc:
       keys = target.map(&:keys).flatten
       return target if !keys.include?('effective') && !keys.include?('defunct')
 
-      latest = target
+      active = target
                  .reject { |a| a['defunct'] && Date.parse(a['defunct'].to_s) < date  }
                  .reject { |a| a['effective'] && Date.parse(a['effective'].to_s) > date }
+      return active.first&.dig('val') || active.first if active.length <= 1
+      raise "Cannot determine cuerrent: #{active}" if !keys.include?('effective')
+
+      latest = active
+                 .select { |a| a.has_key?('effective') }
                  .max { |a, b| Date.parse(a['effective'].to_s) <=> Date.parse(b['effective'].to_s) }
 
       latest&.dig('val') || latest

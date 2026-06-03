@@ -1,3 +1,7 @@
+## LucaRecord 0.8.4
+
+* expand `take_current` for several missing label cases
+
 ## LucaRecord 0.8.3
 
 * Fix: over-filtering `parse_current()`
