@@ -1,3 +1,7 @@
+## LucaDeal 0.5.9
+
+* Invoice file prefix is now customizable.
+
 ## LucaDeal 0.5.8
 
 * Customer has tax ID

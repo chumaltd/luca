@@ -12,3 +12,4 @@ mail:
   cc: 
 invoice:
   mail_subject: 
+  attachment_prefix: invoice-

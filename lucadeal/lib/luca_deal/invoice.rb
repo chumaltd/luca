@@ -483,7 +483,8 @@ module LucaDeal
 
     def attachment_name(dat, type)
       id = %r{/}.match(dat['id']) ? dat['id'].gsub('/', '') : dat['id'][0, 7]
-      "invoice-#{id}.#{type}"
+      prefix = LucaRecord::CONST.config.dig('invoice', 'attachment_prefix') || 'invoice-'
+      "#{prefix}#{id}.#{type}"
     end
 
     def duplicated_contract?(id)
